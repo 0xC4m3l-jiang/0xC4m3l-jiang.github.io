@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>llvm-学习(四) 实现FunctionInfo Pass | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="最终目的  Name.   姓名 Number of arguments (or * if variable).   参数数目 Number of direct call sites in the same LLVM module (i.e. locations where this function is explicitly called, ignoring function pointers">
+<meta property="og:type" content="article">
+<meta property="og:title" content="llvm-学习(四) 实现FunctionInfo Pass">
+<meta property="og:url" content="http://example.com/2020/07/15/llvm-%E5%AD%A6%E4%B9%A0(%E5%9B%9B)%20%E5%AE%9E%E7%8E%B0FunctionInfo-Pass/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="最终目的  Name.   姓名 Number of arguments (or * if variable).   参数数目 Number of direct call sites in the same LLVM module (i.e. locations where this function is explicitly called, ignoring function pointers">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/funcitonInfo_pass.1">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/ModulePass_Pass.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200715230008067.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200716101829280.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200715233628168.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200716000455126.png">
+<meta property="article:published_time" content="2020-07-15T12:39:32.000Z">
+<meta property="article:modified_time" content="2021-04-03T14:19:41.372Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="llvm学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/funcitonInfo_pass.1">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-llvm-学习(四) 实现FunctionInfo-Pass" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/07/15/llvm-%E5%AD%A6%E4%B9%A0(%E5%9B%9B)%20%E5%AE%9E%E7%8E%B0FunctionInfo-Pass/" class="article-date">
+  <time class="dt-published" datetime="2020-07-15T12:39:32.000Z" itemprop="datePublished">2020-07-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      llvm-学习(四) 实现FunctionInfo Pass
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="最终目的"><a href="#最终目的" class="headerlink" title="最终目的"></a>最终目的</h2><blockquote>
+<ol>
+<li>Name.   姓名</li>
+<li>Number of arguments (or * if variable).   参数数目</li>
+<li>Number of direct call sites in the same LLVM module (i.e. locations where this function is explicitly called, ignoring function pointers). </li>
+<li>Number of basic blocks.    基础块数量</li>
+<li>Number of instructions.    指令个数</li>
+</ol>
+</blockquote>
+<h3 id="实现效果-↓"><a href="#实现效果-↓" class="headerlink" title="实现效果 ↓"></a><strong>实现效果 ↓</strong></h3><p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/funcitonInfo_pass.1" alt="image-20200715220511823"></p>
+<h2 id="实现分析"><a href="#实现分析" class="headerlink" title="实现分析"></a>实现分析</h2><h3 id="基础代码。"><a href="#基础代码。" class="headerlink" title="基础代码。"></a>基础代码。</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;llvm/Pass.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;llvm/IR/Function.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;llvm/Support/raw_ostream.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;llvm/IR/Module.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> llvm;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FunctionInfo</span> :</span> <span class="keyword">public</span> ModulePass &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Output the function information to standard out.</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">printFunctionInfo</span><span class="params">(Module&amp; M)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">outs</span>() &lt;&lt; <span class="string">&quot;Module &quot;</span> &lt;&lt; M.<span class="built_in">getModuleIdentifier</span>().<span class="built_in">c_str</span>() &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">    <span class="built_in">outs</span>() &lt;&lt; <span class="string">&quot;Name,\tArgs,\tCalls,\tBlocks,\tInsns\n&quot;</span>;</span><br><span class="line">    <span class="comment">// <span class="doctag">TODO:</span> Print out information about each function in this format.</span></span><br><span class="line">    <span class="keyword">bool</span> is_var_arg = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">size_t</span> arg_count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">size_t</span> callsite_count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">size_t</span> block_count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">size_t</span> instruction_count = <span class="number">0</span>;</span><br><span class="line">    <span class="built_in">outs</span>() &lt;&lt; <span class="string">&quot;function_name&quot;</span> &lt;&lt; <span class="string">&quot;,\t&quot;</span>;</span><br><span class="line">    <span class="keyword">if</span> (is_var_arg) &#123;</span><br><span class="line">      <span class="built_in">outs</span>() &lt;&lt; <span class="string">&quot;*,\t&quot;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="built_in">outs</span>() &lt;&lt; arg_count &lt;&lt; <span class="string">&quot;,\t&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">outs</span>() &lt;&lt; callsite_count &lt;&lt; <span class="string">&quot;,\t&quot;</span> &lt;&lt; block_count &lt;&lt; <span class="string">&quot;,\t&quot;</span></span><br><span class="line">        &lt;&lt; instruction_count &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">char</span> ID;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">FunctionInfo</span>() : <span class="built_in">ModulePass</span>(ID) &#123; &#125;</span><br><span class="line"></span><br><span class="line">  ~<span class="built_in">FunctionInfo</span>() &#123; &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// We don&#x27;t modify the program, so we preserve all analyses</span></span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAnalysisUsage</span><span class="params">(AnalysisUsage &amp;AU)</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">    AU.<span class="built_in">setPreservesAll</span>();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">runOnFunction</span><span class="params">(Function &amp;F)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// <span class="doctag">TODO:</span> implement this.</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">runOnModule</span><span class="params">(Module&amp; M)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;15745 Function Information Pass\n&quot;</span>; <span class="comment">// <span class="doctag">TODO:</span> remove this.</span></span><br><span class="line">    <span class="keyword">for</span> (Module::iterator MI = M.<span class="built_in">begin</span>(), ME = M.<span class="built_in">end</span>(); MI != ME; ++MI) &#123;</span><br><span class="line">      <span class="built_in">runOnFunction</span>(*MI);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// <span class="doctag">TODO:</span> uncomment this.</span></span><br><span class="line">    <span class="comment">// printFunctionInfo(M);</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// LLVM uses the address of this static member to identify the pass, so the</span></span><br><span class="line"><span class="comment">// initialization value is unimportant.</span></span><br><span class="line"><span class="keyword">char</span> FunctionInfo::ID = <span class="number">0</span>;</span><br><span class="line"><span class="function">RegisterPass&lt;FunctionInfo&gt; <span class="title">X</span><span class="params">(<span class="string">&quot;function-info&quot;</span>, <span class="string">&quot;15745: Function Information&quot;</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们继承的是 <code>ModulePass</code> 类。用于执行任何非结构化的过程间优化</p>
+<p>经常用到的类有 都是 <code>pass 类</code> 的派生类</p>
+<blockquote>
+<ul>
+<li><strong><code>BasicBlockPass</code> 类。</strong>用于实现本地优化，优化通常每次针对一个基本块或指令运行</li>
+<li><strong><code>FunctionPass</code> 类。</strong>用于全局优化，每次执行一个功能</li>
+<li><strong><code>ModulePass</code> 类。</strong>用于执行任何非结构化的过程间优化</li>
+</ul>
+</blockquote>
+<p>我们可以在 pass.h 头文件中查看类的定义  </p>
+<p>里面定义了 <code>virtual bool runOnModule(Module &amp;M) = 0;</code> 接口。</p>
+<p>为了实现功能我们要 复写这个 接口</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/ModulePass_Pass.png" alt="image-20200715211701990" style="zoom:50%;" />
+
+<p>我们利用 <code>runOnModule(Module &amp;M)</code> 能够得到我们 load 的文件的代码，通过stdin传入</p>
+<h3 id="Makefile-文件"><a href="#Makefile-文件" class="headerlink" title="Makefile 文件"></a><code>Makefile</code> 文件</h3><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">.PHONY : all clean run_ol build_ll</span><br><span class="line"><span class="comment"># so 地址</span></span><br><span class="line">SoPath = /Users/0xc3m4l/CLionProjects/llvmlearn/MyPass/build/src/</span><br><span class="line"><span class="comment"># so 名字</span></span><br><span class="line">SoName = libFunctionInfo.so</span><br><span class="line"></span><br><span class="line">OPTION_LO= -local-opts</span><br><span class="line"><span class="comment"># 注册名字</span></span><br><span class="line">OPTION_FI= -function-info</span><br><span class="line"></span><br><span class="line">all : build_ll run_ol</span><br><span class="line"></span><br><span class="line">run_ol : build_ll</span><br><span class="line">	opt -load $&#123;SoPath&#125;$&#123;SoName&#125; $&#123;OPTION_FI&#125; &lt; FunctionInfo_loop.ll &gt; /dev/null</span><br><span class="line"></span><br><span class="line">build_ll :</span><br><span class="line">	clang -emit-llvm -S loop.c -o FunctionInfo_loop.ll</span><br><span class="line"></span><br><span class="line">clean :</span><br><span class="line">	rm *.ll</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>测试的代码 <code>loop.c </code> </p>
+<blockquote>
+<p> 可以不用定义头文件 和main 函数</p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> g;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">g_incr</span> <span class="params">(<span class="keyword">int</span> c)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  g += c;</span><br><span class="line">  <span class="keyword">return</span> g;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">loop</span> <span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b, <span class="keyword">int</span> c)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="keyword">int</span> ret = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (i = a; i &lt; b; i++) &#123;</span><br><span class="line">   <span class="built_in">g_incr</span> (c);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> ret + g;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">aaa</span><span class="params">(<span class="keyword">int</span> n)</span></span>&#123;</span><br><span class="line">    <span class="built_in">g_incr</span> (n);</span><br><span class="line">    <span class="keyword">int</span> b;</span><br><span class="line">    <span class="keyword">return</span> n+b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>说明 用的<code> runOnModule</code> 函数得到的 参数值的类型是整个 ll文件的输入。 <code>stdin</code> 类型。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">errs</span>() &lt;&lt; M.<span class="built_in">getName</span>() &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200715230008067.png" alt="image-20200715230008067" style="zoom:50%;" />
+
+<p>在给的 基础代码 依次 去除M中的 类型，传入 <code>runOnFunction</code> 函数。我们就可以通过这个 <code>runOnFunction</code> 函数实现答应我们的 每个方法的基础信息。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">runOnModule</span><span class="params">(Module&amp; M)</span> </span>&#123;</span><br><span class="line">   <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;15745 Function Information Pass\n&quot;</span>; <span class="comment">// <span class="doctag">TODO:</span> remove this.</span></span><br><span class="line">   <span class="keyword">for</span> (Module::iterator MI = M.<span class="built_in">begin</span>(), ME = M.<span class="built_in">end</span>(); MI != ME; ++MI) &#123;</span><br><span class="line">     <span class="built_in">runOnFunction</span>(*MI);</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="comment">// <span class="doctag">TODO:</span> uncomment this.</span></span><br><span class="line">   <span class="comment">// printFunctionInfo(M);</span></span><br><span class="line">   <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="实现方法1"><a href="#实现方法1" class="headerlink" title="实现方法1"></a>实现方法1</h3><h4 id="编写-runOnFunction-的代码"><a href="#编写-runOnFunction-的代码" class="headerlink" title="编写 runOnFunction 的代码"></a>编写 <code>runOnFunction</code> 的代码</h4><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">runOnFunction</span><span class="params">(Function &amp;F)</span> </span>&#123;</span><br><span class="line">            <span class="comment">// <span class="doctag">TODO:</span> implement this.</span></span><br><span class="line">            <span class="comment">// 得到方法的名字。</span></span><br><span class="line">            <span class="built_in">errs</span>() &lt;&lt; F.<span class="built_in">getName</span>() &lt;&lt; <span class="string">&quot;     &quot;</span>;</span><br><span class="line">            <span class="comment">// 得到方法参数的个数。</span></span><br><span class="line">            <span class="built_in">errs</span>() &lt;&lt; F.<span class="built_in">arg_size</span>() &lt;&lt; <span class="string">&quot;    &quot;</span>;</span><br><span class="line">            <span class="comment">// 得到被调用的次数。</span></span><br><span class="line">            <span class="built_in">errs</span>() &lt;&lt; F.<span class="built_in">getNumUses</span>() &lt;&lt; <span class="string">&quot;   &quot;</span>;</span><br><span class="line">            <span class="comment">// 得到基础块数。</span></span><br><span class="line">            <span class="built_in">errs</span>() &lt;&lt; F.<span class="built_in">getBasicBlockList</span>().<span class="built_in">size</span>() &lt;&lt; <span class="string">&quot;    &quot;</span>;</span><br><span class="line">            <span class="comment">// 得到指令个数。（IR 代码行）</span></span><br><span class="line">            <span class="keyword">int</span> InstrSize = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> &amp;BB : F)&#123;</span><br><span class="line">                InstrSize += BB.<span class="built_in">getInstList</span>().<span class="built_in">size</span>();</span><br><span class="line">                <span class="comment">// 中间有多少行 IR 代码</span></span><br><span class="line"><span class="comment">//                for (BasicBlock::iterator i = BB.begin(), e = BB.end(); i != e; ++i)  //获取每个basic block中的instruction</span></span><br><span class="line"><span class="comment">//                &#123;</span></span><br><span class="line"><span class="comment">//                    errs() &lt;&lt; *i &lt;&lt; &quot; |||| &quot;;</span></span><br><span class="line"><span class="comment">//                &#125;</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">errs</span>()  &lt;&lt; InstrSize &lt;&lt; <span class="string">&quot;    &quot;</span> &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里 <code>Module</code> 存储 <code>Function</code> , <code>Function</code> 存储 <code>BasicBlock</code> , <code>BasicBlock</code> 存储的 <code>instruction</code> 结构</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200716101829280.png" alt="image-20200716101829280" style="zoom:50%;" />
+
+<p> 这些类定义 在下面的头文件中</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">llvm/IR/Function.h</span><br><span class="line">llvm/IR/Module.h</span><br></pre></td></tr></table></figure>
+
+<p>里面的 BasicBlock 可以通过查看 .ll 文件知道多少行代码。 </p>
+<h4 id="实现效果"><a href="#实现效果" class="headerlink" title="实现效果"></a>实现效果</h4><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200715233628168.png" alt="image-20200715233628168" style="zoom:50%;" />
+
+
+
+<h3 id="实现方法2"><a href="#实现方法2" class="headerlink" title="实现方法2"></a>实现方法2</h3><h4 id="利用-printFunctionInfo-函数"><a href="#利用-printFunctionInfo-函数" class="headerlink" title="利用 printFunctionInfo 函数"></a>利用 <code>printFunctionInfo</code> 函数</h4><p>稍微进行了修改。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Output the function information to standard out.</span></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">printFunctionInfo</span><span class="params">(Module&amp; M)</span> </span>&#123;</span><br><span class="line">            <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;Module &quot;</span> &lt;&lt; M.<span class="built_in">getModuleIdentifier</span>().<span class="built_in">c_str</span>() &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">            <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;Name,\tArgs,\tCalls,\tBlocks,\tInsns\n&quot;</span>;</span><br><span class="line">            <span class="comment">// <span class="doctag">TODO:</span> Print out information about each function in this format.</span></span><br><span class="line">            <span class="keyword">size_t</span> instruction_count = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">int</span> name_count = M.<span class="built_in">size</span>();</span><br><span class="line">            Module::iterator MI = M.<span class="built_in">begin</span>();</span><br><span class="line">            <span class="keyword">while</span> (name_count--) &#123;</span><br><span class="line">                <span class="built_in">errs</span>() &lt;&lt; MI-&gt;<span class="built_in">getName</span>() &lt;&lt;<span class="string">&quot;,\t&quot;</span>;</span><br><span class="line">                <span class="built_in">errs</span>() &lt;&lt; MI-&gt;<span class="built_in">arg_size</span>() &lt;&lt; <span class="string">&quot;,\t&quot;</span> &lt;&lt; MI-&gt;<span class="built_in">getNumUses</span>() &lt;&lt; <span class="string">&quot;,\t&quot;</span> &lt;&lt;  MI-&gt;<span class="built_in">getBasicBlockList</span>().<span class="built_in">size</span>()&lt;&lt;<span class="string">&quot;\t&quot;</span>;</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">auto</span> &amp;BB : *MI)&#123;</span><br><span class="line">                    instruction_count += BB.<span class="built_in">getInstList</span>().<span class="built_in">size</span>();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="built_in">errs</span>() &lt;&lt; instruction_count &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">                instruction_count = <span class="number">0</span>;</span><br><span class="line">                MI++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>其实和 调用 <code>runOnFunction</code> 基本一样的方法。  <code>runOnFunction</code> 我们可以直接获得 Function 指正。</p>
+<h4 id="实现效果-1"><a href="#实现效果-1" class="headerlink" title="实现效果"></a>实现效果</h4><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200716000455126.png" alt="image-20200716000455126" style="zoom:50%;" />
+
+
+
+<h3 id="最终的-FunctionInfo-Pass-的代码。"><a href="#最终的-FunctionInfo-Pass-的代码。" class="headerlink" title="最终的 FunctionInfo Pass 的代码。"></a>最终的 FunctionInfo Pass 的代码。</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Created by 骆驼 on 2020/7/14.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;llvm/Pass.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;llvm/IR/Function.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;llvm/Support/raw_ostream.h&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;llvm/IR/Module.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> llvm;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">FunctionInfo</span> :</span> <span class="keyword">public</span> ModulePass &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Output the function information to standard out.</span></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">printFunctionInfo</span><span class="params">(Module&amp; M)</span> </span>&#123;</span><br><span class="line">            <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;Module &quot;</span> &lt;&lt; M.<span class="built_in">getModuleIdentifier</span>().<span class="built_in">c_str</span>() &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">            <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;Name,\tArgs,\tCalls,\tBlocks,\tInsns\n&quot;</span>;</span><br><span class="line">            <span class="comment">// <span class="doctag">TODO:</span> Print out information about each function in this format.</span></span><br><span class="line">            <span class="keyword">size_t</span> instruction_count = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">int</span> name_count = M.<span class="built_in">size</span>();</span><br><span class="line">            Module::iterator MI = M.<span class="built_in">begin</span>();</span><br><span class="line">            <span class="keyword">while</span> (name_count--) &#123;</span><br><span class="line">                <span class="built_in">errs</span>() &lt;&lt; MI-&gt;<span class="built_in">getName</span>() &lt;&lt;<span class="string">&quot;,\t&quot;</span>;</span><br><span class="line">                <span class="built_in">errs</span>() &lt;&lt; MI-&gt;<span class="built_in">arg_size</span>() &lt;&lt; <span class="string">&quot;,\t&quot;</span> &lt;&lt; MI-&gt;<span class="built_in">getNumUses</span>() &lt;&lt; <span class="string">&quot;,\t&quot;</span> &lt;&lt;  MI-&gt;<span class="built_in">getBasicBlockList</span>().<span class="built_in">size</span>()&lt;&lt;<span class="string">&quot;\t&quot;</span>;</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">auto</span> &amp;BB : *MI)&#123;</span><br><span class="line">                    instruction_count += BB.<span class="built_in">getInstList</span>().<span class="built_in">size</span>();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="built_in">errs</span>() &lt;&lt; instruction_count &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">                instruction_count = <span class="number">0</span>;</span><br><span class="line">                MI++;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">        <span class="keyword">static</span> <span class="keyword">char</span> ID;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">FunctionInfo</span>() : <span class="built_in">ModulePass</span>(ID) &#123; &#125;</span><br><span class="line"></span><br><span class="line">        ~<span class="built_in">FunctionInfo</span>() &#123; &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// We don&#x27;t modify the program, so we preserve all analyses</span></span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">getAnalysisUsage</span><span class="params">(AnalysisUsage &amp;AU)</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">            AU.<span class="built_in">setPreservesAll</span>();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">runOnFunction</span><span class="params">(Function &amp;F)</span> </span>&#123;</span><br><span class="line">            <span class="comment">// <span class="doctag">TODO:</span> implement this.</span></span><br><span class="line">            <span class="comment">// 得到方法的名字。</span></span><br><span class="line">            <span class="built_in">errs</span>() &lt;&lt; F.<span class="built_in">getName</span>() &lt;&lt; <span class="string">&quot;     &quot;</span>;</span><br><span class="line">            <span class="comment">// 得到方法参数的个数。</span></span><br><span class="line">            <span class="built_in">errs</span>() &lt;&lt; F.<span class="built_in">arg_size</span>() &lt;&lt; <span class="string">&quot;    &quot;</span>;</span><br><span class="line">            <span class="comment">// 得到被调用的次数。</span></span><br><span class="line">            <span class="built_in">errs</span>() &lt;&lt; F.<span class="built_in">getNumUses</span>() &lt;&lt; <span class="string">&quot;   &quot;</span>;</span><br><span class="line">            <span class="comment">// 得到基础块数。</span></span><br><span class="line">            <span class="built_in">errs</span>() &lt;&lt; F.<span class="built_in">getBasicBlockList</span>().<span class="built_in">size</span>() &lt;&lt; <span class="string">&quot;    &quot;</span>;</span><br><span class="line">            <span class="comment">// 得到指令个数。（IR 代码行）</span></span><br><span class="line">            <span class="keyword">int</span> InstrSize = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">auto</span> &amp;BB : F)&#123;</span><br><span class="line">                InstrSize += BB.<span class="built_in">getInstList</span>().<span class="built_in">size</span>();</span><br><span class="line">                <span class="comment">// 中间有多少行 IR 代码</span></span><br><span class="line"><span class="comment">//                for (BasicBlock::iterator i = BB.begin(), e = BB.end(); i != e; ++i)  //获取每个basic block中的instruction</span></span><br><span class="line"><span class="comment">//                &#123;</span></span><br><span class="line"><span class="comment">//                    errs() &lt;&lt; *i &lt;&lt; &quot; |||| &quot;;</span></span><br><span class="line"><span class="comment">//                &#125;</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">errs</span>()  &lt;&lt; InstrSize &lt;&lt; <span class="string">&quot;    &quot;</span> &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">runOnModule</span><span class="params">(Module&amp; M)</span> </span>&#123;</span><br><span class="line">            <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;Function Information Pass\n&quot;</span>; <span class="comment">// <span class="doctag">TODO:</span> remove this.</span></span><br><span class="line"><span class="comment">//            for (Module::iterator MI = M.begin(), ME = M.end(); MI != ME; ++MI) &#123;</span></span><br><span class="line"><span class="comment">//                runOnFunction(*MI);</span></span><br><span class="line"><span class="comment">//            &#125;</span></span><br><span class="line">            <span class="comment">// <span class="doctag">TODO:</span> uncomment this.</span></span><br><span class="line">            <span class="built_in">printFunctionInfo</span>(M);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// LLVM uses the address of this static member to identify the pass, so the</span></span><br><span class="line"><span class="comment">// initialization value is unimportant.</span></span><br><span class="line">    <span class="keyword">char</span> FunctionInfo::ID = <span class="number">0</span>;</span><br><span class="line">    <span class="function">RegisterPass&lt;FunctionInfo&gt; <span class="title">X</span><span class="params">(<span class="string">&quot;function-info&quot;</span>, <span class="string">&quot;15745: Function Information&quot;</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>参考</p>
+<p><a target="_blank" rel="noopener" href="https://hujun1413.github.io/2017/01/15/OSLab/LLVM/6.LLVM%E7%9A%84%E7%BC%96%E7%A8%8B%E6%8A%80%E5%B7%A7/">https://hujun1413.github.io/2017/01/15/OSLab/LLVM/6.LLVM%E7%9A%84%E7%BC%96%E7%A8%8B%E6%8A%80%E5%B7%A7/</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/eternalsakura/sakura_llvm_opt">https://github.com/eternalsakura/sakura_llvm_opt</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/07/15/llvm-%E5%AD%A6%E4%B9%A0(%E5%9B%9B)%20%E5%AE%9E%E7%8E%B0FunctionInfo-Pass/" data-id="ckn2iqppm0009xrn90n2jcu12" data-title="llvm-学习(四) 实现FunctionInfo Pass" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/llvm%E5%AD%A6%E4%B9%A0/" rel="tag">llvm学习</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/07/16/llvm-%E5%AD%A6%E4%B9%A0(%E4%BA%94)%20%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          llvm-学习（五）代码优化
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/07/13/llvm-%E5%AD%A6%E4%B9%A0(%E4%B8%89)%20%E8%AE%A4%E8%AF%86pass%20%E5%8A%A0%E8%BD%BDpass/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">llvm-学习(三) 认识pass 加载pass</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/80/" rel="tag">80</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" rel="tag">CSAPP学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int/" rel="tag">int</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm%E5%AD%A6%E4%B9%A0/" rel="tag">llvm学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80/" rel="tag">基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" rel="tag">基础技术</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%89%E5%8D%93/" rel="tag">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" rel="tag">工具安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" rel="tag">漏洞模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" rel="tag">问题汇总</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" rel="tag">项目学习</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/80/" style="font-size: 10px;">80</a> <a href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">CSAPP学习</a> <a href="/tags/WEB/" style="font-size: 17.5px;">WEB</a> <a href="/tags/int/" style="font-size: 10px;">int</a> <a href="/tags/llvm%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">llvm学习</a> <a href="/tags/%E5%9F%BA%E7%A1%80/" style="font-size: 17.5px;">基础</a> <a href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" style="font-size: 10px;">基础技术</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" style="font-size: 20px;">学习笔记</a> <a href="/tags/%E5%AE%89%E5%8D%93/" style="font-size: 10px;">安卓</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" style="font-size: 12.5px;">工具安装</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">操作系统</a> <a href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">漏洞模式</a> <a href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" style="font-size: 10px;">问题汇总</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">项目学习</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/29/codeql-xue-xi-bi-ji/">codeql 学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/10/macos-dui-zhi-shi-xue-xi-bi-ji/">macOS 堆知识学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/09/afl%E4%BD%BF%E7%94%A8%E5%AD%A6%E4%B9%A0/">AFL 使用学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/01/fastjson-xue-xi/">fastjson 学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/26/java-classloader%E8%AE%A4%E8%AF%86/">java classloader 认识</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

@@ -4,15 +4,23 @@
   <meta charset="utf-8">
   
   
-  <title>Archives | Hexo</title>
+  <title>Makefile 学习 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://example.com/archives/index.html">
+  <meta name="description" content="Makefile 学习介绍 Makefile.  Make   Make 指令需要一个 Makefile 通过 Makefile 来完成并自动维护编译工作 Makefile文件描述了整个工程的编译、链接等规则。  Makefile 为了让编译更方便。 makefile 格式12target ... : prerequisites ...command  target : 目标（相当于一个标示） p">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Makefile 学习">
+<meta property="og:url" content="http://example.com/2020/07/10/Makefile-%E5%AD%A6%E4%B9%A0/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Makefile 学习介绍 Makefile.  Make   Make 指令需要一个 Makefile 通过 Makefile 来完成并自动维护编译工作 Makefile文件描述了整个工程的编译、链接等规则。  Makefile 为了让编译更方便。 makefile 格式12target ... : prerequisites ...command  target : 目标（相当于一个标示） p">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200711100841926.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200711100905933.png">
+<meta property="article:published_time" content="2020-07-10T14:10:59.000Z">
+<meta property="article:modified_time" content="2021-04-03T14:19:11.394Z">
 <meta property="article:author" content="John Doe">
+<meta property="article:tag" content="学习笔记">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200711100841926.png">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -69,216 +77,93 @@
 </header>
 
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2021" class="archive-year">2021</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/29/codeql-xue-xi-bi-ji/" class="archive-article-date">
-  <time class="dt-published" datetime="2021-03-29T06:12:36.000Z" itemprop="datePublished">Mar 29</time>
+        <section id="main"><article id="post-Makefile-学习" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/07/10/Makefile-%E5%AD%A6%E4%B9%A0/" class="article-date">
+  <time class="dt-published" datetime="2020-07-10T14:10:59.000Z" itemprop="datePublished">2020-07-10</time>
 </a>
-      
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2021/03/29/codeql-xue-xi-bi-ji/">codeql 学习笔记</a>
+    <h1 class="p-name article-title" itemprop="headline name">
+      Makefile 学习
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
+      </header>
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/10/macos-dui-zhi-shi-xue-xi-bi-ji/" class="archive-article-date">
-  <time class="dt-published" datetime="2021-03-10T07:01:22.000Z" itemprop="datePublished">Mar 10</time>
-</a>
+    <div class="e-content article-entry" itemprop="articleBody">
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2021/03/10/macos-dui-zhi-shi-xue-xi-bi-ji/">macOS 堆知识学习笔记</a>
-    </h1>
-  
+        <h1 id="Makefile-学习"><a href="#Makefile-学习" class="headerlink" title="Makefile 学习"></a>Makefile 学习</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><ol>
+<li>Makefile. </li>
+<li>Make</li>
+</ol>
+<blockquote>
+<p>Make 指令需要一个 Makefile</p>
+<p>通过 Makefile 来完成并自动维护编译工作</p>
+<p><code>Makefile</code>文件描述了整个工程的编译、链接等规则。</p>
+</blockquote>
+<p>Makefile 为了让编译更方便。</p>
+<h3 id="makefile-格式"><a href="#makefile-格式" class="headerlink" title="makefile 格式"></a>makefile 格式</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">target ... : prerequisites ...</span><br><span class="line"><span class="built_in">command</span></span><br></pre></td></tr></table></figure>
 
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/09/afl%E4%BD%BF%E7%94%A8%E5%AD%A6%E4%B9%A0/" class="archive-article-date">
-  <time class="dt-published" datetime="2021-03-09T06:12:36.000Z" itemprop="datePublished">Mar 9</time>
-</a>
+<p>target : 目标（相当于一个标示）</p>
+<p>prerequisites: target 需要的目标文件（目标）。</p>
+<p>command：make指令后 需要执行的指令。</p>
+<p>对于没有 目标文件的target (a)我们需要定义这个target (a).  <code>.PHONY:a</code> 表明b是一个为目标</p>
+<p>例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">main.o:main.c </span><br><span class="line">    gcc -Wall -g -c main.c -o main.o</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200711100841926.png" alt="image-20200711100841926"></p>
+<p>运行 make 指令执行了 command指令。</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200711100905933.png" alt="image-20200711100905933"></p>
+<h2 id="规则举例"><a href="#规则举例" class="headerlink" title="规则举例"></a>规则举例</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">foo.o: foo.c defs.h       # foo模块</span></span><br><span class="line">    cc -c -g foo.c</span><br></pre></td></tr></table></figure>
+
+<p>看到这个例子，各位应该不是很陌生了，前面也已说过， <code>foo.o</code> 是我们的目标， <code>foo.c</code> 和 <code>defs.h</code> 是目标所依赖的源文件，而只有一个命令 <code>cc -c -g foo.c</code> （以Tab键开头）。这个规则告诉我们两件事：</p>
+<ol>
+<li>文件的依赖关系， <code>foo.o</code> 依赖于 <code>foo.c</code> 和 <code>defs.h</code> 的文件，如果 <code>foo.c</code> 和 <code>defs.h</code> 的文件日期要比 <code>foo.o</code> 文件日期要新，或是 <code>foo.o</code> 不存在，那么依赖关系发生。</li>
+<li>生成或更新 <code>foo.o</code> 文件，就是那个cc命令。它说明了如何生成 <code>foo.o</code> 这个文件。（当然，foo.c文件include了defs.h文件）</li>
+</ol>
+
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2021/03/09/afl%E4%BD%BF%E7%94%A8%E5%AD%A6%E4%B9%A0/">AFL 使用学习</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/01/fastjson-xue-xi/" class="archive-article-date">
-  <time class="dt-published" datetime="2021-03-01T07:15:43.000Z" itemprop="datePublished">Mar 1</time>
-</a>
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/07/10/Makefile-%E5%AD%A6%E4%B9%A0/" data-id="ckn2iqppa0000xrn94qa2bd7k" data-title="Makefile 学习" class="article-share-link">Share</a>
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2021/03/01/fastjson-xue-xi/">fastjson 学习</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/02/26/java-classloader%E8%AE%A4%E8%AF%86/" class="archive-article-date">
-  <time class="dt-published" datetime="2021-02-26T10:36:34.000Z" itemprop="datePublished">Feb 26</time>
-</a>
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2021/02/26/java-classloader%E8%AE%A4%E8%AF%86/">java classloader 认识</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/02/25/web-%E5%88%B7%E9%A2%98-%E4%B8%83/" class="archive-article-date">
-  <time class="dt-published" datetime="2021-02-25T05:54:46.000Z" itemprop="datePublished">Feb 25</time>
-</a>
       
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2021/02/25/web-%E5%88%B7%E9%A2%98-%E4%B8%83/">web 刷题(七)</a>
-    </h1>
-  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li></ul>
 
-    </header>
+    </footer>
   </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/07/11/llvm-%E5%AD%A6%E4%B9%A0(%E4%B8%80)%20%E4%BB%8B%E7%BB%8D+%E5%AE%89%E8%A3%85llvm/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          llvm 学习(一) 介绍+安装llvm
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/07/10/cool-compiler%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">cool compiler学习笔记</div>
+    </a>
+  
+</nav>
+
+  
 </article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/02/25/zi-wo-jie-shao/" class="archive-article-date">
-  <time class="dt-published" datetime="2021-02-25T05:47:45.000Z" itemprop="datePublished">Feb 25</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2021/02/25/zi-wo-jie-shao/">自我介绍</a>
-    </h1>
-  
 
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/02/11/springboot-vue%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" class="archive-article-date">
-  <time class="dt-published" datetime="2021-02-11T03:31:14.000Z" itemprop="datePublished">Feb 11</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2021/02/11/springboot-vue%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/">springboot+vue项目学习</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/02/10/redis-%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/" class="archive-article-date">
-  <time class="dt-published" datetime="2021-02-10T12:04:21.000Z" itemprop="datePublished">Feb 10</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2021/02/10/redis-%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/">redis 基础学习</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/01/22/web-%E5%88%B7%E9%A2%98-%E5%85%AD/" class="archive-article-date">
-  <time class="dt-published" datetime="2021-01-22T14:17:42.000Z" itemprop="datePublished">Jan 22</time>
-</a>
-      
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2021/01/22/web-%E5%88%B7%E9%A2%98-%E5%85%AD/">web 刷题(六)</a>
-    </h1>
-  
-
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-
-  <nav id="page-nav">
-    
-    <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="page-number" href="/archives/page/3/">3</a><a class="page-number" href="/archives/page/4/">4</a><a class="extend next" rel="next" href="/archives/page/2/">Next &raquo;</a>
-  </nav>
 
 </section>
         

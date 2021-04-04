@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>整数溢出总结 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="数据储存概述类型大小   类型 长度(按位算) 最小值 最大值s    signed char 8 -128 127   unsigned char 8 0 255   short 16 -32,768 32,767   unsigned short 16 0 65,535   int 32 -2,147,483,648 2,147,483,647   unsigned int 32 0 4,29">
+<meta property="og:type" content="article">
+<meta property="og:title" content="整数溢出总结">
+<meta property="og:url" content="http://example.com/2020/08/17/%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="数据储存概述类型大小   类型 长度(按位算) 最小值 最大值s    signed char 8 -128 127   unsigned char 8 0 255   short 16 -32,768 32,767   unsigned short 16 0 65,535   int 32 -2,147,483,648 2,147,483,647   unsigned int 32 0 4,29">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200817122509036.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200817122603798.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200817130338830.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/t0191cd4016d690ae95.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/217da533d46e45218708f0c36db60ea8.jpeg">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200817144010313.png">
+<meta property="og:image" content="http://example.com/Library/Application%20Support/typora-user-images/image-20200817172752394.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200817172436175.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200817225447058.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/6-6.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/6-7.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200818130527187.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200818152715209.png">
+<meta property="article:published_time" content="2020-08-17T02:49:19.000Z">
+<meta property="article:modified_time" content="2021-04-03T14:18:26.340Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="漏洞模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200817122509036.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-整数溢出总结" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/08/17/%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA%E6%80%BB%E7%BB%93/" class="article-date">
+  <time class="dt-published" datetime="2020-08-17T02:49:19.000Z" itemprop="datePublished">2020-08-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      整数溢出总结
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="数据储存概述"><a href="#数据储存概述" class="headerlink" title="数据储存概述"></a>数据储存概述</h2><h3 id="类型大小"><a href="#类型大小" class="headerlink" title="类型大小"></a>类型大小</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>长度(按位算)</th>
+<th>最小值</th>
+<th>最大值s</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>signed char</td>
+<td>8</td>
+<td>-128</td>
+<td>127</td>
+</tr>
+<tr>
+<td>unsigned char</td>
+<td>8</td>
+<td>0</td>
+<td>255</td>
+</tr>
+<tr>
+<td>short</td>
+<td>16</td>
+<td>-32,768</td>
+<td>32,767</td>
+</tr>
+<tr>
+<td>unsigned short</td>
+<td>16</td>
+<td>0</td>
+<td>65,535</td>
+</tr>
+<tr>
+<td>int</td>
+<td>32</td>
+<td>-2,147,483,648</td>
+<td>2,147,483,647</td>
+</tr>
+<tr>
+<td>unsigned int</td>
+<td>32</td>
+<td>0</td>
+<td>4,294,967,295</td>
+</tr>
+<tr>
+<td>long</td>
+<td>32</td>
+<td>-2,147,483,648</td>
+<td>2,147,483,647</td>
+</tr>
+<tr>
+<td>unsigned long</td>
+<td>32</td>
+<td>0</td>
+<td>4,294,967,295</td>
+</tr>
+<tr>
+<td>long long</td>
+<td>64</td>
+<td>-9,223,372,036,854,775,808</td>
+<td>9,223,372,036,854,775,807</td>
+</tr>
+<tr>
+<td>unsigned long long</td>
+<td>64</td>
+<td>0</td>
+<td>18,446,744,073,709,551,615</td>
+</tr>
+</tbody></table>
+<h3 id="补码"><a href="#补码" class="headerlink" title="补码"></a>补码</h3><p><code>char</code>类型默认为带符号类型并且占用1个字节。<code>short</code>类型占用2字节，<code>int</code>类型占用4字节。<code>long</code>型占4字节，<code>long long</code>型占8字节。</p>
+<p>-15   </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">0000 1111 15的标准二进制表示</span><br><span class="line">1111 0000 反转所有的位</span><br><span class="line">0000 0001 加1</span><br><span class="line">1111 0001 -15的二进制补码</span><br><span class="line"></span><br><span class="line">1101 0110 一个不知道具体值的负数的二进制补码</span><br><span class="line">0010 1001 反转所有位</span><br><span class="line">0000 0001 加1</span><br><span class="line">0010 1010 42的二进制形式，因此最初的值是-42</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="溢出类型"><a href="#溢出类型" class="headerlink" title="溢出类型"></a>溢出类型</h2><h3 id="向上溢出"><a href="#向上溢出" class="headerlink" title="向上溢出"></a>向上溢出</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">int</span> a;</span><br><span class="line">a =  <span class="number">0xe0000020</span>;</span><br><span class="line">a += <span class="number">0x20000020</span>；</span><br></pre></td></tr></table></figure>
+
+<p>0x2000 0020+0xE000 0000 = 0x1 0000 0040   无法被变量<code>a</code>容纳。当一个算术运算的结果值大于最大可能的表示数值时，我们就称他为数字溢出条件。</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200817122509036.png" alt="image-20200817122509036" style="zoom:50%;" />
+
+<h3 id="向下溢出"><a href="#向下溢出" class="headerlink" title="向下溢出"></a>向下溢出</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">int</span> a;</span><br><span class="line">a=<span class="number">0</span>;</span><br><span class="line">a-=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这个程序将   <code>a</code>  减去1，a的初始值为0，因此运算结果理论上为-1，但它不能被   <code>a</code>   容纳因为它小于了   <code>a</code>   的最小可能值0.这个结果被称为数字下溢条件。</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200817122603798.png" alt="image-20200817122603798" style="zoom:50%;" />
+
+
+
+
+
+
+
+<h2 id="案例分析"><a href="#案例分析" class="headerlink" title="案例分析"></a>案例分析</h2><h3 id="溢出"><a href="#溢出" class="headerlink" title="溢出"></a>溢出</h3><blockquote>
+<p>无符号整型使用不当漏洞</p>
+<p>这种漏洞的原理我们上面已经说过了，在此就只提一下64位下的构造的思路：</p>
+<ol>
+<li>确定缓冲区写入操作的长度参数所使用的数据类型的位数：n byte</li>
+<li>确定需要绕过的长度检查的逻辑处所用的数据类型的位数：N byte</li>
+<li>构造总长度为N byte，低n byte置为0其余各位元组全置为ff，记作r</li>
+<li>R = r|&lt;实现溢出攻击所需的长度&gt;，R即为最初输入的长度值</li>
+</ol>
+</blockquote>
+<p>下面的代码来自OpenSSH 3.1问答认证(challenge-response authentication)代码：<code>auth2-chall.c</code>中的<code>input_userauth_info_response()</code>函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">	u_int nresp;</span><br><span class="line">...</span><br><span class="line">	nresp = packet_get_int();</span><br><span class="line">	<span class="keyword">if</span> (nresp &gt; <span class="number">0</span>) &#123;</span><br><span class="line">		response = xmalloc(nresp * <span class="keyword">sizeof</span>(<span class="keyword">char</span>*));</span><br><span class="line">		<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; nresp; i++)</span><br><span class="line">			response[i] = packet_get_string(<span class="literal">NULL</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	packet_check_eom()</span><br></pre></td></tr></table></figure>
+
+<h4 id="实现代码"><a href="#实现代码" class="headerlink" title="实现代码"></a>实现代码</h4><p>首先 sizeof(char*) = 4     <code>nresp</code> 可控</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> nresp;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> response;</span><br><span class="line">    nresp=<span class="number">0x40000020</span>;</span><br><span class="line">    response=nresp*<span class="number">4</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a=0x%x   \nb=0x%x\n&quot;</span>,nresp,response);</span><br><span class="line">  	</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个 时候 我们的 response 数据很小，从而可以结合其他漏洞对 这个程序进行工具</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200817130338830.png" alt="image-20200817130338830"></p>
+<h4 id="关键代码"><a href="#关键代码" class="headerlink" title="关键代码"></a>关键代码</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">response = xmalloc(nresp * <span class="keyword">sizeof</span>(<span class="keyword">char</span>*));</span><br><span class="line"><span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; nresp; i++)</span><br><span class="line">	response[i] = packet_get_string(<span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">a &#x3D; 0x40000020</span><br><span class="line">	&#x3D;      0100 0000 0000 0000 0000 0000 0010 0000</span><br><span class="line">b &#x3D; a*4</span><br><span class="line">  &#x3D; 0001 0000 0000 0000 0000 0000 0000 1000 0000</span><br><span class="line">  b 为32位 所以做高位的 0001 上溢了 要省去</span><br><span class="line">b &#x3D;      0000 0000 0000 0000 0000 0000 1000 0000</span><br><span class="line">  &#x3D; 0x80</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当存在 malloc 函数的时候。如果malloc 的大小为 一个可控数值*一个实数</li>
+<li>在申请大小后，有循环会用到我们申请的内存，循环的结束为我们 可控数值</li>
+<li>对我们申请的内存 存入的值 是我们可以控制的</li>
+</ul>
+<h4 id="避免溢出"><a href="#避免溢出" class="headerlink" title="避免溢出"></a>避免溢出</h4><blockquote>
+<p>（1）当函数的参数类型为无符号整数时，需要对传入的参数的值进行有效判断，避免直接或者经过运算后产生回绕；</p>
+<p>（2）不可信源的数据仍旧需要格外注意，应对来自不可信源的数据进行过滤和限制；</p>
+<p>（3）使用源代码静态分析工具进行自动化的检测，可以有效的发现源代码中的无符号整数回绕问题。</p>
+</blockquote>
+<h4 id="同类型"><a href="#同类型" class="headerlink" title="同类型"></a>同类型</h4><h5 id="1-无符号数-2"><a href="#1-无符号数-2" class="headerlink" title="1  无符号数*2"></a>1  无符号数*2</h5><p>Samate Juliet Test Suite for C/C++ v1.3 (<a target="_blank" rel="noopener" href="https://samate.nist.gov/SARD/testsuite.php">https://samate.nist.gov/SARD/testsuite.php</a>)</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/t0191cd4016d690ae95.png" alt="img"></p>
+<ul>
+<li>第27行使用 fscanf() 函数从输入流(stream)中读入数据，并在第28行对读入数据的下限进行了限制，但并没有对 data 值的上限进行限制，当第31行进行 data<em>2 运算后赋值给 result，如果 data</em>2 的值超过了 UNIT_MAX，则会产生无符号整数回绕问题。</li>
+</ul>
+<p>修复 ： 在 <code>data * 2</code> 之前增加一个 <code>data &lt; UINT_MAX/2</code> 的判断</p>
+<h5 id="2-无符号数-一个数"><a href="#2-无符号数-一个数" class="headerlink" title="2 无符号数+ 一个数"></a>2 无符号数+ 一个数</h5><p>CVE-2017-15056。漏洞报告在 <a target="_blank" rel="noopener" href="https://github.com/upx/upx/issues/128">https://github.com/upx/upx/issues/128</a></p>
+<p>commit中PackLinuxElf32::PackLinuxElf32help1函数中添加在250-256行的校验：</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/217da533d46e45218708f0c36db60ea8.jpeg" alt="img"></p>
+<p>file_size是用户输入的ELF文件的大小，e_phoff, e_phnum, e_shoff, e_shnum都是ELF文件头部的字段。</p>
+<p>值得注意的是unsigned long的大小是：MSVC下永远是32位整数，gcc和clang下32位ELF就是32位整数，64位ELF就是64位整数。</p>
+<p>用32位UPX的话，<code>(unsigned long)e_shoff + e_shnum * sizeof(Elf32_Shdr)</code>  是可以溢出的，只要e_shoff足够大，让它们的和大于或等于2^32，它的值就可以小于file_size。</p>
+<h5 id="3-无符号数回绕"><a href="#3-无符号数回绕" class="headerlink" title="3 无符号数回绕"></a>3 无符号数回绕</h5><p><strong>CVE-2018-6323</strong></p>
+<p>二进制文件描述符 (BFD) 库（也称为 libbfd）中头文件 elfcode.h 中的 elf_object_p() 函数（binutils-2.29.1 之前）具有无符号整数回绕，溢出的原因是没有使用 bfd_size_type 乘法。精心制作的 ELF 文件可能导致拒绝服务攻击。</p>
+<h5 id="4-题目-全球某工商的ctf网站上的ctf题（还有源码福利）"><a href="#4-题目-全球某工商的ctf网站上的ctf题（还有源码福利）" class="headerlink" title="4  题目-全球某工商的ctf网站上的ctf题（还有源码福利）"></a>4  题目-全球某工商的ctf网站上的ctf题（还有源码福利）</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">flow</span><span class="params">(<span class="keyword">char</span>* input)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> passwd_buf[<span class="number">11</span>];</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">char</span> passwd_len = <span class="built_in">strlen</span>(input);</span><br><span class="line">	<span class="keyword">if</span>(passwd_len&gt;=<span class="number">4</span>&amp;&amp;passwd_len&lt;=<span class="number">8</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;Valid Password\n&quot;</span>);</span><br><span class="line">		<span class="built_in">strcpy</span>(passwd_buf,input);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span>&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;Invalid Password\n&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> input[<span class="number">1024</span>];</span><br><span class="line">	gets(input);</span><br><span class="line">	flow(input);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Flow 函数中的 passwd_len 是<code>unsigned char</code>  我们可以增加 input 的长度从而绕过 第8行</li>
+<li>261=5，构造261位，既可以绕过检测</li>
+</ul>
+<h5 id="5-缓冲区溢出导致安全问题"><a href="#5-缓冲区溢出导致安全问题" class="headerlink" title="5 缓冲区溢出导致安全问题"></a>5 缓冲区溢出导致安全问题</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">func</span><span class="params">(<span class="keyword">char</span> *buf1, <span class="keyword">unsigned</span> <span class="keyword">int</span> len1,</span></span></span><br><span class="line"><span class="function"><span class="params">         <span class="keyword">char</span> *buf2, <span class="keyword">unsigned</span> <span class="keyword">int</span> len2 )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="keyword">char</span> mybuf[<span class="number">256</span>]; </span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span>((len1 + len2) &gt; <span class="number">256</span>)&#123;    <span class="comment">//&lt;--- [1]</span></span><br><span class="line">       <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">   &#125; </span><br><span class="line"></span><br><span class="line">   <span class="built_in">memcpy</span>(mybuf, buf1, len1);</span><br><span class="line">   <span class="built_in">memcpy</span>(mybuf + len1, buf2, len2); </span><br><span class="line"></span><br><span class="line">   do_some_stuff(mybuf); </span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>想把buf1和buf2的内容copy到mybuf里，其中怕len1 + len2超过256 还做了判断，但是，如果len1+len2溢出了，根据unsigned的特性，其会与2^32求模，所以，基本上来说，上面代码中的[1]处有可能为假的。（注：通常来说，在这种情况下，如果你开启-O代码优化选项，那个if语句块就全部被和谐掉了——被编译器给删除了）比如，你可以测试一下 len1=0x104， len2 = 0xfffffffc 的情况。</p>
+<hr>
+<h3 id="带符号整数边界"><a href="#带符号整数边界" class="headerlink" title="带符号整数边界"></a>带符号整数边界</h3><h4 id="实现代码-1"><a href="#实现代码-1" class="headerlink" title="实现代码"></a>实现代码</h4><p>当对有符号整数的操作导致算术溢出或下溢时，结果值“包围符号边界”并通常导致符号更改。</p>
+<p>在32位整数中，值0x7FFFFFFF是一个大的正数。向其添加1将产生结果0x80000000，这是一个很大的负数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a;</span><br><span class="line">    a=<span class="number">0x7FFFFFFF</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a=    %d\n&quot;</span>,a);</span><br><span class="line">    a+=<span class="number">1</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a+1= %d\n&quot;</span>,a);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200817144010313.png" alt="image-20200817144010313"></p>
+<p>发现我们的值 发生了很大的变化</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">  0111 1111 1111 1111 1111 1111 1111 1111</span><br><span class="line">+ 0000 0000 0000 0000 0000 0000 0000 0001</span><br><span class="line">&#x3D; 1000 0000 0000 0000 0000 0000 0000 0000</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="关键代码-1"><a href="#关键代码-1" class="headerlink" title="关键代码"></a>关键代码</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">char</span> *<span class="title">read_data</span><span class="params">(<span class="keyword">int</span> sockfd)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">char</span> *buf;</span><br><span class="line">	<span class="keyword">int</span> length = network_get_int(sockfd);</span><br><span class="line">	<span class="keyword">if</span>(!(buf = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(MAXCHARS)))</span><br><span class="line">		die(<span class="string">&quot;malloc: %m&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span>(length &lt; <span class="number">0</span> || length + <span class="number">1</span> &gt;= MAXCHARS)&#123;</span><br><span class="line">		<span class="built_in">free</span>(buf);</span><br><span class="line">		die(<span class="string">&quot;bad length: %d&quot;</span>, value);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span>(read(sockfd, buf, length) &lt;= <span class="number">0</span>)&#123;</span><br><span class="line">		<span class="built_in">free</span>(buf);</span><br><span class="line">        die(<span class="string">&quot;read: %m&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	buf[value] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line">	<span class="keyword">return</span> buf;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的 length 定义为 <code>int 有符号</code>  第7行 比较大小进行了加一（目的是计算 \x00 截断）但是因为是 有符号数。所以 length + 1 可能会存在 带符号整数边界 溢出。   0x7fff ffff + 1 = 0x8000 0000 = -2147483648 。从而绕过 7行判断。从而在 11 行 产生一个溢出。</p>
+<ul>
+<li>定义的类型为 有符号数。（没有 unsigned 修饰）</li>
+<li>当加一个数时，产生进位，且进位影响到 <code>符号位</code>，对符号位进行了修改。</li>
+<li>一个 <code>很大的正数</code> 加上一个 <code>很小的正数</code> 得到了一个很大的负数。</li>
+</ul>
+<h4 id="同类型-1"><a href="#同类型-1" class="headerlink" title="同类型"></a>同类型</h4><h5 id="1"><a href="#1" class="headerlink" title="1"></a>1</h5><p><code>crypto/asn1/a_d2i_fp.c</code>的 <code>ASN1_d2i_fp()</code>函数，该函数负责从IO (BIO)缓冲流中读取ASN.1对象。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">c.inf=ASN1_get_object(&amp;(c.p),&amp;(c.slen),&amp;(c.tag),&amp;(c.xclass),</span><br><span class="line">				len-off);</span><br><span class="line">...</span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">/* suck in c.slen bytes of data */</span></span><br><span class="line">	want=(<span class="keyword">int</span>)c.slen;</span><br><span class="line">	<span class="keyword">if</span> (want &gt; (len-off))</span><br><span class="line">	&#123;</span><br><span class="line">		want-=(len-off);</span><br><span class="line">    	<span class="keyword">if</span> (!BUF_MEM_grow(b,len+want))</span><br><span class="line">		&#123;</span><br><span class="line">			ASN1err(ASN1_F_ASN1_D2I_BIO,</span><br><span class="line">				ERR_R_MALLOC_FAILURE);</span><br><span class="line">			<span class="keyword">goto</span> err;</span><br><span class="line">		&#125;</span><br><span class="line">		i=want;</span><br><span class="line">        <span class="comment">// 这里所有want都加粗了</span></span><br></pre></td></tr></table></figure>
+
+<p>这里的  c.slen 被转化为 int 型 有符号。 在 <code>BUF_MEM_grow</code> 函数的第二个参数  <code>len+want</code> 可能会造成溢出</p>
+<h5 id="2"><a href="#2" class="headerlink" title="2"></a>2</h5><p>……</p>
+<hr>
+<h3 id="类型转换"><a href="#类型转换" class="headerlink" title="类型转换"></a>类型转换</h3><p>通过一些强制类型转换，可以轻松地将无符号字符与有符号长整数相乘，将其添加到字符指针中，然后将结果传递给需要指向结构的指针的函数。</p>
+<p>类型转换有两种形式:</p>
+<ul>
+<li><p><strong>显式类型转换</strong>，程序员通过强制转换显式指示编译器从一种类型转换为另一种类型; </p>
+</li>
+<li><p><strong>隐式类型转换</strong>，编译器对变量进行“隐藏”转换，以使程序按预期运行。</p>
+</li>
+</ul>
+<h4 id="实现代码-2"><a href="#实现代码-2" class="headerlink" title="实现代码"></a>实现代码</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> a;</span><br><span class="line">    a = <span class="number">0x7fffffff</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;0x%x\n&quot;</span>,a);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;0x%x\n&quot;</span>,(<span class="keyword">char</span>)a);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>显示</p>
+<p><img src="../../../../Library/Application%20Support/typora-user-images/image-20200817172752394.png" alt="image-20200817172752394"></p>
+<p>强制转换用的 movs </p>
+<p>因为 al = 0xffff</p>
+<p>所以  eax = 0xffffffff</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200817172436175.png" alt="image-20200817172436175" style="zoom:50%;" />
+
+<h5 id="整数类型：保值"><a href="#整数类型：保值" class="headerlink" title="整数类型：保值"></a>整数类型：保值</h5><p>简单来说，如果新的类型能够表示所有旧类型可能的值，那么这种转换就成为保值的。</p>
+<h5 id="整数类型：扩展"><a href="#整数类型：扩展" class="headerlink" title="整数类型：扩展"></a>整数类型：扩展</h5><p>当你将一个较窄类型转换为另一个更宽的类型时，机器会按位将旧的变量复制到新的变量，然后将其他的高位设为0或者1.</p>
+<p>如果源类型是无符号的，机器就会使用**零扩展(zero extension)**，也就是在宽类型中将剩余高位设为0</p>
+<p>如果源类型是带符号的，机器就会使用**符号位扩展(sign extension)**，也就是将宽类型剩余未使用位设为源类型中符号位的值。</p>
+<h5 id="整数类型：收缩"><a href="#整数类型：收缩" class="headerlink" title="整数类型：收缩"></a>整数类型：收缩</h5><p>代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">0x12abcdef</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">short</span> b = (<span class="keyword">unsigned</span> <span class="keyword">short</span>) a;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a = 0x%x\n&quot;</span>,a);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;b = 0x%x\n&quot;</span>,b);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200817225447058.png" alt="image-20200817225447058"></p>
+<h5 id="整数类型：带符号与无符号"><a href="#整数类型：带符号与无符号" class="headerlink" title="整数类型：带符号与无符号"></a>整数类型：带符号与无符号</h5><p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/6-6.png" alt="6-6"></p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/6-7.png" alt="6-7"></p>
+<h4 id="带符号-无符号转换"><a href="#带符号-无符号转换" class="headerlink" title="带符号/无符号转换"></a>带符号/无符号转换</h4><h4 id="实现代码-3"><a href="#实现代码-3" class="headerlink" title="实现代码"></a>实现代码</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">copy</span><span class="params">(<span class="keyword">char</span> *dst, <span class="keyword">char</span> *src, <span class="keyword">unsigned</span> <span class="keyword">int</span> len)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (len--)</span><br><span class="line">    *dst++ = *src++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> f = <span class="number">-1</span>;   <span class="comment">// 有符号数</span></span><br><span class="line">copy(mydst, mysrc, f); 参数 f 是无符号数，会将负数变得特别大</span><br></pre></td></tr></table></figure>
+
+<p><code>copy()</code>函数将会看到一个非常大的<code>len</code>并且极有可能执行复制直到产生分段错误(segmentation fault)。</p>
+<p>几乎所有的libc例行程序都将大小参数的类型定为<code>size_t</code>，这是一种和指针长度相等的  无符号类型。</p>
+<p>这也是为什么你必须永远不要将一个负长度的参数被传入libc例行程序重，例如<code>snprintf(), strncpy(), memcpy(), read(),</code> 或者<code>strncat() 。</code></p>
+<h4 id="关键代码-2"><a href="#关键代码-2" class="headerlink" title="关键代码"></a>关键代码</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">read_user_data</span><span class="params">(<span class="keyword">int</span> sockfd)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> length, sockfd, n;</span><br><span class="line">	<span class="keyword">char</span> buffer[<span class="number">1024</span>];</span><br><span class="line">	length = get_user_length(sockfd);</span><br><span class="line">	<span class="keyword">if</span>(length &gt; <span class="number">1024</span>)&#123;</span><br><span class="line">		error(<span class="string">&quot;illegal input, not enough room in buffer\n&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span>(read(sockfd, buffer, length) &lt; <span class="number">0</span>)&#123;</span><br><span class="line">		error(<span class="string">&quot;read: %m&quot;</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在定义 参数 的时候 （第3行 定义为 符号型</li>
+<li>有符号参数  可控  且在后续处理中，有函数会利用到这个 参数  （ 10 行 <code>read(sockfd, buffer, length)</code><ul>
+<li>一个负长度被转换为<code>size_t</code>类型，正如你所知道的，它将转换为一个大的无符号值。</li>
+</ul>
+</li>
+</ul>
+<p><strong>技巧</strong></p>
+<ul>
+<li><p>函数采用<code>size_t</code>或无符号整型长度参数，而程序员传递一个可能会受到用户的影响的有符号整数。适合查找的函数包括<code>read()</code>、<code>recvfrom()</code>、<code>memcpy()</code>、<code>memset()</code>、<code>bcopy()</code>、<code>snprintf()</code>、<code>strncat()</code>、<code>strncpy()</code>和<code>malloc()</code>。</p>
+<p>如果传入的 对应的长度参数为 负数， 在函数中会被解释成一个很大的数。</p>
+</li>
+</ul>
+<h4 id="同类型-2"><a href="#同类型-2" class="headerlink" title="同类型"></a>同类型</h4><h5 id="1-1"><a href="#1-1" class="headerlink" title="1"></a>1</h5><p>l0pht的反嗅探(antisniff)工具的DNS包解析代码中一个真实存在的漏洞。    </p>
+<p><a target="_blank" rel="noopener" href="http://packetstormsecurity.org/sniffers/antisniff/">http://packetstormsecurity.org/sniffers/antisniff/)的DNS包解析代码中一个真实存在的漏洞。</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *indx;</span><br><span class="line"><span class="keyword">int</span> count;</span><br><span class="line"><span class="keyword">char</span> nameStr[MAX_LEN]; <span class="comment">//256</span></span><br><span class="line">...</span><br><span class="line"><span class="built_in">memset</span>(nameStr, <span class="string">&#x27;\0&#x27;</span>, <span class="keyword">sizeof</span>(nameStr));</span><br><span class="line">...</span><br><span class="line">indx = (<span class="keyword">char</span> *)(pkt + rr_offset);</span><br><span class="line">count = (<span class="keyword">char</span>)*indx;</span><br><span class="line"><span class="keyword">while</span> (count)&#123;</span><br><span class="line">	(<span class="keyword">char</span> *)indx++;</span><br><span class="line">	<span class="built_in">strncat</span>(nameStr, (<span class="keyword">char</span> *)indx, count);</span><br><span class="line">	indx += count;</span><br><span class="line">	count = (<span class="keyword">char</span>)*indx;</span><br><span class="line">	<span class="built_in">strncat</span>(nameStr, <span class="string">&quot;.&quot;</span>,</span><br><span class="line">	<span class="keyword">sizeof</span>(nameStr) <span class="built_in">strlen</span>(nameStr));</span><br><span class="line">&#125;</span><br><span class="line">nameStr[<span class="built_in">strlen</span>(nameStr)<span class="number">-1</span>] = <span class="string">&#x27;\0&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第一个漏洞是在这个循环中没有长度检查。如果你只是在包中提供一个足够长的域名，那么它可能写过<code>nameStr[]</code>的边界。</li>
+</ul>
+<h5 id="2-1"><a href="#2-1" class="headerlink" title="2"></a>2</h5><p>研究版本1.1</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *indx;</span><br><span class="line"><span class="keyword">int</span> count;</span><br><span class="line"><span class="keyword">char</span> nameStr[MAX_LEN]; <span class="comment">//256</span></span><br><span class="line">...</span><br><span class="line"><span class="built_in">memset</span>(nameStr, <span class="string">&#x27;\0&#x27;</span>, <span class="keyword">sizeof</span>(nameStr));</span><br><span class="line">...</span><br><span class="line">indx = (<span class="keyword">char</span> *)(pkt + rr_offset);</span><br><span class="line">count = (<span class="keyword">char</span>)*indx;</span><br><span class="line"><span class="keyword">while</span> (count)&#123;</span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">strlen</span>(nameStr) + count &lt; ( MAX_LEN - <span class="number">1</span>) )&#123; <span class="comment">//这一行加粗</span></span><br><span class="line">	(<span class="keyword">char</span> *)indx++;</span><br><span class="line">	<span class="built_in">strncat</span>(nameStr, (<span class="keyword">char</span> *)indx, count);</span><br><span class="line">	indx += count;</span><br><span class="line">	count = (<span class="keyword">char</span>)*indx;</span><br><span class="line">	<span class="built_in">strncat</span>(nameStr, <span class="string">&quot;.&quot;</span>,</span><br><span class="line">	<span class="keyword">sizeof</span>(nameStr) <span class="built_in">strlen</span>(nameStr));</span><br><span class="line">&#125; <span class="keyword">else</span> &#123; <span class="comment">//这一行加粗</span></span><br><span class="line">	<span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;Alert! Someone is attempting &quot;</span> </span><br><span class="line">					<span class="string">&quot;to send LONG DNS packets\n&quot;</span>);</span><br><span class="line">	count = <span class="number">0</span>;</span><br><span class="line">	&#125; <span class="comment">// else括号里的都加粗</span></span><br><span class="line">&#125;</span><br><span class="line">nameStr[<span class="built_in">strlen</span>(nameStr)<span class="number">-1</span>] = <span class="string">&#x27;\0&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第10行 count 是 int 类型 ，如果count 为 -1 <code>if (strlen(nameStr) + count &lt; ( MAX_LEN - 1) )</code> 可以被绕过</li>
+<li>第12行 <code>strncat</code> 函数中 count 被转化为 <code>size_t</code>  无符号类型。-1 会识别成 4,294,967,295。</li>
+</ul>
+<h5 id="3"><a href="#3" class="headerlink" title="3"></a>3</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">short</span> length;</span><br><span class="line"><span class="keyword">char</span> *buffer;</span><br><span class="line"><span class="keyword">if</span>(length &gt; <span class="number">1024</span>)&#123;</span><br><span class="line">	error(<span class="string">&quot;read_packet: length too large: %d\n&quot;</span>, length);</span><br><span class="line"><span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">buffer = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(length+<span class="number">1</span>);</span><br><span class="line"><span class="keyword">if</span>((n = read(sockfd, buffer, length) &lt; <span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>定义为 有符号型。 有个上界 判断 （&gt;1024）可以利用 负数绕过 -1 保存为 0xffff</li>
+<li>然后在 6行 malloc(0) 可以实现申请 比较小的 堆块</li>
+<li>第7行 read 函数的第三个参数 -1 解释为 <code>size_t</code> 无符号 0xffff 很大产生溢出</li>
+</ul>
+<h5 id="4-截断"><a href="#4-截断" class="headerlink" title="4  截断"></a>4  截断</h5><p>历史版本的网络文件系统(Network File System, NFS)的整数截断安全漏洞：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">assume_privs</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">short</span> uid)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    seteuid(uid);</span><br><span class="line">    setuid(uid);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">become_user</span><span class="params">(<span class="keyword">int</span> uid)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (uid == <span class="number">0</span>)</span><br><span class="line">	    die(<span class="string">&quot;root isnt allowed&quot;</span>);</span><br><span class="line">    assume_privs(uid);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>攻击者发现他们可以指定一个UID为65536，它将通过防止root访问的安全检查。但是，这个UID将被分配给一个<code>unsigned short</code>整数类型，并被截断为一个值0。因此，攻击者可以假定root用户的UID为0，从而绕过保护。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">short</span> <span class="keyword">int</span> f;</span><br><span class="line"><span class="keyword">char</span> mybuf[<span class="number">1024</span>];</span><br><span class="line"><span class="keyword">char</span> *userstr=getuserstr();</span><br><span class="line"></span><br><span class="line">f=<span class="built_in">strlen</span>(userstr);</span><br><span class="line"><span class="keyword">if</span> (f &gt; <span class="keyword">sizeof</span>(mybuf)<span class="number">-5</span>)</span><br><span class="line">	die(<span class="string">&quot;string too long!&quot;</span>);</span><br><span class="line"><span class="built_in">strcpy</span>(mybuf, userstr);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>strlen()</code>函数的返回值是<code>size_t</code>，被转换成了<code>unsigned short</code>。</p>
+</li>
+<li><p>如果一个字符串有66,000个长度的字符，那么截断就会发生，<code>f</code>的值将会是464.因此，对函数<code>strcpy()</code>的长度检查保护就会被突破，缓冲区溢出就会发生。</p>
+</li>
+</ul>
+<p>大多数SSH守护进程中的一个停止显示(show-stopping)的错误是由整数截断引起的。</p>
+<h5 id="5-减法中的类型转换"><a href="#5-减法中的类型转换" class="headerlink" title="5 减法中的类型转换  *"></a>5 减法中的类型转换  *</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">short</span> a;</span><br><span class="line">    <span class="keyword">int</span> b;</span><br><span class="line">    b = <span class="number">2</span>;</span><br><span class="line">    a = <span class="number">1</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a = %d\n&quot;</span>,a);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;sizeof(short) = %d\n&quot;</span>, <span class="keyword">sizeof</span>(<span class="keyword">short</span>));</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;————————————\n&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span>(a-<span class="keyword">sizeof</span>(<span class="keyword">short</span>) &lt;= <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;a-sizeof(short) &lt;= 0\n&quot;</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;a-sizeof(short) &gt; 0\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;————————————\n&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span>(a-b &lt;= <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;a-(int)b &lt;= 0!\n&quot;</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;a-(int)b &gt; 0\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;————————————\n&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span>(a-(<span class="keyword">unsigned</span> <span class="keyword">int</span>)b &lt;=<span class="number">0</span> )&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;a-(unsigned int)b &lt;=0\n&quot;</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;a-(unsigned int)b &gt;0\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200818130527187.png" alt="image-20200818130527187" style="zoom:50%;" />
+
+<ul>
+<li><code>sizeof</code>运算符的返回类型是<code>size_t</code>，一个无符号类型。</li>
+<li>所以 short 的 <code>a-sizeof(short)</code>  <ul>
+<li>a 被升为 <code>signed int </code> 然后被常规算术转换转换为无符号整数类型。</li>
+<li>减法运算的最终类型为无符号整数类型。</li>
+</ul>
+</li>
+<li>减法的结果永远不可能小于0。</li>
+<li>但是如果 a减去一个符号数 就 &lt;=0 了</li>
+</ul>
+<h5 id="6-类型转换"><a href="#6-类型转换" class="headerlink" title="6 类型转换"></a>6 类型转换</h5><p>在很多函数 功能错误的时候 都会返回 -1</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">get_int</span><span class="params">(<span class="keyword">char</span> *data)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> n = atoi(data);</span><br><span class="line">    <span class="keyword">if</span>(n &lt; <span class="number">0</span> || n &gt; <span class="number">1024</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">return</span> n;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">unsigned</span> <span class="keyword">long</span> n;</span><br><span class="line">        <span class="keyword">char</span> buf[<span class="number">1024</span>];</span><br><span class="line">        <span class="keyword">if</span>(argc &lt; <span class="number">2</span>)</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">        n = get_int(argv[<span class="number">1</span>]);</span><br><span class="line">        <span class="keyword">if</span>(n &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;illegal length specified\n&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;n = %d&quot;</span>,n);</span><br><span class="line">    <span class="built_in">memset</span>(buf, <span class="string">&#x27;A&#x27;</span>, n);</span><br><span class="line">    <span class="built_in">puts</span>(buf);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Main 函数中 n 为无符号类型。 </li>
+<li>当我们利用到 get_int 函数时，如果输入有问题会返回-1</li>
+<li>返回值 保存的 参数如果类型是 unsigned 变为一个很大的值</li>
+<li>导致后面利用到这个 参数的 函数出现问题</li>
+</ul>
+<p>一定要注意有无符号整数值，以免它们的对等操作数被提升为无符号整型。<code>sizeof</code>和<code>strlen()</code>是导致这种提升的操作数的经典例子。</p>
+<h5 id="6-整形转型时的溢出"><a href="#6-整形转型时的溢出" class="headerlink" title="6 整形转型时的溢出"></a>6 整形转型时的溢出</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">copy_something</span><span class="params">(<span class="keyword">char</span> *buf, <span class="keyword">int</span> len)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="meta">#<span class="meta-keyword">define</span> MAX_LEN 256</span></span><br><span class="line">    <span class="keyword">char</span> mybuf[MAX_LEN];</span><br><span class="line">     ... ...</span><br><span class="line">     ... ...</span><br><span class="line"></span><br><span class="line">     <span class="keyword">if</span>(len &gt; MAX_LEN)&#123; <span class="comment">// &lt;---- [1]</span></span><br><span class="line">         <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">     &#125;</span><br><span class="line"></span><br><span class="line">     <span class="keyword">return</span> <span class="built_in">memcpy</span>(mybuf, buf, len);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面这个例子中，还是[1]处的if语句，看上去没有会问题，但是len是个signed int，而memcpy则需一个size_t的len，也就是一个unsigned 类型。于是，len会被提升为unsigned，此时，如果我们给len传一个负数，会通过了if的检查，但在memcpy里会被提升为一个正数，于是我们的mybuf就是overflow了。这个会导致mybuf缓冲区后面的数据被重写。</p>
+<hr>
+<h3 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h3><h4 id="sizeof运算符"><a href="#sizeof运算符" class="headerlink" title="sizeof运算符"></a>sizeof运算符</h4><p>对于sizeof 类型注意</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">1024</span>];</span><br><span class="line">    <span class="keyword">char</span> *buffer;</span><br><span class="line">    buffer = (<span class="keyword">char</span> *)<span class="built_in">malloc</span>(<span class="number">1024</span>);</span><br><span class="line">    <span class="keyword">int</span> a;</span><br><span class="line">    <span class="keyword">int</span> b;</span><br><span class="line">    a = <span class="keyword">sizeof</span>(buf);</span><br><span class="line">    b = <span class="keyword">sizeof</span>(buffer);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a = %d\n&quot;</span>,a);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;b = %d\n&quot;</span>,b);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在很多时候 我们对 申请 malloc 内存返回的是指针。</li>
+<li>有点时候回忘记 从而 <code>sizeof(buffer)</code>  使用sizeof。以为会返回 1024 其实只是返回了 4 以为 buffer 是指针。</li>
+<li>sizeof 返回类型是 <code>size_t</code> 一个无符号类型。</li>
+</ul>
+<h4 id="有符号数-位移"><a href="#有符号数-位移" class="headerlink" title="有符号数 位移"></a>有符号数 位移</h4><h5 id="实现代码-4"><a href="#实现代码-4" class="headerlink" title="实现代码"></a>实现代码</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">signed</span> <span class="keyword">char</span> c = <span class="number">0x80</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;c 有符号      %d\n&quot;</span>,c); </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;c 无符号      %lu\n&quot;</span>,c);</span><br><span class="line">    c &gt;&gt;= <span class="number">4</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;c 位移后有符号 %d\n&quot;</span>,c);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;c 位移后无符号 %lu\n&quot;</span>,c);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>显示结果</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200818152715209.png" alt="image-20200818152715209"></p>
+<p>发现 我们虽然 是右移操作但是 无符号数的值却变大了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1000 0000 value before right shift</span><br><span class="line">1111 1000 value after right shift</span><br></pre></td></tr></table></figure>
+
+<p><code>sar</code>助记符执行一种有符号的或算术的右移。<code>shr</code>助记符执行逻辑或无符号右移。</p>
+<ul>
+<li><p>当除数为常数时，编译器通常使用右移操作而不是除法。</p>
+</li>
+<li><p>无符号和有符号的除法和模数操作在Intel汇编代码中可以很容易地加以区分。无符号除法指令的助记符是<code>div</code>，有符号的对应指令是<code>idiv</code>。</p>
+</li>
+</ul>
+<h4 id="同类型-3"><a href="#同类型-3" class="headerlink" title="同类型"></a>同类型</h4><h5 id="1-2"><a href="#1-2" class="headerlink" title="1"></a>1</h5><p>……</p>
+<hr>
+<h3 id="优先级问题"><a href="#优先级问题" class="headerlink" title="优先级问题"></a>优先级问题</h3><h4 id="操作符-amp-和-的优先级"><a href="#操作符-amp-和-的优先级" class="headerlink" title="操作符&amp;和|的优先级"></a>操作符<code>&amp;</code>和<code>|</code>的优先级</h4><ul>
+<li>第一个潜在问题是位级别操作符<code>&amp;</code>和<code>|</code>的优先级，特别是当你将它们与比较和相等操作符混合使用时</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( len &amp; <span class="number">0x80000000</span> != <span class="number">0</span>)</span><br><span class="line">	die(<span class="string">&quot;bad len!&quot;</span>);</span><br><span class="line"><span class="keyword">if</span> (len &lt; <span class="number">1024</span>)</span><br><span class="line">	<span class="built_in">memcpy</span>(dst, src, len);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>程序员试图通过检查最高位来判断它是否为负值。</p>
+<p>程序员试图通过检查最高位来判断它是否为负值。他的意图就像这样：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( (len &amp; <span class="number">0x80000000</span>) != <span class="number">0</span>)</span><br><span class="line">	die(<span class="string">&quot;bad len!&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>然而代码实际做的是这样：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ( len &amp; (<span class="number">0x80000000</span> != <span class="number">0</span>))</span><br><span class="line">	die(<span class="string">&quot;bad len!&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h4 id="潜在优先级问题"><a href="#潜在优先级问题" class="headerlink" title="潜在优先级问题"></a>潜在优先级问题</h4><ul>
+<li>还有一些涉及赋值的潜在优先级问题，但是由于编译器的警告，这些问题不太可能出现在生产代码中。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (len = getlen() &gt; <span class="number">30</span>)</span><br><span class="line">	<span class="built_in">snprintf</span>(dst, len - <span class="number">30</span>, <span class="string">&quot;%s&quot;</span>, src)</span><br></pre></td></tr></table></figure>
+
+<p>代码的作者想做这样的事情：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ((len = getlen()) &gt; <span class="number">30</span>)</span><br><span class="line">	<span class="built_in">snprintf</span>(dst, len - <span class="number">30</span>, <span class="string">&quot;%s&quot;</span>, src)</span><br></pre></td></tr></table></figure>
+
+<p>然而代码却会这样做：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (len = (getlen() &gt; <span class="number">30</span>))</span><br><span class="line">	<span class="built_in">snprintf</span>(dst, len - <span class="number">30</span>, <span class="string">&quot;%s&quot;</span>, src)</span><br></pre></td></tr></table></figure>
+
+<p><code>len</code> 会在 <code>if </code>语句后变为1或者0.如果为1，那么第二个 <code>snprintf()  </code>  的变量就会说-29，这实际上是一个无限的字符串。</p>
+<h4 id="同类型-4"><a href="#同类型-4" class="headerlink" title="同类型"></a>同类型</h4><h2 id="CVE-记录"><a href="#CVE-记录" class="headerlink" title="CVE 记录"></a>CVE 记录</h2>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/08/17/%E6%95%B4%E6%95%B0%E6%BA%A2%E5%87%BA%E6%80%BB%E7%BB%93/" data-id="ckn2iqpq4001dxrn938a0fas1" data-title="整数溢出总结" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" rel="tag">漏洞模式</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/09/15/Java%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%9F%BA%E7%A1%80/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Java序列化反序列化基础
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/08/13/%E5%AD%A6%E4%B9%A0%E9%81%87%E5%88%B0%E7%9A%84%E7%9F%A5%E8%AF%86%E7%82%B9/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">学习遇到的知识点</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/80/" rel="tag">80</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" rel="tag">CSAPP学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int/" rel="tag">int</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm%E5%AD%A6%E4%B9%A0/" rel="tag">llvm学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80/" rel="tag">基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" rel="tag">基础技术</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%89%E5%8D%93/" rel="tag">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" rel="tag">工具安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" rel="tag">漏洞模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" rel="tag">问题汇总</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" rel="tag">项目学习</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/80/" style="font-size: 10px;">80</a> <a href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">CSAPP学习</a> <a href="/tags/WEB/" style="font-size: 17.5px;">WEB</a> <a href="/tags/int/" style="font-size: 10px;">int</a> <a href="/tags/llvm%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">llvm学习</a> <a href="/tags/%E5%9F%BA%E7%A1%80/" style="font-size: 17.5px;">基础</a> <a href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" style="font-size: 10px;">基础技术</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" style="font-size: 20px;">学习笔记</a> <a href="/tags/%E5%AE%89%E5%8D%93/" style="font-size: 10px;">安卓</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" style="font-size: 12.5px;">工具安装</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">操作系统</a> <a href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">漏洞模式</a> <a href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" style="font-size: 10px;">问题汇总</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">项目学习</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/29/codeql-xue-xi-bi-ji/">codeql 学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/10/macos-dui-zhi-shi-xue-xi-bi-ji/">macOS 堆知识学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/09/afl%E4%BD%BF%E7%94%A8%E5%AD%A6%E4%B9%A0/">AFL 使用学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/01/fastjson-xue-xi/">fastjson 学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/26/java-classloader%E8%AE%A4%E8%AF%86/">java classloader 认识</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

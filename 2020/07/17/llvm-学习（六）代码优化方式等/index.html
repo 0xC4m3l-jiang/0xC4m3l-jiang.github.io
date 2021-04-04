@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>llvm-学习（六）代码优化方式等 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="学习资料 （哈工大编译原理）https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV1zW411t7YE?p&#x3D;62  常用的优化方法 删除公共子表达式  删除无用代码  常量合并  代码移动  强度削弱  删除归纳变量  删除公告子表达式公共子表达式如果表达式x op y先前已被计算过，并且从先前的计 算到现在，x op y中变量的值没有改变，那么x op y的 这次出现就称为公共子表">
+<meta property="og:type" content="article">
+<meta property="og:title" content="llvm-学习（六）代码优化方式等">
+<meta property="og:url" content="http://example.com/2020/07/17/llvm-%E5%AD%A6%E4%B9%A0%EF%BC%88%E5%85%AD%EF%BC%89%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%E6%96%B9%E5%BC%8F%E7%AD%89/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="学习资料 （哈工大编译原理）https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV1zW411t7YE?p&#x3D;62  常用的优化方法 删除公共子表达式  删除无用代码  常量合并  代码移动  强度削弱  删除归纳变量  删除公告子表达式公共子表达式如果表达式x op y先前已被计算过，并且从先前的计 算到现在，x op y中变量的值没有改变，那么x op y的 这次出现就称为公共子表">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717194230732.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717194424843.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717200547372.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717201443004.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717201949998.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717202411473.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717203200807.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717204227826.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717221653556.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717222029221.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717223018649.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717224330188.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717224542087.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717230035215.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717230630119.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200718105725863.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200718143116380.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200718143128616.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200718160652273.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719221335739.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719222040382.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719223021831.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719223040216.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719223212141.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719223752045.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719223946219.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719224011054.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720085913028.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720091536672.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720091916083.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720091959949.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720092310385.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720093026399.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720093057828.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720093348137.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720093751897.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720103309037.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720103557585.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720105737586.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720110721574.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720110750417.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720110921360.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720112005752.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720131933941.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720135512654.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720135913364.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720140759959.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720141403910.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200723230233823.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724102450237.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724103452709.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724103730978.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724104436571.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724104901600.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724110119485.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724112242335.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724140831660.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724140928705.png">
+<meta property="article:published_time" content="2020-07-17T08:42:04.000Z">
+<meta property="article:modified_time" content="2021-04-03T14:19:54.299Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="llvm学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717194230732.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-llvm-学习（六）代码优化方式等" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/07/17/llvm-%E5%AD%A6%E4%B9%A0%EF%BC%88%E5%85%AD%EF%BC%89%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%E6%96%B9%E5%BC%8F%E7%AD%89/" class="article-date">
+  <time class="dt-published" datetime="2020-07-17T08:42:04.000Z" itemprop="datePublished">2020-07-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      llvm-学习（六）代码优化方式等
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>学习资料 （哈工大编译原理）<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1zW411t7YE?p=62">https://www.bilibili.com/video/BV1zW411t7YE?p=62</a></p>
+</blockquote>
+<h2 id="常用的优化方法"><a href="#常用的优化方法" class="headerlink" title="常用的优化方法"></a>常用的优化方法</h2><ol>
+<li>删除公共子表达式 </li>
+<li>删除无用代码 </li>
+<li>常量合并 </li>
+<li>代码移动 </li>
+<li>强度削弱 </li>
+<li>删除归纳变量</li>
+</ol>
+<h3 id="删除公告子表达式"><a href="#删除公告子表达式" class="headerlink" title="删除公告子表达式"></a>删除公告子表达式</h3><h4 id="公共子表达式"><a href="#公共子表达式" class="headerlink" title="公共子表达式"></a>公共子表达式</h4><p>如果表达式<code>x op y</code>先前已被计算过，并且从先前的计 算到现在，<code>x op y</code>中变量的值没有改变，那么<code>x op y</code>的</p>
+<p>这次出现就称为公共子表达式(common subexpression)</p>
+<p>对于这种 公告表达式</p>
+<p>又分为：局部公共表达式，全局公共表达式</p>
+<p><strong>局部公共表达式</strong>：指在一个 基本块中，重复定义的。</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717194230732.png" alt="image-20200717194230732" style="zoom:50%;" />
+
+<p><strong>全局公共表达式</strong>：在流图中，上下基本块中 重复的</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717194424843.png" alt="image-20200717194424843" style="zoom:50%;" />
+
+<h4 id="删除公共表达式"><a href="#删除公共表达式" class="headerlink" title="删除公共表达式"></a>删除公共表达式</h4><p>我们就是要 从 局部-&gt;全局 依次删除。达到简化的目的。</p>
+<h3 id="删除无用代码"><a href="#删除无用代码" class="headerlink" title="删除无用代码"></a>删除无用代码</h3><p><strong>复制传播</strong></p>
+<ol>
+<li>常用的公共子表达式消除算法和其它一些优化算法会引入 一些复制语句 (形如x = y的赋值语句) </li>
+<li>复制传播：在复制语句x = y之后尽可能地用y代替x。 （复制传播给删除无用代码带来机会）</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717200547372.png" alt="image-20200717200547372"  />
+
+<p>​    无用代码(死代码Dead-Code ) ： 其计算结果<code>永远不会被使用的语句</code></p>
+<h3 id="常量合并"><a href="#常量合并" class="headerlink" title="常量合并"></a>常量合并</h3><p>如果在编译时刻推导出一个表达式的值是常量，就可以 使用该常量来替代这个表达式。该技术被称为常量合并</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717201443004.png" alt="image-20200717201443004" style="zoom:50%;" />
+
+<h3 id="代码移动"><a href="#代码移动" class="headerlink" title="代码移动"></a>代码移动</h3><p>这个转换处理的是那些不管循环执行多少次都得到相同</p>
+<p>结果的表达式(即循环不变计算，loop-invariant computation) ， 在进入循环之前就对它们求值</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717201949998.png" alt="image-20200717201949998" style="zoom:50%;" />
+
+<p><code>循环不变</code>就有一定的相对性</p>
+<h4 id="强度削弱"><a href="#强度削弱" class="headerlink" title="强度削弱"></a>强度削弱</h4><p>用较快的操作代替较慢的操作，如用加代替乘</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717202411473.png" alt="image-20200717202411473" style="zoom:50%;" />
+
+<p><strong>归纳变量</strong></p>
+<p>对于一个变量x ，如果存在一个正的或负的常数c使</p>
+<p>得每次x被赋值时它的值总增加c ，那么x就称为归纳 变量(Induction Variable)</p>
+<p>​      <img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717203200807.png" alt="image-20200717203200807" style="zoom:50%;" /></p>
+<h4 id="删除归纳变量"><a href="#删除归纳变量" class="headerlink" title="删除归纳变量"></a>删除归纳变量</h4><p>在沿着循环运行时，如果有 一组归纳变量的值的变化保 持<code>步调一致</code>，常常可以将这 组变量删除为只剩一个</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717204227826.png" alt="image-20200717204227826" style="zoom:50%;" />
+
+<p>其中 i 和 t2 ，j 和 t4 的变化是步调一致的 <code>  t2=4 * (i+1)</code>; <code>t4=4 * (j-1)</code>  最后又有一个 if 的比较跳转。<br>也是比较的 i和j 这个时候我们就可以 将 <code>i&gt;=j</code> 转化为 <code>t2&gt;=t4</code></p>
+<h2 id="基本块的优化"><a href="#基本块的优化" class="headerlink" title="基本块的优化"></a>基本块的优化</h2><blockquote>
+<p>很多重要的局部优化技术首先把一个基本块转换成为</p>
+<p>一个<code>无环有向图</code>(directed acyclic graph，DAG)</p>
+<ol>
+<li>检测公共表达式。</li>
+<li>删除无用代码。</li>
+</ol>
+</blockquote>
+<h3 id="基本块的-DAG"><a href="#基本块的-DAG" class="headerlink" title="基本块的 DAG"></a>基本块的 DAG</h3><p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717221653556.png" alt="image-20200717221653556"></p>
+<p><strong>基本块中的每个 语句s 都对应一个 内部结点 N</strong></p>
+<ol>
+<li>结点N的标号是s中的 <code>运算符</code>；同时还有一个<code>定值变量表</code>被关联到<code>N</code> ，表示s是 在此基本块内最晚对表中变量进行定值的语句 </li>
+<li>N的子结点是基本块中在s之前、最后一个对s所使用的 <code>运算分量</code> 进行定值的语 句对应的结点。如果s的某个运算分量在基本块内没有在s之前被定值，则这 个运算分量对应的子结点就是代表该运算分量初始值的叶结点(为区别起见， 叶节点的定值变量表中的变量加上下脚标0)</li>
+<li> 在为语句x=y+z构造结点N的时候，如果x已经在某结点M的定值变量表中，则 从M的定值变量表中删除变量x</li>
+</ol>
+<p>作图为</p>
+<blockquote>
+<p>对于形如x=y+z的三地址指令， 如果已经有一个结点表示y+z， 就不往DAG中增加新的结点， 而是给已经存在的结点附加 定值变量x。注意，如第一 第三，语句，以为在 第三之前 第二句 对第三句用到的 b 进行了一个运行，所以b+c不是公共表达式，要分开写。</p>
+</blockquote>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717222029221.png" alt="image-20200717222029221"></p>
+<h3 id="基于-DAG-删除无用变量"><a href="#基于-DAG-删除无用变量" class="headerlink" title="基于 DAG 删除无用变量"></a>基于 DAG 删除无用变量</h3><p>通过根节点 删除无用变量。（是否为活跃变量，指在之后的运算中没有用到的变量）</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717223018649.png" alt="image-20200717223018649" style="zoom:50%;" />
+
+<p>因为 c 和 e 不是活跃变量，所以直接删除。</p>
+<h3 id="数组元素赋值指令的表示"><a href="#数组元素赋值指令的表示" class="headerlink" title="数组元素赋值指令的表示"></a>数组元素赋值指令的表示</h3><p>用于判断 是否能成为 公共子表达式</p>
+<ol>
+<li>对于形如<code>a[j] = y</code>的三地址指令， 创建一个运算符为<code>“[]=”</code>的结 点，这个结点有3个子结点， 分别表示a、j和y </li>
+<li>该结点没有定值变量表 </li>
+<li>该结点的创建将杀死所有已经 建立的、其值依赖于a的结点 </li>
+<li>一个被杀死的结点不能再获得 任何定值变量，也就是说，它 不可能成为一个公共子表达式</li>
+</ol>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717224330188.png" alt="image-20200717224330188"></p>
+<p>对于这个 赋值，我们的 i 和 j 可能会是 同一个值 就说嘛 z=a[i] 赋值的时候 可能 a[i] 已经被修改过了。</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717224542087.png" alt="image-20200717224542087" style="zoom:50%;" />
+
+<p>这里 我们的 的 a0 被 <code>[]=</code> 依赖了，所以我们遇到 杀死 <code>x=a[i]</code> ，重新生成 <code>z=a[i]</code> 也说明了 <code>a[i]</code> 不能作为 公共子表达式</p>
+<h3 id="根据基本块的DAG可以获得一些非常有用的信息"><a href="#根据基本块的DAG可以获得一些非常有用的信息" class="headerlink" title="根据基本块的DAG可以获得一些非常有用的信息"></a>根据基本块的DAG可以获得一些非常有用的信息</h3><ol>
+<li>确定哪些变量的值在该基本块中赋值前被引用过（在DAG中创建了<code>叶结点</code>的那些变量）</li>
+<li>确定哪些语句计算的值可以在基本块外被引用（在DAG构造过程中为语句s（该语句为变量x定值）创建的节 点N，在DAG构造结束时x仍然是N的定值变量）</li>
+</ol>
+<h3 id="从-DAG-到基本块的重组"><a href="#从-DAG-到基本块的重组" class="headerlink" title="从 DAG 到基本块的重组"></a>从 DAG 到基本块的重组</h3><ol>
+<li><p>对每个具有若干定值变量的节点，构造一个三地址语句 来计算其中某个变量的值</p>
+<ul>
+<li>倾向于把计算得到的结果赋给一个在基本块出口处活跃的变量(如果没有全局活跃变量的信息作为依据，就要假设所有变 量都在基本块出口处活跃，但是不包含编译器为处理表达式 而生成的临时变量)</li>
+</ul>
+</li>
+<li><p>如果结点有多个附加的活跃变量，就必须引入复制语句， 以便给每一个变量都赋予正确的值</p>
+</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717230035215.png" alt="image-20200717230035215" style="zoom:50%;" />
+
+<p>对于 这个 DAG 表。先画出对于的 DAG （没有❌的）。这个时候我们会发现 <code>F,J   E,I  D,H</code> 都是<code>公共子表达式</code>。</p>
+<p>因为 只有 L 在基本块出口之后是活跃的。所以这里面  <code>M,G</code> 都是没有用处的，且我们发现  B，K是一个定量。所以我们可以直接让 B，K等于他应该有的值。然后我们删除 <code>不活跃的根节点</code> G,M 让删除多余的 <code>公共子表达式</code>。 结果为 上图带❌的。重新生成的基本快 </p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200717230630119.png" alt="image-20200717230630119"></p>
+<h2 id="数据流分析"><a href="#数据流分析" class="headerlink" title="数据流分析"></a>数据流分析</h2><p>一组用来获取程序执行路径上的数据流信息的技术</p>
+<p><strong>数据流分析应用</strong></p>
+<ol>
+<li>到达-定值分析 (Reaching-Definition Analysis) </li>
+<li>活跃变量分析 (Live-Variable Analysis) </li>
+<li>可用表达式分析 (Available-Expression Analysis)</li>
+</ol>
+<p>在每一种数据流分析应用中，都会把每个<code>程序点</code>和 一个<code>数据流值</code>关联起来</p>
+<h3 id="数据流分析模式"><a href="#数据流分析模式" class="headerlink" title="数据流分析模式"></a>数据流分析模式</h3><p><code>IN[s]</code>:    语句s<code>之前</code>的数据流值</p>
+<p><code>OUT[s]</code>: 语句s<code>之后</code>的数据流值</p>
+<p><code>fs</code>：语句s的传递函数(transfer function)   (s 是 f的下标 小s)</p>
+<p>​    <strong>传递函数的两种风格</strong> </p>
+<ol>
+<li><p>信息沿执行路径前向传播 (前向数据流问题) </p>
+<p>​            <code>OUT[s] = fs (IN[s]) </code></p>
+</li>
+<li><p>信息沿执行路径逆向传播 (逆向数据流问题)</p>
+<p>​            <code>IN[s] = fs (OUT[s])</code></p>
+</li>
+</ol>
+<p>对于 数据流。设基本块B由语句s1, s2, … , s n顺序组成，则</p>
+<p>​                   <code>IN[si+1 ]= OUT[si ] </code>  i=1, 2, … , n-1   i为下标</p>
+<h3 id="基本块上的数据流模式"><a href="#基本块上的数据流模式" class="headerlink" title="基本块上的数据流模式"></a>基本块上的数据流模式</h3><p>和数据流模式相同，但基础从 <code>语句</code>   变成了  <code>基本块</code>。</p>
+<p><code>IN[B]</code>:   紧靠基本块B之前的数据流值</p>
+<p><code>OUT[B]</code>: 紧随基本块B之后的数据流值</p>
+<p><strong>设基本块B由语句s1,s2,…,s n顺序组成，则</strong></p>
+<p><code> IN[B] = IN[s1]</code></p>
+<p><code> OUT[B] = OUT[sn]</code></p>
+<p><code>fB</code>：基本块B的传递函数 (B 是 f的下标 小B)</p>
+<p>​        前向数据流问题：<code>OUT[B] = fB(IN[B]) </code> f B = fsn ·…·f s2 ·fs1 </p>
+<p>​        逆向数据流问题：<code>IN[B] = fB(OUT[B])</code>  f B= fs1· f s2· …·fsn</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200718105725863.png" alt="image-20200718105725863" style="zoom:50%;" />
+
+<blockquote>
+<p> 实现依次递推  <code>fB</code> 是由 基本块B中的 各个语句传递函数，反向依次合成的。</p>
+</blockquote>
+<h2 id="到达定值分析"><a href="#到达定值分析" class="headerlink" title="到达定值分析"></a>到达定值分析</h2><p><strong>定值</strong>  变量x的定值是(可能)将一个值赋给x的语句</p>
+<p><strong>到达定值</strong>   </p>
+<ol>
+<li>如果存在一条从紧跟在定值d后面的点到达某一程序点p的路径， 而且在此路径上d没有被“杀死” (如果在此路径上有对变量x 的其它定值d′，则称变量x被这个定值d′“杀死”了) ，则称定 值d到达程序点p</li>
+<li>直观地讲，如果某个变量x的一个定值d到达点p，在点p 处使用的x的值可能就是由d最后赋予的</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200718143116380.png" alt="image-20200718143116380" style="zoom:50%;" />
+
+<p>得到 B2 B3 B4 块进入的订制是多少。 不能进入，就说明这个值在进入之前，已经被重新赋值了，这个时候，这个值就被杀死了，就不能进入到对应的块。</p>
+<p>假设每个控制流图都有两个空基本块， 分别是表示流图的开始点的ENTRY结 点和结束点的EXIT结点（所有离开该 图的控制流都流向它）</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200718143128616.png" alt="image-20200718143128616" style="zoom:50%;" />
+
+
+
+<h3 id="到达定值分析的主要用途"><a href="#到达定值分析的主要用途" class="headerlink" title="到达定值分析的主要用途"></a>到达定值分析的主要用途</h3><p><strong>循环不变计算的检测</strong></p>
+<p>如果循环中含有赋值x=y+z ，而y和z所有可能的定值都在循环 外面(包括y或z是常数的特殊情况) ，那么y+z就是循环不变计算</p>
+<p><strong>常量合并</strong></p>
+<p>如果对变量x的某次使用只有一个定值可以到达，并且该定值 把一个常量赋给x ，那么可以简单地把x替换为该常量</p>
+<p><strong>判定变量x在p点上是否未经定值就被引用</strong></p>
+<h3 id="“生成”与“杀死”定值"><a href="#“生成”与“杀死”定值" class="headerlink" title="“生成”与“杀死”定值"></a>“生成”与“杀死”定值</h3><p>定值d: u = v + w</p>
+<p>​    该语句“生成”了一个对变量u的定值d，并“杀死” 了程序中其它对u的定值</p>
+<blockquote>
+<p>这个地方的 u 被重新赋值了。所以，在这之前的u的定值的都已经不存在了。</p>
+<p>也就是被杀死了。</p>
+<p>a: u = e + r</p>
+<p>b: u = o + z </p>
+<p>这个时候 变量u先生成一个定值a 。但是在这之后 变量u又被重新生成了 b 这个时候我们的定值a 就已经被杀死了</p>
+</blockquote>
+<h3 id="到达定值的传递函数"><a href="#到达定值的传递函数" class="headerlink" title="到达定值的传递函数"></a>到达定值的传递函数</h3><p>fd ：定值d: u = v + w的传递函数</p>
+<p> <code>fd(x) = gend ∪(x-kill d)</code></p>
+<p>生成-杀死形式</p>
+<p> <code> gend</code> ： 由语句d生成的定值的集合 gend ={d} </p>
+<p><code>killd</code> ：由语句d杀死的定值的集合（程序中所有其它对u的定值）</p>
+<blockquote>
+<p> 经过每个 传递函数 时，都要杀死重新赋值的变量，然后加入数组。</p>
+</blockquote>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200718160652273.png" alt="image-20200718160652273" style="zoom:50%;" />
+
+<h3 id="到达定值的数据流方程"><a href="#到达定值的数据流方程" class="headerlink" title="到达定值的数据流方程"></a>到达定值的数据流方程</h3><p><code>IN[B]</code>：到达流图中基本块B的入口处的定值的集合</p>
+<p><code>OUT[B]</code> ：到达流图中基本块B的出口处的定值的集合</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719221335739.png" alt="image-20200719221335739" style="zoom:50%;" />
+
+
+
+<h2 id="到达定值方程的计算"><a href="#到达定值方程的计算" class="headerlink" title="到达定值方程的计算"></a>到达定值方程的计算</h2><h3 id="到达定值方程的计算-1"><a href="#到达定值方程的计算-1" class="headerlink" title="到达定值方程的计算"></a>到达定值方程的计算</h3><p><strong>输入</strong>：</p>
+<p>​    流图G，其中每个基本块B的gen B 和kill B 都已计算出来</p>
+<p><strong>输出</strong>：</p>
+<p>​     IN[B]和OUT[B]</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719222040382.png" alt="image-20200719222040382" style="zoom:50%;" />
+
+<p>例题</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719223021831.png" alt="image-20200719223021831" style="zoom:50%;" />
+
+
+
+<ol>
+<li>将这个块，引入的块，的out 值取并集</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719223040216.png" alt="image-20200719223040216" style="zoom:50%;" />
+
+<ol start="2">
+<li>这个块的 out 值 为， 这个快接受的 <code>IN[B]</code> 的值 + gen对应块的值 - kill对应块的值 = <code>OUT[B]</code> 也就是这个块的输出</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719223212141.png" alt="image-20200719223212141" style="zoom:50%;" />
+
+<blockquote>
+<p> 一直重复迭代，直到 所有的 OUT[B] 的值和上一次迭代相同。(OUT3 所有的值 和 OUT2 的值对应相同)</p>
+<p>然后更具 IN[B] 的值得到表格</p>
+</blockquote>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719223752045.png" alt="image-20200719223752045" style="zoom:50%;" />
+
+<h3 id="引用-定值链"><a href="#引用-定值链" class="headerlink" title="引用-定值链"></a>引用-定值链</h3><p>引用-定值链(简称ud链) 是一个列表，对于变量的每一 次引 用，到达该引用的所有定值都在该列表中</p>
+<ol>
+<li>如果块B中变量a的引用之前有a的定值， d: a = ··· 那么只有a的最后一次定值会在该引用的 ··· ··· = ···a··· ud链中</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719223946219.png" alt="image-20200719223946219" style="zoom:50%;" />
+
+<ol start="2">
+<li><p>如果块B中变量a的引用之前没有a的定值， ··· ··· = ···a··· 那么a的这次引用的ud链就是IN[B]中a的 ···</p>
+<p>定值的集合</p>
+</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200719224011054.png" alt="image-20200719224011054" style="zoom:50%;" />
+
+<h2 id="活跃变量分析"><a href="#活跃变量分析" class="headerlink" title="活跃变量分析"></a>活跃变量分析</h2><blockquote>
+<p> <strong>活跃变量</strong></p>
+<p>对于变量x和程序点p，如果在流图中沿着从p开始</p>
+<p>的某条路径会引用变量x在p点的值，则称变量x在 点p是活跃(live)的，否则称变量x在点p不活跃(dead)</p>
+</blockquote>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720085913028.png" alt="image-20200720085913028" style="zoom:50%;" />
+
+<ul>
+<li><p>如果重新定义了，那么在重新定义被引用之前都不是活跃的。</p>
+<p>如：上图的 i 在 B1 出口处进入 B2 i 被引用。并且重新定值，这是B1 出口处的 i是活跃的，但是这个时候 i 被重新定值，一直到 B4 再次重新定义了 i 的值，然后 B4 进入 B2 i 被重新引用了。这个时候 B4 的 出口处的 i 就是活跃的。</p>
+</li>
+<li><p>在各个基本块中，如果都没有再次被引用，这这个 定值就不是活跃的。</p>
+<p>如：上图的 m n u1</p>
+</li>
+<li><p>控制从 基本块 B3 中离开后，都能再次回到 B3 且在流程图中 没有对 u2 重新定值。且 B3 能一直引用 u2 。所以这个 u2 在每个块出口出都是活跃的。  U3 也是如此。</p>
+</li>
+</ul>
+<h3 id="活跃变量信息的主要用途"><a href="#活跃变量信息的主要用途" class="headerlink" title="活跃变量信息的主要用途"></a>活跃变量信息的主要用途</h3><ol>
+<li><p>删除无用赋值</p>
+<ul>
+<li>无用赋值：如果x在点p的定值在基本块内所有后继点都不被引 用，且x在基本块出口之后又是不活跃的，那么x在点p的定值就 是无用的 </li>
+</ul>
+</li>
+<li><p>为基本块分配寄存器</p>
+<ul>
+<li><p>如果所有寄存器都被占用，并且还需要申请一个寄存器，则应 该考虑使用已经存放了死亡值的寄存器，因为这个值不需要保 存到内存</p>
+</li>
+<li><p>如果一个值在基本块结尾处是死的就不必在结尾处保存这个值</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="活跃变量的传递函数"><a href="#活跃变量的传递函数" class="headerlink" title="活跃变量的传递函数"></a>活跃变量的传递函数</h3><blockquote>
+<p>利用 use def 来得到数据定值使用情况，逆向数据流</p>
+<p><code>IN[B] = fB(OUT [B]）</code></p>
+<p><code>f B(x) = use B∪(x-def B)</code></p>
+<p><code>def B</code>：在基本块B中定值，但是定值前在B中没有被 引用的变量的集合</p>
+<p><code>use B</code> ：在基本块B中引用，但是引用前在B中没有被 定值的变量集合</p>
+</blockquote>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720091536672.png" alt="image-20200720091536672" style="zoom:50%;" />
+
+<p>B2 中 i 和 j 都是首次利用引用的值，所以 B2 中 use 为 i，j    def 为 空</p>
+<h3 id="活跃变量数据流方程"><a href="#活跃变量数据流方程" class="headerlink" title="活跃变量数据流方程"></a>活跃变量数据流方程</h3><p><code>IN[B]</code>：  在基本块B的入口处的活跃变量集合 </p>
+<p><code>OUT[B]</code>：在基本块B的出口处的活跃变量集合</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720091916083.png" alt="image-20200720091916083" style="zoom:50%;" />
+
+<p>useB 和defB 的值可以直接从流图计算出来， 因此在方程中作为已知量</p>
+<h3 id="计算活跃变量的迭代算法"><a href="#计算活跃变量的迭代算法" class="headerlink" title="计算活跃变量的迭代算法"></a>计算活跃变量的迭代算法</h3><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720091959949.png" alt="image-20200720091959949" style="zoom:50%;" />
+
+<p>例题</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720092310385.png" alt="image-20200720092310385" style="zoom:50%;" />
+
+<ul>
+<li><p>逆向推到，所以先分析 B4，B4的 IN值为。<code>初始 + Use - def = IN[B]</code>     B4-&gt;B3-&gt;B2-&gt;B1</p>
+</li>
+<li><p>因为B3 的值传给了 B2 所以，B3 的 <code> OUT[B3] = IN[B4]</code></p>
+</li>
+<li><p>如果 基本块的 IN 值相对上一次的 IN 值被改变了，则继续迭代</p>
+</li>
+</ul>
+<h3 id="定值-引用链"><a href="#定值-引用链" class="headerlink" title="定值-引用链"></a>定值-引用链</h3><p>定值-引用链：设变量x有一个定值d，该定值所有能够到达的引 用u的集合称为x在d处的<code>定值-引用链</code>，简称<code>du链</code></p>
+<p>如果在求解<code>活跃变量</code>数据流方程中的OUT[B]时，将OUT[B]表示 成从<code>B的末尾处能够到达的引用的集合</code>，那么，可以直接利用这 些信息计算基本块B中每个变量x在其定值处的du链</p>
+<ol>
+<li>如果B中x的定值d之后有x的第一个定值d′， ··· d: x = ··· 则d和d′之间x的所有引用构成d的du链</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720093026399.png" alt="image-20200720093026399" style="zoom:50%;" />
+
+<ol start="2">
+<li>如果B中x的定值d之后没有x的新的定值，则B中d之后x的所有引用以及OUT[B]中x的所有引用构成d的du链</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720093057828.png" alt="image-20200720093057828" style="zoom:50%;" />
+
+
+
+<h2 id="可用表达式分析"><a href="#可用表达式分析" class="headerlink" title="可用表达式分析"></a>可用表达式分析</h2><blockquote>
+<p>如果从流图的首节点到达程序点 p的每条路径都对表达式<code>x op y</code>进行计算，并且从最后一个这样的计算到点p之 间没有再次对x或y定值，那么表达式<code>x op y</code>在点 p是可用 的(available)</p>
+<p>在点 p上，x op y已经在之前被计算过，不需要重新计算   (可以直接引用。)</p>
+</blockquote>
+<h3 id="可用表达式信息的主要用途"><a href="#可用表达式信息的主要用途" class="headerlink" title="可用表达式信息的主要用途"></a>可用表达式信息的主要用途</h3><ol>
+<li>消除全局公共子表达式</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720093348137.png" alt="image-20200720093348137" style="zoom:50%;" />
+
+<p>​    满足要求：2 中 i不能被重新定值，或者 i 被重新定值，但是出现了相同的 计算公共表达式。</p>
+<ol start="2">
+<li>进行复制传播</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720093751897.png" alt="image-20200720093751897" style="zoom:50%;" />
+
+<p>​    在x的引用点u可以用y代替x的条件：</p>
+<p>​    复制语句x = y在引用点u处可用从流图的首节点到达u的每条路径都存在复制语句x = y，并且从最后一条复 制语句x = y到点u之间没有再次对x或y定值</p>
+<h3 id="可用表达式的传递函数"><a href="#可用表达式的传递函数" class="headerlink" title="可用表达式的传递函数"></a>可用表达式的传递函数</h3><p>对于可用表达式数据流模式而言，如果基本块B对x或者y进行了 (或可能进行)定值，且以后<code>没有重新计算x op y</code>，则称B<code>杀死表达 式</code>x op y。如果基本块B对x op y进行计算，并且之后<code>没有重新定 值x或y</code>，则称B<code>生成表达式</code>x op y</p>
+<p><code>fB (x)= e_gen B ∪(x- e_kill B )</code></p>
+<p><code>e_gen B</code> ：基本块B所生成的可用表达式的集合 </p>
+<p><code>e_kill B</code> ：基本块B所杀死的U中的可用表达式的集合 </p>
+<p>​    <code>U</code>：所有出现在程序中一个或多个语句的右部的表达式的全集</p>
+<p>当遇到 定义 如</p>
+<p> z=x+y 时就加入到 <code>e_gen B</code>   </p>
+<p>从 <code>e_kill B</code>中删除表达式x op y</p>
+<p>把所有和z相关的表达式加入到 <code>e_kill B</code> 中</p>
+<h3 id="可用表达式的数据流方程"><a href="#可用表达式的数据流方程" class="headerlink" title="可用表达式的数据流方程"></a>可用表达式的数据流方程</h3><p><code>IN[B]</code>：在B的入口处可用的U中的表达式集合 </p>
+<p><code>OUT[B]</code>：在B的出口处可用的U中的表达式集合</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720103309037.png" alt="image-20200720103309037" style="zoom:50%;" />
+
+<blockquote>
+<p>e_gen B 和e_kill B 的值可以直接从流图计算出来， 因此在方程中作为已知量</p>
+</blockquote>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720103557585.png" alt="image-20200720103557585" style="zoom:50%;" />
+
+<h2 id="支配结点和回边"><a href="#支配结点和回边" class="headerlink" title="支配结点和回边"></a>支配结点和回边</h2><p>如果从流图的入口结点到结点n的每条路径都经过结点d，则称结点d支配(dominate)结点n，记为d dom n</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720105737586.png" alt="image-20200720105737586" style="zoom:50%;" />
+
+<blockquote>
+<p>支配对象更具到达关系确定。因为 2 -&gt;3 也可以直接 1 -&gt; 3 所以 2只能支配自己，5，6，9，10也是一样。</p>
+<p>因为只支配 它 和 它的后代节点，所以 9  10只支配自己</p>
+</blockquote>
+<h3 id="寻找支配结点"><a href="#寻找支配结点" class="headerlink" title="寻找支配结点"></a>寻找支配结点</h3><p><code>IN[B]</code>：在基本块B入口处的支配结点集合</p>
+<p><code>OUT[B]</code>：在基本块B出口处的支配结点集合</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720110721574.png" alt="image-20200720110721574" style="zoom:50%;" />
+
+<h3 id="计算支配结点的迭代算法"><a href="#计算支配结点的迭代算法" class="headerlink" title="计算支配结点的迭代算法"></a>计算支配结点的迭代算法</h3><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720110750417.png" alt="image-20200720110750417" style="zoom:50%;" />
+
+<p>因为什么的 是并集 ∩ 所以 初始值为 全集</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720110921360.png" alt="image-20200720110921360" style="zoom:50%;" />
+
+<p>节点 1 是 E 和 9 控制，所以 IN[B1] = E  ∩  9 =》 E , OUT[B1] 是 IN[B1] + 自身节点。</p>
+<p>依次类推 5 号 6 号节点，都是 4号节点传入。 7号及诶按的传入， 利用的是 5 6 10 的OUT值 然后做交集。</p>
+<p>{E①③④⑤}   ∩  {E①③④⑥}   ∩   N = {E①③④}</p>
+<h3 id="回边"><a href="#回边" class="headerlink" title="回边"></a>回边</h3><p>假定流图中存在两个结点d和n满足d dom n。如果存在从结点 n到d的有向边n→d，那么这条边称为回边</p>
+<p>（回到上面的节点 父辈节点）</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720112005752.png" alt="image-20200720112005752" style="zoom:50%;" />
+
+
+
+<h2 id="自然循环及其识别"><a href="#自然循环及其识别" class="headerlink" title="自然循环及其识别"></a>自然循环及其识别</h2><h3 id="自然循环-（自然循环是一种适合于优化的循环）"><a href="#自然循环-（自然循环是一种适合于优化的循环）" class="headerlink" title="自然循环   （自然循环是一种适合于优化的循环）"></a>自然循环   （自然循环是一种适合于优化的循环）</h3><p>从程序分析的角度来看，循环在代码中以什么形式出 现 并不重要，重要的是它是否具有易于优化的性质</p>
+<p><strong>自然循环是满足以下性质的循环</strong></p>
+<ol>
+<li>有唯一的入口结点，称为首结点(header)。首结点支配循环中的 所有结点，否则，它就不会成为循环的唯一入口 </li>
+<li> 循环中至少有一条返回首结点的路径，否则，控制就不可能从“循环”中直接回到循环头，也就无法构成循环</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720131933941.png" alt="image-20200720131933941" style="zoom:50%;" />
+
+<h3 id="自然循环的识别"><a href="#自然循环的识别" class="headerlink" title="自然循环的识别"></a>自然循环的识别</h3><p>给定一个回边n → d，该回边的自然循环为：d，以及所有可以 不经过d而到达n的结点。d为该循环的首结点。</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720135512654.png" alt="image-20200720135512654" style="zoom:50%;" />
+
+<p>对于第一个节点，依次向上查找。</p>
+<h3 id="算法：构造一条回边的自然循环"><a href="#算法：构造一条回边的自然循环" class="headerlink" title="算法：构造一条回边的自然循环"></a>算法：构造一条回边的自然循环</h3><p>输入：流图 G和回边n → d </p>
+<p>输出：由回边n → d的自然循环中的所有结点组成的集合</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720135913364.png" alt="image-20200720135913364" style="zoom:50%;" />
+
+<p>结点d在初始时刻已经在loop中，不会去考虑它的前驱。因此, 找出的都是不 经过d而能到达n的结点。</p>
+<p>圆环间 可以 包含。</p>
+<p><strong>最内循环 (Innermost Loops): 不包含其它循环的循环。</strong></p>
+<p>如果两个循环具有相同的首结点，那么很难说哪个是 最内循环。此时把两个循环合并</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720140759959.png" alt="image-20200720140759959" style="zoom:50%;" />
+
+<h2 id="删除全局公共子表达式-和复制语句"><a href="#删除全局公共子表达式-和复制语句" class="headerlink" title="删除全局公共子表达式 和复制语句"></a>删除全局公共子表达式 和复制语句</h2><h3 id="删除全局公共子表达式"><a href="#删除全局公共子表达式" class="headerlink" title="删除全局公共子表达式"></a>删除全局公共子表达式</h3><p><code>可用表达式 </code>  的数据流问题可以帮助确定位于流图中p点的 表达式是否为 <code>全局公共子表达式</code></p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200720141403910.png" alt="image-20200720141403910" style="zoom:50%;" />
+
+<h3 id="全局公共子表达式删除算法"><a href="#全局公共子表达式删除算法" class="headerlink" title="全局公共子表达式删除算法"></a>全局公共子表达式删除算法</h3><p>输入：带有可用表达式信息的流图 </p>
+<p>输出：修正后的流图</p>
+<p><strong>方法：</strong></p>
+<p>对于语句<code>s：z = x op y</code>，如果<code>x op y</code>在s之前可用，那么执行如下步骤：</p>
+<p> ① 从s开始逆向搜索，但不穿过任何计算了<code>x o ``y的块，找到所有离 s最近的计算了</code>x op y`的语句</p>
+<p> ② 建立新的临时变量u</p>
+<p> ③ 把步骤①中找到的语句<code>w = x op y</code>用下列语句代替：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">u = x op y</span><br><span class="line">w=u					</span><br></pre></td></tr></table></figure>
+
+<p> ④ 用<code>z = u</code>替代s</p>
+<h3 id="删除复制语句"><a href="#删除复制语句" class="headerlink" title="删除复制语句"></a>删除复制语句</h3><p>对于 <code>复制语句 </code>s: x=y，如果在x的所有引用点都可以用对y的 引用代替对x的引用(复制传播)，那么可以删除复制语句 x=y</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200723230233823.png" alt="image-20200723230233823" style="zoom:50%;" />
+
+<blockquote>
+<p>t1 能复制传播是因为 t1 中 x的值是固定的，t2 不能复制传播，是因为 x的值可能有两种情况（x=y 或者 x=y+1）这个x的值不能被确定，所以不能利用复制传播。</p>
+</blockquote>
+<h3 id="※删除复制语句的算法"><a href="#※删除复制语句的算法" class="headerlink" title="※删除复制语句的算法"></a>※删除复制语句的算法</h3><p>输入：流图G 、du链、各基本块B入口处的可用复制语句集合 </p>
+<p>输出：修改后的流图</p>
+<p><strong>方法：</strong></p>
+<p>​    对于每个复制语句x=y，执行下列步骤 </p>
+<p>​    ① 根据du链找出该定值所能够到达的那些对x的引用</p>
+<p>​    ② 确定是否对于每个这样的引用，x=y都在 IN[B]中(B是包 含这个引用的基本块) ，并且B中该引用的前面没有x或者y 的定值 </p>
+<p>​    ③ 如果x=y满足第②步的条件，删除x=y ，且把步骤①中找 到的对x的引用用y代替</p>
+<h2 id="代码移动-1"><a href="#代码移动-1" class="headerlink" title="代码移动"></a>代码移动</h2><h3 id="循环不变计算检测算法"><a href="#循环不变计算检测算法" class="headerlink" title="循环不变计算检测算法"></a>循环不变计算检测算法</h3><p><strong>输入：</strong>循环L，每个三地址指令的ud链 </p>
+<p><strong>输出：</strong> L的循环不变计算语句</p>
+<p><strong>方法</strong></p>
+<ol>
+<li><p>将下面这样的语句标记为“不变”：语句的运算分量或者是常数，或者其所有定值点都在循环L外部</p>
+</li>
+<li><p>重复执行步骤(3)，直到某次没有新的语句可标记为“不变”为止</p>
+</li>
+<li><p>将下面这样的语句标记为“不变”：先前没有被标记过，且所有运 算分量或者是常数，或者其所有定值点都在循环L外部，或者只有一 个到达定值，该定值是循环中已经被标记为“不变”的语句</p>
+</li>
+</ol>
+<h3 id="代码外提"><a href="#代码外提" class="headerlink" title="代码外提"></a>代码外提</h3><blockquote>
+<p>循环不变计算将被移至首结点之前，为此创建一个称为 <code>前置首结点</code> 的新块。前置首结点 的  <code>唯一后继是首结点</code>  ，并且原来 从循环L外到达L首结点的边都改成进入  <code>前置首结点</code>。 从循环 L里面到达  <code>首结点</code>  的边不变</p>
+</blockquote>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724102450237.png" alt="image-20200724102450237" style="zoom:50%;" />
+
+<h3 id="循环不变计算语句-s-x-y-z-移动的条件"><a href="#循环不变计算语句-s-x-y-z-移动的条件" class="headerlink" title="循环不变计算语句 s : x = y + z 移动的条件"></a>循环不变计算语句 s : x = y + z 移动的条件</h3><p>（1）s所在的基本块是循环所有出口结点(有后继结点在循 环外的结点)的支配结点 </p>
+<p>这个 语句基本块 一定会被执行。这个语句在出口节点。或者出口节点的支配节点</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724103452709.png" alt="image-20200724103452709" style="zoom:50%;" />
+
+<p>（2） 循环中没有其它语句对x赋值</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724103730978.png" alt="image-20200724103730978" style="zoom:50%;" />
+
+<p>（3）循环中对x的引用仅由s到达</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724104436571.png" alt="image-20200724104436571" style="zoom:50%;" />
+
+<h3 id="代码移动算法"><a href="#代码移动算法" class="headerlink" title="代码移动算法"></a>代码移动算法</h3><p>输入：循环L、ud链、支配结点信息 </p>
+<p>输出：修改后的循环 </p>
+<p>方法：</p>
+<ol>
+<li> 寻找循环不变计算</li>
+<li>对于步骤(1)中找到的每个循环不变计算，检查是否满足上面的三个 条件</li>
+<li>按照循环不变计算找出的次序，把所找到的满足上述条件的循环不 变计算外提到前置首结点中。如果循环不变计算有分量在循环中定 值，只有将定值点外提后，该循环不变计算才可以外提</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724104901600.png" alt="image-20200724104901600" style="zoom:50%;" />
+
+
+
+<h2 id="作用于归纳变量的-强度削弱"><a href="#作用于归纳变量的-强度削弱" class="headerlink" title="作用于归纳变量的 强度削弱"></a>作用于归纳变量的 强度削弱</h2><h3 id="作用于归纳变量的强度削弱"><a href="#作用于归纳变量的强度削弱" class="headerlink" title="作用于归纳变量的强度削弱"></a>作用于归纳变量的强度削弱</h3><blockquote>
+<ol>
+<li><p>对于一个变量x ，如果存在一个正的或负的常量c ，使得每次 x被赋值时，它的值总是增加c ，则称x为归纳变量 </p>
+</li>
+<li><p>如果循环L中的变量i 只有形如i =i+c的定值(c是常量)，则称i为循环L的基本归纳变量 </p>
+</li>
+<li><p>如果j = c×i+d，其中i是基本归纳变量，c和d是常量，则j也是一个归纳变量，称j属于i族</p>
+<p>​    基本归纳变量i属于它自己的族</p>
+</li>
+<li><p>每个归纳变量都关联一个三元组。如果j = c×i+d，其中i是基本归纳变量，c和d是常量，则与j相关联的三元组是( i, c, d )</p>
+</li>
+</ol>
+</blockquote>
+<p>图解</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724110119485.png" alt="image-20200724110119485" style="zoom:50%;" />
+
+<h3 id="归纳变量检测算法"><a href="#归纳变量检测算法" class="headerlink" title="归纳变量检测算法"></a>归纳变量检测算法</h3><p><strong>输入：</strong>带有 <code>循环不变计算信息</code> 和 <code>到达定值信息</code> 的循环L </p>
+<p><strong>输出：</strong>一组归纳变量 </p>
+<p>​    <strong>方法：</strong></p>
+<ol>
+<li>扫描L的语句，找出所有<code>基本归纳变量</code>。在此要用到 <code>循环不变计算信息</code>。与每个基本归纳变量i相关联的 三元组是(i, 1, 0)</li>
+</ol>
+<h3 id="作用于归纳变量的强度削弱算法"><a href="#作用于归纳变量的强度削弱算法" class="headerlink" title="作用于归纳变量的强度削弱算法"></a>作用于归纳变量的强度削弱算法</h3><p><strong>输入：</strong>带有到达定值信息和已计算出的归纳变量族的循环L </p>
+<p><strong>输出：</strong>修改后的循环  方法：对于每个基本归纳变量i，对其族中的每个归纳变量j：(i, c, d) 执行下列步骤</p>
+<ol>
+<li><p>建立新的临时变量t。如果变量j1 和j2 具有相同的三元组，则只为它们建立 一个新变量</p>
+</li>
+<li><p>用j=t代替对j的赋值</p>
+</li>
+<li><p>在L中紧跟定值i=i+n之后，添加t=t+c<em>n。将t放入i族，其三元组为 (i, c, d)</em></p>
+</li>
+<li><p><em>在前置节点的末尾，添加语句t=c</em>i和t=t+d ，使得在循环开始的时候 t=c*i+d=j</p>
+</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724112242335.png" alt="image-20200724112242335" style="zoom:50%;" />
+
+<h2 id="归纳变量的删除"><a href="#归纳变量的删除" class="headerlink" title="归纳变量的删除"></a>归纳变量的删除</h2><h3 id="归纳变量的删除-1"><a href="#归纳变量的删除-1" class="headerlink" title="归纳变量的删除"></a>归纳变量的删除</h3><p>对于在强度削弱算法中引入的复制语句j=t，如果在归纳 变量j的所有引用点都可以用对t的引用代替对j的引用， 并且j在循环的出口处不活跃，则可以删除复制语句j=t</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724140831660.png" alt="image-20200724140831660" style="zoom:50%;" />#</p>
+<h3 id="删除仅用于测试的归纳变量"><a href="#删除仅用于测试的归纳变量" class="headerlink" title="删除仅用于测试的归纳变量"></a>删除仅用于测试的归纳变量</h3><p>对于仅用于测试的基本归纳变量i，取i族的某个归纳变量j (尽量使得c、d简单，即c=1或d=0的情况)。把每个对i的测 试替换成为对j的测试</p>
+<ol>
+<li> ( relop i x B )替换为( relop j c*x+d B )，其中x不是归纳变 量，并假设c&gt;0 </li>
+<li> ( relop i 1 i 2 B )，如果能够找到三元组j 1 ( i1 , c, d )和j 2 ( i2 , c, d )， 那么可以将其替换为( relop j 1 j 2 B ) (假设c&gt;0 )。否则，测试 的替换可能是没有价值的</li>
+</ol>
+<p>如果归纳变量i不再被引用，那么可以删除和它相关的指令</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200724140928705.png" alt="image-20200724140928705" style="zoom:50%;" />
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/07/17/llvm-%E5%AD%A6%E4%B9%A0%EF%BC%88%E5%85%AD%EF%BC%89%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%E6%96%B9%E5%BC%8F%E7%AD%89/" data-id="ckn2iqpq8001lxrn945p07lsr" data-title="llvm-学习（六）代码优化方式等" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/llvm%E5%AD%A6%E4%B9%A0/" rel="tag">llvm学习</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/07/27/CSAPP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          CSAPP学习笔记
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/07/16/llvm-%E5%AD%A6%E4%B9%A0(%E4%BA%94)%20%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">llvm-学习（五）代码优化</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/80/" rel="tag">80</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" rel="tag">CSAPP学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int/" rel="tag">int</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm%E5%AD%A6%E4%B9%A0/" rel="tag">llvm学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80/" rel="tag">基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" rel="tag">基础技术</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%89%E5%8D%93/" rel="tag">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" rel="tag">工具安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" rel="tag">漏洞模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" rel="tag">问题汇总</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" rel="tag">项目学习</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/80/" style="font-size: 10px;">80</a> <a href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">CSAPP学习</a> <a href="/tags/WEB/" style="font-size: 17.5px;">WEB</a> <a href="/tags/int/" style="font-size: 10px;">int</a> <a href="/tags/llvm%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">llvm学习</a> <a href="/tags/%E5%9F%BA%E7%A1%80/" style="font-size: 17.5px;">基础</a> <a href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" style="font-size: 10px;">基础技术</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" style="font-size: 20px;">学习笔记</a> <a href="/tags/%E5%AE%89%E5%8D%93/" style="font-size: 10px;">安卓</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" style="font-size: 12.5px;">工具安装</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">操作系统</a> <a href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">漏洞模式</a> <a href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" style="font-size: 10px;">问题汇总</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">项目学习</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/29/codeql-xue-xi-bi-ji/">codeql 学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/10/macos-dui-zhi-shi-xue-xi-bi-ji/">macOS 堆知识学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/09/afl%E4%BD%BF%E7%94%A8%E5%AD%A6%E4%B9%A0/">AFL 使用学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/01/fastjson-xue-xi/">fastjson 学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/26/java-classloader%E8%AE%A4%E8%AF%86/">java classloader 认识</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

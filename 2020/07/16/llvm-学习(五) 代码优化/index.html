@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>llvm-学习（五）代码优化 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="代码恒等式  Algebraic identities: e.g, x + 0 &#x3D; 0 + x &#x3D; x  Constant folding: e.g, 2 * 4 &#x3D;&gt; 8  Strength reductions: e.g, 2 * x &#x3D;&gt; (x + x) or (x &lt;&lt; 1)   基础代码测试代码 1234567891011121314151617181920int">
+<meta property="og:type" content="article">
+<meta property="og:title" content="llvm-学习（五）代码优化">
+<meta property="og:url" content="http://example.com/2020/07/16/llvm-%E5%AD%A6%E4%B9%A0(%E4%BA%94)%20%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="代码恒等式  Algebraic identities: e.g, x + 0 &#x3D; 0 + x &#x3D; x  Constant folding: e.g, 2 * 4 &#x3D;&gt; 8  Strength reductions: e.g, 2 * x &#x3D;&gt; (x + x) or (x &lt;&lt; 1)   基础代码测试代码 1234567891011121314151617181920int">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200716212703245.png">
+<meta property="article:published_time" content="2020-07-16T06:15:23.000Z">
+<meta property="article:modified_time" content="2021-04-03T14:19:47.823Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="llvm学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200716212703245.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-llvm-学习(五) 代码优化" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/07/16/llvm-%E5%AD%A6%E4%B9%A0(%E4%BA%94)%20%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96/" class="article-date">
+  <time class="dt-published" datetime="2020-07-16T06:15:23.000Z" itemprop="datePublished">2020-07-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      llvm-学习（五）代码优化
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="代码恒等式"><a href="#代码恒等式" class="headerlink" title="代码恒等式"></a>代码恒等式</h2><blockquote>
+<ol>
+<li>Algebraic identities: e.g, x + 0 = 0 + x = x </li>
+<li>Constant folding: e.g, 2 * 4 =&gt; 8 </li>
+<li>Strength reductions: e.g, 2 * x =&gt; (x + x) or (x &lt;&lt; 1)</li>
+</ol>
+</blockquote>
+<h3 id="基础代码"><a href="#基础代码" class="headerlink" title="基础代码"></a>基础代码</h3><p><strong>测试代码</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">compute</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> E;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">19</span>;</span><br><span class="line">    <span class="keyword">int</span> b = <span class="number">3</span>;</span><br><span class="line">    E = a+<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> E;</span><br><span class="line"><span class="comment">//    int result = 0;</span></span><br><span class="line"><span class="comment">//    int a = 2;</span></span><br><span class="line"><span class="comment">//    int b = 3;</span></span><br><span class="line"><span class="comment">//    int c = 4 + a + b;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    result += a;</span></span><br><span class="line"><span class="comment">//    result += b;</span></span><br><span class="line"><span class="comment">//    result *= c;</span></span><br><span class="line"><span class="comment">//    result /= 2;</span></span><br><span class="line"><span class="comment">//    return result;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>Makefile</strong></p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">.PHONY : all clean run_ol build_ll make_so</span><br><span class="line"></span><br><span class="line">SoPath = /Users/0xc3m4l/CLionProjects/llvmlearn/LocalOpts/build/src/</span><br><span class="line">SoName = libLocalOpts.so</span><br><span class="line"></span><br><span class="line">OPTION_LO= -local-opts</span><br><span class="line"></span><br><span class="line">all : build_ll run_ol make_so</span><br><span class="line"></span><br><span class="line">run_ol : build_ll make_so</span><br><span class="line">	opt -mem2reg -load $&#123;SoPath&#125;$&#123;SoName&#125; $&#123;OPTION_LO&#125; &lt; loop.ll &gt; /dev/null</span><br><span class="line"></span><br><span class="line">make_so :</span><br><span class="line">	cd ../build; make; pwd</span><br><span class="line"></span><br><span class="line">build_ll :</span><br><span class="line">	clang -Xclang -disable-O0-optnone -emit-llvm -S -O0 loop.c -o loop.ll</span><br><span class="line"></span><br><span class="line">clean :</span><br><span class="line">	rm *.ll</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="实现分析"><a href="#实现分析" class="headerlink" title="实现分析"></a>实现分析</h3><p>为了实现代码恒等，首先。</p>
+<p>我们需要知道 <code>Instruction</code> 里面保存着，</p>
+<p>操作符，<code>getOpcodeName()</code> 得到操作符名字。</p>
+<p>每个 IR 中间语言的 操作参数数量，<code>getNumOperands()</code> </p>
+<p>每个参数是什么，<code>getOperand(num)</code>  num对应第几个参数（保存的是参数的地址）</p>
+<p>对 IR 语句中 语句进行优化替换 <code>replaceAllUsesWith(val)</code> 替换所有 val 的地方</p>
+<p>优化过后，会多出不需要的 IR 指令，IR 指令进行删除。</p>
+<h3 id="实现代码"><a href="#实现代码" class="headerlink" title="实现代码"></a>实现代码</h3><h4 id="实现第一个"><a href="#实现第一个" class="headerlink" title="实现第一个"></a>实现第一个</h4><p><strong>Algebraic identities: e.g, x + 0 = 0 + x = x</strong> </p>
+<p>实现功能代码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(ConstVal1 == <span class="number">0</span>)&#123;</span><br><span class="line">  I.<span class="built_in">replaceAllUsesWith</span>(Opd2);</span><br><span class="line">&#125;<span class="keyword">else</span> <span class="keyword">if</span>(ConstVal2 == <span class="number">0</span>)&#123;</span><br><span class="line">  I.<span class="built_in">replaceAllUsesWith</span>(Opd1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对 ssa 的修改</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 未加载时</span></span><br><span class="line">define i32 @<span class="built_in">compute</span>() #<span class="number">0</span> &#123;</span><br><span class="line">  %<span class="number">1</span> = add nsw i32 <span class="number">19</span>, <span class="number">0</span></span><br><span class="line">  ret i32 %<span class="number">1</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 加载后</span></span><br><span class="line">define i32 @<span class="built_in">compute</span>() #<span class="number">0</span> &#123;</span><br><span class="line">  %<span class="number">1</span> = add nsw i32 <span class="number">19</span>, <span class="number">0</span></span><br><span class="line">  ret i32 <span class="number">19</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到 我们已经优化了这个 ret的值 直接为 19。</p>
+<p>但是有个问题就是，我们这里 <code>%1 = add nsw i32 19, 0</code> 这行代码就多余了，没有实际作用。</p>
+<p>所以我们需要删除这段。</p>
+<p>实现用到的代码  但是要注意 我们利用 <code>eraseFromParent</code> 函数后要 return 不然就会出现报错。 因为我们要 把Function 便利完 把找到需要删除的地方一起删除，这样才能实现程序的正常运行。所以放在 <code>runOnFunction</code> 最后。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(opted)&#123;</span><br><span class="line">  <span class="keyword">if</span>(I.<span class="built_in">isSafeToRemove</span>())</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;can remove\n&quot;</span>;</span><br><span class="line">    I.<span class="built_in">eraseFromParent</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>报错</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200716212703245.png" alt="image-20200716212703245" style="zoom:50%;" />
+
+<p>这样我们的 优化过后就是最精炼的了。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 添加删除后。</span><br><span class="line">define i32 @<span class="built_in">compute</span>() #<span class="number">0</span> &#123;</span><br><span class="line">  ret i32 <span class="number">19</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>注意  我们利用的是 <code>dyn_cast&lt;ConstantInt&gt;(Opd1)-&gt;getSExtValue()</code> 来得到值判断是不是0</li>
+<li>但是想 %1 这种只能返回为 0。我们只是为了实现 目标中的 一次。所以代码有待改进。</li>
+</ul>
+<h4 id="实现第二个"><a href="#实现第二个" class="headerlink" title="实现第二个"></a>实现第二个</h4><blockquote>
+<p> Constant folding: e.g, 2 * 4 =&gt; 8 </p>
+</blockquote>
+<p>首先我们要注意  x * 0 = 0;  0*x = 0;</p>
+<p>实现功能</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;Mul\n&quot;</span>;</span><br><span class="line"><span class="built_in">errs</span>() &lt;&lt; ConstVal1 &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; ConstVal2 &lt;&lt; <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"><span class="comment">// x * 0 = 0 ; 0 * x= 0</span></span><br><span class="line"><span class="keyword">if</span>(ConstVal1==<span class="number">0</span> || ConstVal2==<span class="number">0</span>)&#123;</span><br><span class="line">  I.<span class="built_in">replaceAllUsesWith</span>(ConstantInt::<span class="built_in">getSigned</span>(I.<span class="built_in">getType</span>(),<span class="number">0</span>));</span><br><span class="line">  opted = <span class="literal">true</span>;</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">  I.<span class="built_in">replaceAllUsesWith</span>(ConstantInt::<span class="built_in">getSigned</span>(I.<span class="built_in">getType</span>(),ConstVal1*ConstVal2));</span><br><span class="line">  opted = <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(opted)&#123;</span><br><span class="line">  <span class="keyword">if</span>(I.<span class="built_in">isSafeToRemove</span>())</span><br><span class="line">    deleteInst.<span class="built_in">push_back</span>(&amp;I);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试变化</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 删除之前</span></span><br><span class="line">define i32 @<span class="built_in">compute</span>() #<span class="number">0</span> &#123;</span><br><span class="line">  %<span class="number">1</span> = mul nsw i32 <span class="number">4</span>, <span class="number">2</span></span><br><span class="line">  ret i32 %<span class="number">1</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// pass 之后</span></span><br><span class="line">define i32 @<span class="built_in">compute</span>() #<span class="number">0</span> &#123;</span><br><span class="line">  ret i32 <span class="number">8</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="实现第三个"><a href="#实现第三个" class="headerlink" title="实现第三个"></a>实现第三个</h4><blockquote>
+<p>Strength reductions: e.g, 2 * x =&gt; (x + x) or (x &lt;&lt; 1)</p>
+</blockquote>
+<p>这个要判断 相乘的数是否是 2的几次方等。要实现这个功能。</p>
+<p>我们的 mul 要重写。</p>
+<p>首先判断是否是 2的几次方。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">getShift</span><span class="params">(<span class="keyword">int64_t</span> x)</span> </span>&#123;</span><br><span class="line">            <span class="comment">// http://www.exploringbinary.com/</span></span><br><span class="line">            <span class="comment">// ten-ways-to-check-if-an-integer-is-a-power-of-two-in-c/</span></span><br><span class="line">            <span class="comment">// if not power of two, return</span></span><br><span class="line">            <span class="keyword">if</span> (x &lt;= <span class="number">0</span> || (x &amp; (~x + <span class="number">1</span>)) != x) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// if power of two, get the number of shifts necessary</span></span><br><span class="line">            <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">while</span> (x &gt; <span class="number">1</span>) &#123;</span><br><span class="line">                x &gt;&gt;= <span class="number">1</span>;</span><br><span class="line">                ++i;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> i;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后修改 mul为</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (isa&lt;ConstantInt&gt;(Opd1) &amp;&amp; <span class="built_in">getShift</span>(ConstVal1) != <span class="number">-1</span>) &#123;</span><br><span class="line">  <span class="comment">// 2^n * x =&gt; x &lt;&lt; n</span></span><br><span class="line">  Value *v = ConstantInt::<span class="built_in">getSigned</span>(Instr.<span class="built_in">getType</span>(), <span class="built_in">getShift</span>(ConstVal1));</span><br><span class="line">  Instr.<span class="built_in">replaceAllUsesWith</span>(</span><br><span class="line">    BinaryOperator::<span class="built_in">Create</span>(Instruction::Shl, Opd2, v, <span class="string">&quot;shl&quot;</span>,</span><br><span class="line">                           &amp;Instr));</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (isa&lt;ConstantInt&gt;(Opd2) &amp;&amp; <span class="built_in">getShift</span>(ConstVal2) != <span class="number">-1</span>) &#123;</span><br><span class="line">  <span class="comment">// x * 2^n =&gt; x &lt;&lt; n</span></span><br><span class="line">  Value *v = ConstantInt::<span class="built_in">getSigned</span>(Instr.<span class="built_in">getType</span>(), <span class="built_in">getShift</span>(ConstVal2));</span><br><span class="line">  Instr.<span class="built_in">replaceAllUsesWith</span>(</span><br><span class="line">    BinaryOperator::<span class="built_in">Create</span>(Instruction::Shl, Opd1, v, <span class="string">&quot;shl&quot;</span>,</span><br><span class="line">                           &amp;Instr));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>参考 <a target="_blank" rel="noopener" href="https://github.com/eternalsakura/sakura_llvm_opt/blob/master/assignment1/src/LocalOpts.cpp">https://github.com/eternalsakura/sakura_llvm_opt/blob/master/assignment1/src/LocalOpts.cpp</a></p>
+<p>逆向混淆可以看看实现办法</p>
+<p><a target="_blank" rel="noopener" href="https://www.codenong.com/cs106173808/">https://www.codenong.com/cs106173808/</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2020/07/16/llvm-%E5%AD%A6%E4%B9%A0(%E4%BA%94)%20%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96/" data-id="ckn2iqppl0008xrn99o4l9mlz" data-title="llvm-学习（五）代码优化" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/llvm%E5%AD%A6%E4%B9%A0/" rel="tag">llvm学习</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/07/17/llvm-%E5%AD%A6%E4%B9%A0%EF%BC%88%E5%85%AD%EF%BC%89%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%E6%96%B9%E5%BC%8F%E7%AD%89/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          llvm-学习（六）代码优化方式等
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/07/15/llvm-%E5%AD%A6%E4%B9%A0(%E5%9B%9B)%20%E5%AE%9E%E7%8E%B0FunctionInfo-Pass/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">llvm-学习(四) 实现FunctionInfo Pass</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/80/" rel="tag">80</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" rel="tag">CSAPP学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int/" rel="tag">int</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm%E5%AD%A6%E4%B9%A0/" rel="tag">llvm学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80/" rel="tag">基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" rel="tag">基础技术</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%89%E5%8D%93/" rel="tag">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" rel="tag">工具安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" rel="tag">漏洞模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" rel="tag">问题汇总</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" rel="tag">项目学习</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/80/" style="font-size: 10px;">80</a> <a href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">CSAPP学习</a> <a href="/tags/WEB/" style="font-size: 17.5px;">WEB</a> <a href="/tags/int/" style="font-size: 10px;">int</a> <a href="/tags/llvm%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">llvm学习</a> <a href="/tags/%E5%9F%BA%E7%A1%80/" style="font-size: 17.5px;">基础</a> <a href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" style="font-size: 10px;">基础技术</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" style="font-size: 20px;">学习笔记</a> <a href="/tags/%E5%AE%89%E5%8D%93/" style="font-size: 10px;">安卓</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" style="font-size: 12.5px;">工具安装</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">操作系统</a> <a href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">漏洞模式</a> <a href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" style="font-size: 10px;">问题汇总</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">项目学习</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/29/codeql-xue-xi-bi-ji/">codeql 学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/10/macos-dui-zhi-shi-xue-xi-bi-ji/">macOS 堆知识学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/09/afl%E4%BD%BF%E7%94%A8%E5%AD%A6%E4%B9%A0/">AFL 使用学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/01/fastjson-xue-xi/">fastjson 学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/26/java-classloader%E8%AE%A4%E8%AF%86/">java classloader 认识</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

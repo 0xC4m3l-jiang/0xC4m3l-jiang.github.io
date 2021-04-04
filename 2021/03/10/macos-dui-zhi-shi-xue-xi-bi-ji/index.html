@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>macOS 堆知识学习笔记 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="学习的 ppt  感谢 AngelBoy1  资料 https:&#x2F;&#x2F;blog.shpik.kr&#x2F;osx,&#x2F;macos,&#x2F;heap,&#x2F;pwnable&#x2F;2019&#x2F;05&#x2F;09&#x2F;OSX_Heap_Exploitation.html Wctf2020 macbook http:&#x2F;&#x2F;kylebot.net&#x2F;2020&#x2F;11&#x2F;20&#x2F;WCTF-2020-machbooks&#x2F;http:&#x2F;&#x2F;kylebot.net&#x2F;20">
+<meta property="og:type" content="article">
+<meta property="og:title" content="macOS 堆知识学习笔记">
+<meta property="og:url" content="http://example.com/2021/03/10/macos-dui-zhi-shi-xue-xi-bi-ji/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="学习的 ppt  感谢 AngelBoy1  资料 https:&#x2F;&#x2F;blog.shpik.kr&#x2F;osx,&#x2F;macos,&#x2F;heap,&#x2F;pwnable&#x2F;2019&#x2F;05&#x2F;09&#x2F;OSX_Heap_Exploitation.html Wctf2020 macbook http:&#x2F;&#x2F;kylebot.net&#x2F;2020&#x2F;11&#x2F;20&#x2F;WCTF-2020-machbooks&#x2F;http:&#x2F;&#x2F;kylebot.net&#x2F;20">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210310151309879.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312134640885.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210310152734408.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210310153755139.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210310164611361.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210310161819055.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312104211209.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312131534067.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312132133438.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312134053705.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312135639144.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312143532324.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312163744304.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312142749858.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312153816427.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312155820080.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312183650132.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312183703111.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210313132630192.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210313132644079.png">
+<meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210313132658693.png">
+<meta property="article:published_time" content="2021-03-10T07:01:22.000Z">
+<meta property="article:modified_time" content="2021-04-03T14:16:16.690Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210310151309879.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-macos-dui-zhi-shi-xue-xi-bi-ji" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/03/10/macos-dui-zhi-shi-xue-xi-bi-ji/" class="article-date">
+  <time class="dt-published" datetime="2021-03-10T07:01:22.000Z" itemprop="datePublished">2021-03-10</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      macOS 堆知识学习笔记
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>学习的 ppt </p>
+<p>感谢 AngelBoy1 </p>
+<p>资料 <a target="_blank" rel="noopener" href="https://blog.shpik.kr/osx,/macos,/heap,/pwnable/2019/05/09/OSX_Heap_Exploitation.html">https://blog.shpik.kr/osx,/macos,/heap,/pwnable/2019/05/09/OSX_Heap_Exploitation.html</a></p>
+<p>Wctf2020 macbook</p>
+<p><a target="_blank" rel="noopener" href="http://kylebot.net/2020/11/20/WCTF-2020-machbooks/http://kylebot.net/2020/11/20/WCTF-2020-machbooks/">http://kylebot.net/2020/11/20/WCTF-2020-machbooks/http://kylebot.net/2020/11/20/WCTF-2020-machbooks/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.slideshare.net/AngelBoy1/macos-memory-allocator-libmalloc-exploitation">地址</a></p>
+<h1 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h1><p>在macOS中利用的是 libcmalloc</p>
+<p>在这个模式中 堆块对应为 <code>tiny   small  large</code>  </p>
+<ul>
+<li><strong>tiny</strong> (Q = 16) ( <strong>tiny</strong> &lt; 1009B )</li>
+<li><strong>small</strong> (Q = 512) ( 1008B &lt; <strong>small</strong> &lt; 127KB )</li>
+<li><strong>large</strong> ( 127KB &lt; <strong>large</strong> )</li>
+</ul>
+<p>每个magazine有个cache区域可以用来快速分配释放堆。</p>
+<h2 id="quantum"><a href="#quantum" class="headerlink" title="quantum"></a>quantum</h2><h3 id="tiny"><a href="#tiny" class="headerlink" title="tiny"></a>tiny</h3><p>可以称为 <code>block</code></p>
+<p>在 <code>Tiny  内存堆块中，最小的单位为 </code>quantum` 大小0x10 字节。</p>
+<p>记录堆块大小的信息为 以<code>quantum</code> 为单位的 <code>msize</code></p>
+<p>我们malloc 分配的 chunk 由很多的 <code>block</code> 组成</p>
+<p>没有 被分配使用的 <code>block</code> 里面是没有元数据 (<strong>metadata</strong>)的</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210310151309879.png" alt="image-20210310151309879"></p>
+<h3 id="small"><a href="#small" class="headerlink" title="small"></a>small</h3><p>small 中 这 block 在 region 中的 大小为 <code>0x200</code></p>
+<p>也被成为 <code>quantum</code></p>
+<p>没有 被分配使用的 <code>block</code> 里面是没有元数据 (<strong>metadata</strong>)的</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312134640885.png" alt="image-20210312134640885" style="zoom:50%;" />
+
+<h2 id="结构分析"><a href="#结构分析" class="headerlink" title="结构分析"></a>结构分析</h2><p>每个进程包含3个区域，分别为<strong>tiny rack</strong>, <strong>small rack</strong>, <strong>large allocations</strong></p>
+<p>每个区域里面包含了 多个 <code>magazine区域</code> 是活动可变的。</p>
+<p><code>magazine区域</code> 中又有多个 <code>Region</code> 对于 <code>tiny rack</code>  1MB  和 <code>small rack</code>    8MB他们的大小不同</p>
+<p>“Region”中包含三样东西，一个是以<strong>Q</strong>为单位的内存block, 还有个是负责将各个”Region”关联起来的<strong>trailer</strong>另外一个就是记录chunk信息的<strong>metadata</strong></p>
+<p>源码中对应的结构</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">tiny Region &#123;</span><br><span class="line">    Q(<span class="number">1</span>Q = <span class="number">16</span>) * <span class="number">64520</span>个</span><br><span class="line">    <span class="keyword">region_trailer_t</span> trailer</span><br><span class="line">    metadata[<span class="number">64520</span>/<span class="keyword">sizeof</span>(<span class="keyword">uint32_t</span>)] &#123;</span><br><span class="line">        bitmaps[<span class="number">0</span>]: <span class="keyword">uint32_t</span> header = 描述哪个block是起始chunk</span><br><span class="line">        bitmaps[<span class="number">1</span>]: <span class="keyword">uint32_t</span> inuse = 描述chunk状态(busy/<span class="built_in">free</span>)</span><br><span class="line">    &#125;   </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Small Region &#123;</span><br><span class="line">    Q(<span class="number">1</span>Q = <span class="number">512</span>) * <span class="number">16320</span>个</span><br><span class="line">    <span class="keyword">region_trailer_t</span> trailer</span><br><span class="line">    metadata[<span class="number">16320</span>] &#123;</span><br><span class="line">        bitmaps[<span class="number">0</span>]: <span class="keyword">uint16_t</span> msize = 最高一位描述chunk状态(busy/<span class="built_in">free</span>), 其余位描述chunk的Q值（Q值代表与下一个chunk相差多少个Q）</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="tiny-1"><a href="#tiny-1" class="headerlink" title="tiny"></a>tiny</h2><p>Tiny 比较类似于 linux 下的堆块</p>
+<h3 id="tiny-chunk"><a href="#tiny-chunk" class="headerlink" title="tiny chunk"></a>tiny chunk</h3><p>Free 后会被放在对应的 freelist 上</p>
+<p>当 tiny 堆块被 free 后会在堆块内写入数据 </p>
+<p>因为申请的 chunk 是 0x10 大小的单位 ，所以 末尾都是 0 右移不会影响恢复。</p>
+<p>最高以为 0-0xf 里面任意值</p>
+<p><code>checksum(prev_pointer), checksum(next_pointer), msize</code>  </p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210310152734408.png" alt="image-20210310152734408"></p>
+<p>这里虽然和 linux 一样保存在 freelist 但是free 后的 chunk 中保存的却不是 原始的 上一个或者下一个chunk的地址 而是经过 checksum 计算的 chunk地址。</p>
+<p>算法为 </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Checksum = SumofEverybytes(ptr^cookie)&amp;<span class="number">0xf</span></span><br></pre></td></tr></table></figure>
+
+<p>会随机生成一个cookie，这个cookie会pointer进行下面的计算生成一个checksum, 然后将(checksum &lt;&lt; 56 ) | (pointer &gt;&gt; 4)运算后将checksum保存在高位上，以便检测堆的元数据是否被溢出破坏</p>
+<p>保存的指针的结构</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210310153755139.png" alt="image-20210310153755139"></p>
+<p>在 free 后的chunk结构中</p>
+<p>Msize 记录的是 <code>block</code> 的个数，比如这个 chunk 大小为 0x40 那么他对应 4个 <code>block</code> 所以 <code>Msize</code> 的值为 4</p>
+<h3 id="tiny-magazine"><a href="#tiny-magazine" class="headerlink" title="tiny magazine"></a>tiny magazine</h3><p>结构</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210310164611361.png" alt="image-20210310164611361" style="zoom:50%;" />
+
+<p>这里的 map_last 类似于一个<strong>缓存</strong>，对于free 的chunk(&lt;=0x100) 不会直接返回给计算机，而是先保存在 这个地方，当下次申请的试试优先使用他，在free 下一个 chunk 之后才会将 第一个free 的chunk 真正的free掉。</p>
+<p><code>map_last_free</code> 保存的是 最后一次free 的chunk</p>
+<p><code>map_last_free_msize</code> 保存的是 最后一次free 的chunk的大小</p>
+<p><code>map_last_free_rgn</code> 保存的是 最后一次free 的chunk region</p>
+<p>然后下面的 的才是 我们的 <code>free_list</code></p>
+<p>每个大小为 0x10 一共有 64 个 <code>free_list</code></p>
+<p>保存在 <code>free_list</code> 上面类似 linux下的 <code>smallbins</code> 保存方式</p>
+<h3 id="tiny-Region"><a href="#tiny-Region" class="headerlink" title="tiny Region"></a>tiny Region</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">tiny Region &#123;</span><br><span class="line">    Q(<span class="number">1</span>Q = <span class="number">16</span>) * <span class="number">64520</span>个</span><br><span class="line">    <span class="keyword">region_trailer_t</span> trailer</span><br><span class="line">    metadata[<span class="number">64520</span>/<span class="keyword">sizeof</span>(<span class="keyword">uint32_t</span>)] &#123;</span><br><span class="line">        bitmaps[<span class="number">0</span>]: <span class="keyword">uint32_t</span> header = 描述哪个block是起始chunk</span><br><span class="line">        bitmaps[<span class="number">1</span>]: <span class="keyword">uint32_t</span> inuse = 描述chunk状态(busy/<span class="built_in">free</span>)</span><br><span class="line">    &#125;   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>tiny 的 <code>Region</code> 结构图</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210310161819055.png" alt="image-20210310161819055"> </p>
+<p><code>tiny_header_inuse_pair_t</code>  为8字节 也就是 这个 <code>Region</code> 末尾的 元数据 (matedata)</p>
+<p>前4字节 为 <code>Header</code> 用于指示对应的块是不是 chunk 头</p>
+<p>后4字节 为 <code>inuse</code>   用于记录这个chunk 是否被使用 </p>
+<h3 id="分配机制"><a href="#分配机制" class="headerlink" title="分配机制"></a>分配机制</h3><p>分配 tiny 的大小为 <code>&lt;1008 bytes</code></p>
+<p>当我们申请时，会先去检测</p>
+<ol>
+<li><p><code>tiny magazine</code> 中 <code>tiny_mag_ptr-&gt;mag_last_free_msize == msize</code>  是否上一个 free 的chunk 大小和我们现在要申请的chunk 大小一样，这个 <code>tiny magazine</code> 中的 chunk 类似存储在 缓存中 <code>cache</code></p>
+</li>
+<li><p>如果 <code>tiny magazine</code> 中的 <code>mag_last_free_msize</code> 不符合我们需要的，会去 <code>free_list</code> 中找到对应的chunk，然后会 这个 选择的这个 <code>chunk-&gt;next</code> 指针进行解密。</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312104211209.png" alt="image-20210312104211209"></p>
+</li>
+<li><p>如果 也没用对应大小的 chunk，回去 <code>free_list</code> 中存在 chunk 且 大小能够使用的 list 中取出chunk 将chunk 进行切割，取出，然后将剩下的chunk 放入对应 大小的 <code>free_list</code>中</p>
+</li>
+<li><p>如果 <code>free_list</code> 中没有对应的 free 的chunk 能被申请，且 <code>tiny region end</code> 大小满足 申请的chunk大小 那么就会从 <code>tiny region end</code> 中申请</p>
+</li>
+<li><p>当找到对应大小的 chunk 后，会跟新 <code>metadata(tiny Region 中的 tiny_header_inuse_pair  修改标志位 标明chunk 的使用情况)</code>  然后将申请的 chunk 返回给 用户 。</p>
+</li>
+</ol>
+<p>接着会利用 <code>szone_size</code> 大小索引方法，验证 头和使用状态。</p>
+<h3 id="Free机制"><a href="#Free机制" class="headerlink" title="Free机制"></a>Free机制</h3><ol>
+<li><p>如果free 的chunk 的 mszie &lt; 0x10，当前堆块会与 cache (缓存里面的) 的freeed 堆块交换。</p>
+</li>
+<li><p><code>tiny_free_no_lock</code>  类似于 glibc 的堆块合并操作， 合并上一个 和 下一个 freed chunk 然后清除对应的 inuse 位</p>
+<ul>
+<li><p>利用 上一个 freed chunk 末尾的 mszie 来找到上一个 freed chunk 的位置</p>
+</li>
+<li><p>利用 当前chunk 的 mszie 和当前chunk 的开始位置计算 下一个 freed chunk 的位置</p>
+</li>
+<li><p>在合并之前会进行 unlink 操作。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="ulink"><a href="#ulink" class="headerlink" title="ulink"></a>ulink</h4><p>unlink 操作的时候 类似 glibc 但是他是先对 chunk 里面的指针进行 <code>unchecksum</code> 限定也是和 glibc 一样的</p>
+<h4 id="ppt-图片解释"><a href="#ppt-图片解释" class="headerlink" title="ppt 图片解释"></a>ppt 图片解释</h4><p>首先 我们的 free_list 里面已经存在一个 free了的 chunk 且 我们的 <code>Cache</code> 里面的内容为空</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312131534067.png" alt="image-20210312131534067" style="zoom:50%;" />
+
+<p>这个时候我们 free(P) 我们的 P 会被放入到 <code>Cache</code> 里面且记录当前 free 的 P 的size 和 来自的 <code>Region</code></p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312132133438.png" alt="image-20210312132133438" style="zoom:50%;" />
+
+<p>接着 我们在 free(Q)  这个时候因为 P 是在 <code>Cache</code> 里面的，这个时候 Q 被free 了，我们的 <code>Cache</code> 里面的 P 会被放置到 对应的 free_list，这个时候这个 free_list 中已经存在一个 free 了的 chunk。</p>
+<p>我们要放入 P 入这个 <code>free_list</code> 首先会 检测 free_list 里面的chunk 的 prev header 和 inuse 的元数据位</p>
+<p>然后回去 清空 <code>tiny_list</code> 里面 元数据的 P 的 header 和  inuse 位。</p>
+<p>然后对 P 和 free_list 里面的chunk 进行unlink 操作，因为是 相邻的，于是进行合并。然后再去检查下一个 chunk进行上面操作。</p>
+<p>接着 合并的chunk 会被放到 对应大小的 free_list 里面</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312134053705.png" alt="image-20210312134053705" style="zoom:50%;" />
+
+
+
+<h2 id="Small"><a href="#Small" class="headerlink" title="Small"></a>Small</h2><h3 id="small-chunk"><a href="#small-chunk" class="headerlink" title="small chunk"></a>small chunk</h3><h5 id="small-chunk-1"><a href="#small-chunk-1" class="headerlink" title="small chunk"></a>small chunk</h5><p>结构类似月 tiny chunk 不一样的是这里 pre 和 next 指针用的是原始指针</p>
+<p>不用的是 pre 和 next 指针不是相邻的 而是 在 pre next 之后 添加一个 字节来储存 checksum 的值</p>
+<p>且这个值会被填充为 8 字节</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312135639144.png" alt="image-20210312135639144"></p>
+<h5 id="obb-free-chunk"><a href="#obb-free-chunk" class="headerlink" title="obb free chunk"></a>obb free chunk</h5><p>且还有一种称为 oob free chunk 的 用于实现页面对其。这样的 chunk 中没有 元数据(metadata)</p>
+<p><code>oob_free_entry_s</code>  利用来管理 oob chunk。</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312143532324.png" alt="image-20210312143532324" style="zoom:50%;" />
+
+<p>Prev 和 next 指向表中同样大小的 free 的chunk</p>
+<p>保存的是 原始数据。</p>
+<p>Ptr 是对这个 oob chunk 的标志，oob chunk在 region 里面的索引 和 是否这个 oob 被free(最高位标志)</p>
+<h3 id="small-magzine"><a href="#small-magzine" class="headerlink" title="small magzine"></a>small magzine</h3><p>前面的基础 和 tiny magazine 一样的</p>
+<p>前面的 <code>map_last_xxx</code> 保存上次 free 后放入到 这里的 chunk 也就是 一个 <code>Cache</code> 缓存</p>
+<p>这里是 <code>free_list</code> 是以 0x200 字节为单位  保存的值 oob_free_entry 然后根据 oob_free_entry 的 Ptr 指针找到对应的 free 的chunk 的位置。<code>oob_free_entry </code> 又保存在 <code>small Region</code> 的末尾</p>
+<p>其中 free_lits 里面存储的 chunk 不会 直指向 <code>magzine</code></p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312163744304.png" alt="image-20210312163744304" style="zoom:50%;" />
+
+<h3 id="small-Region"><a href="#small-Region" class="headerlink" title="small Region"></a>small Region</h3><p>其中保存 <code>chunk</code>  <code>small_region_end</code>  <code>small_meta_words</code>  <code>smal_oob_free_entries</code></p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312142749858.png" alt="image-20210312142749858" style="zoom:50%;" />
+
+<p>block 大小为 0x200</p>
+<p>这个 region </p>
+<p>​            大小默认为 0x800000</p>
+<p>​            block 的个数为 16319</p>
+<p>region 末尾存在 <code>small_meta_words</code> <code>small_oob_free_entries</code></p>
+<h5 id="small-meta-words"><a href="#small-meta-words" class="headerlink" title="small_meta_words"></a>small_meta_words</h5><p>里面保存的元素对应 region 里面的 每个 block</p>
+<p>且里面 保存了 chunk 的大小和 inuse 位</p>
+<p>这里面保存的 block 会保存当前使用中的 chunk 的 size 大小</p>
+<p>​                                  也会保存 freed chunk 的 大小和 flag 标志</p>
+<p>这个 block 内存的最高一位 标志chunk 是否被使用</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312153816427.png" alt="image-20210312153816427" style="zoom:50%;" />
+
+<h5 id="small-oob-free-entries"><a href="#small-oob-free-entries" class="headerlink" title="small_oob_free_entries"></a>small_oob_free_entries</h5><p>一共 32 个保存位置</p>
+<p>保存 <code>oob_free_entry</code>  （实现页面对齐）</p>
+<h3 id="free-后结构"><a href="#free-后结构" class="headerlink" title="free 后结构"></a>free 后结构</h3><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312155820080.png" alt="image-20210312155820080" style="zoom:50%;" />
+
+
+
+<h3 id="分配机制-1"><a href="#分配机制-1" class="headerlink" title="分配机制"></a>分配机制</h3><p>分配大小 为 1008 - 128kb 利用 small_malloc</p>
+<ol>
+<li><p>和 tiny 一样 先去查看 <code>magzine</code> 里面 <code>map_last_xxx</code>  (Cache) 是否保存了 对应 msize 的free 的 small chunk。如果存在直接取出   <code>Cache</code>  里面值保存一个上一次 free 的 chunk</p>
+</li>
+<li><p>如果没有合适的，会去对应的 free_list 里面找。<br>一般情况下的 chunk 会执行 unchecksum next 指正。</p>
+<p>接着会去检测  双链接表  执行unlink 操作， 判断 next-&gt;prev == ptr</p>
+<p>和 tiny chunk 的申请是一样的，但是 oob chunk 里面ptr 地址存的是 原始数据 不用调用 unchecksum</p>
+</li>
+<li><p>且是从 free_list 头取出</p>
+</li>
+<li><p>申请得到 chunk 后 会修改 <code>small Region</code>  末尾的 <code>small_oob_free_entries</code> 里面对应的标志 修改 flag|size 为 mszie  msize 的大小为  <code>0x600/0x200</code> 这样的计算</p>
+</li>
+</ol>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312183650132.png" alt="image-20210312183650132" style="zoom:50%;" />
+
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210312183703111.png" alt="image-20210312183703111" style="zoom:50%;" />
+
+
+
+<h3 id="Free机制-1"><a href="#Free机制-1" class="headerlink" title="Free机制"></a>Free机制</h3><ol>
+<li><p> 把 chunk 放入 <code>Cache</code></p>
+</li>
+<li><p>在free small chunk 中也会存在 合并操作。</p>
+<ul>
+<li><p>首先根据这个堆块 prev 指针找到上一个堆块，根据堆块所在的 Region 末尾的 <code>small_meta_words</code> 去查看这个 上一个堆块 标志位，判断这个堆块 是否被free 和 他的msize。从而定位到 上一个chunk 的位置。</p>
+</li>
+<li><p>然后找到 下一个堆块的 判断是否 free 得到他的大小</p>
+</li>
+<li><p>接着 合并相邻地址的 prev next free 的chunk （先进行unlink 然后进行 合并</p>
+</li>
+</ul>
+</li>
+</ol>
+<h5 id="unlink"><a href="#unlink" class="headerlink" title="unlink"></a>unlink</h5><p>首先根据 是否为 oob chunk</p>
+<p>如果为 oob chunk 直接获取 对应的 ptr 指正，如果不是先进行 <code>unchecksum</code> 然后进行合并</p>
+<p>也是和 tiny chunk 一样会验证 chunk 的 <code>prev-&gt;next == next-&gt;prev == ptr</code></p>
+<p>成立才回调用 unlink</p>
+<h5 id="图解"><a href="#图解" class="headerlink" title="图解"></a>图解</h5><p>和tiny 一样</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210313132630192.png" alt="image-20210313132630192" style="zoom:50%;" />
+
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210313132644079.png" alt="image-20210313132644079" style="zoom:50%;" />
+
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210313132658693.png" alt="image-20210313132658693" style="zoom:50%;" />
+
+
+
+<h1 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h1><p>对于tiny 的伪造可以看 WMCTF 的 babyMac pwn</p>
+<p>这里利用的 是 tiny chunk 的 unlink操作 （类似与glibc 操作</p>
+<p>也是覆盖对应的 prev 和 next 但是这里我们的覆盖需要让 <code>nodelist_addr &gt;&gt; 4</code></p>
+<p>最高位的 cookie 我们可以让他 等于 0。</p>
+<p>因为 最高位 cookie 为 <code>0-0xf</code> 0有 1/16 的纪律爆破成功。</p>
+<p>在mac 的机制中</p>
+<p><code>_lazy_symbol_ptr</code> 就是 linux下程序的 <code>got表</code></p>
+<p>从而实现修改利用 onegadget</p>
+<p>且在 mac 动态库 <code>libsystem_c.dylib</code> 中也是存在对应的  onegadget 的</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/03/10/macos-dui-zhi-shi-xue-xi-bi-ji/" data-id="ckn2iqppo000dxrn97cogbwvm" data-title="macOS 堆知识学习笔记" class="article-share-link">Share</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/03/29/codeql-xue-xi-bi-ji/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          codeql 学习笔记
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/03/09/afl%E4%BD%BF%E7%94%A8%E5%AD%A6%E4%B9%A0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">AFL 使用学习</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/80/" rel="tag">80</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" rel="tag">CSAPP学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int/" rel="tag">int</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm%E5%AD%A6%E4%B9%A0/" rel="tag">llvm学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80/" rel="tag">基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" rel="tag">基础技术</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%89%E5%8D%93/" rel="tag">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" rel="tag">工具安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" rel="tag">漏洞模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" rel="tag">问题汇总</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" rel="tag">项目学习</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/80/" style="font-size: 10px;">80</a> <a href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">CSAPP学习</a> <a href="/tags/WEB/" style="font-size: 17.5px;">WEB</a> <a href="/tags/int/" style="font-size: 10px;">int</a> <a href="/tags/llvm%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">llvm学习</a> <a href="/tags/%E5%9F%BA%E7%A1%80/" style="font-size: 17.5px;">基础</a> <a href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" style="font-size: 10px;">基础技术</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" style="font-size: 20px;">学习笔记</a> <a href="/tags/%E5%AE%89%E5%8D%93/" style="font-size: 10px;">安卓</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" style="font-size: 12.5px;">工具安装</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">操作系统</a> <a href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">漏洞模式</a> <a href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" style="font-size: 10px;">问题汇总</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">项目学习</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/29/codeql-xue-xi-bi-ji/">codeql 学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/10/macos-dui-zhi-shi-xue-xi-bi-ji/">macOS 堆知识学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/09/afl%E4%BD%BF%E7%94%A8%E5%AD%A6%E4%B9%A0/">AFL 使用学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/01/fastjson-xue-xi/">fastjson 学习</a>
+          </li>
+        
+          <li>
+            <a href="/2021/02/26/java-classloader%E8%AE%A4%E8%AF%86/">java classloader 认识</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
