@@ -1,105 +1,205 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-cn">
 <head>
-  <meta charset="utf-8">
-  
-  
-  <title>cool compiler学习笔记 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="pa2分析全局字符指针yytext中提供与该匹配相对应的文本(称为token)，并在全局int变量yyleng中提供长度。 然后执行与匹配模式(pattern)相对应的操作(action)，然后扫描剩余的输入寻找下一个匹配。 %x 定义的区域可以在规则部分 用  BEGIN() 进入。 进入后 正则匹配 对呀 &lt;&gt; 前缀的环境下进行 1234567%x STRING%%xxx  BEG">
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="pa2">
 <meta property="og:type" content="article">
 <meta property="og:title" content="cool compiler学习笔记">
 <meta property="og:url" content="http://example.com/2020/07/10/cool-compiler%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="pa2分析全局字符指针yytext中提供与该匹配相对应的文本(称为token)，并在全局int变量yyleng中提供长度。 然后执行与匹配模式(pattern)相对应的操作(action)，然后扫描剩余的输入寻找下一个匹配。 %x 定义的区域可以在规则部分 用  BEGIN() 进入。 进入后 正则匹配 对呀 &lt;&gt; 前缀的环境下进行 1234567%x STRING%%xxx  BEG">
-<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="0xC4m3l">
+<meta property="og:description" content="pa2">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/cCBkHUraiZ7f1hp.png">
 <meta property="og:image" content="http://example.com/2020/07/10/cool-compiler%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/cool-compiler%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image-20200710163637896.png">
 <meta property="article:published_time" content="2020-07-10T08:30:16.000Z">
-<meta property="article:modified_time" content="2021-04-03T14:19:03.188Z">
-<meta property="article:author" content="John Doe">
+<meta property="article:modified_time" content="2021-04-04T03:03:29.163Z">
+<meta property="article:author" content="0xC4m3l">
 <meta property="article:tag" content="学习笔记">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/cCBkHUraiZ7f1hp.png">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
 
-  
-  
-<link rel="stylesheet" href="/css/style.css">
+<link rel="canonical" href="http://example.com/2020/07/10/cool-compiler%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
 
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
 
-  
-<meta name="generator" content="Hexo 5.4.0"></head>
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-cn'
+  };
+</script>
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
+  <title>cool compiler学习笔记 | 0xC4m3l</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
   </div>
-</header>
 
-      <div class="outer">
-        <section id="main"><article id="post-cool-compiler学习笔记" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/07/10/cool-compiler%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="article-date">
-  <time class="dt-published" datetime="2020-07-10T08:30:16.000Z" itemprop="datePublished">2020-07-10</time>
-</a>
-    
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">0xC4m3l</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
   </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      cool compiler学习笔记
-    </h1>
-  
 
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-cn">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/07/10/cool-compiler%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="0xC4m3l">
+      <meta itemprop="description" content="生活坏到一定程度就会好起来，因为它无法更坏。努力过后，才知道许多事情，坚持坚持，就过来了。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="0xC4m3l">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          cool compiler学习笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-07-10 16:30:16" itemprop="dateCreated datePublished" datetime="2020-07-10T16:30:16+08:00">2020-07-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-04-04 11:03:29" itemprop="dateModified" datetime="2021-04-04T11:03:29+08:00">2021-04-04</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="e-content article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h1 id="pa2"><a href="#pa2" class="headerlink" title="pa2"></a>pa2</h1><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>全局字符指针yytext中提供与该匹配相对应的文本(称为token)，并在全局int变量yyleng中提供长度。</p>
+        <h1 id="pa2"><a href="#pa2" class="headerlink" title="pa2"></a>pa2</h1><span id="more"></span>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>全局字符指针yytext中提供与该匹配相对应的文本(称为token)，并在全局int变量yyleng中提供长度。</p>
 <p>然后执行与匹配模式(pattern)相对应的操作(action)，然后扫描剩余的输入寻找下一个匹配。</p>
 <p>%x 定义的区域可以在规则部分 用  BEGIN() 进入。</p>
 <p>进入后 正则匹配 对呀 &lt;&gt; 前缀的环境下进行</p>
@@ -252,150 +352,193 @@
 <p>然后重新生成类的 继承树，  设置继承树中类的 父类，和子类关系。将合法类添加到 类列表和符号表 。</p>
 <p>最后 实现不同类型的 code函数，编译不同的函数功能。</p>
 
-      
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/07/10/cool-compiler%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" data-id="ckn2iqpq20017xrn90mf26yrp" data-title="cool compiler学习笔记" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li></ul>
 
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag"># 学习笔记</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/06/29/mac-%E4%B8%8B%E7%9A%84%E7%8E%AF%E5%A2%83%E5%92%8Cpwndocker%E9%85%8D%E7%BD%AE/" rel="prev" title="mac 下的环境和pwndocker配置">
+      <i class="fa fa-chevron-left"></i> mac 下的环境和pwndocker配置
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/07/10/Makefile-%E5%AD%A6%E4%B9%A0/" rel="next" title="Makefile 学习">
+      Makefile 学习 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#pa2"><span class="nav-number">1.</span> <span class="nav-text">pa2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90"><span class="nav-number">1.1.</span> <span class="nav-text">分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E6%88%91%E4%BB%AC%E8%87%AA%E5%B7%B1%E8%AE%BE%E7%BD%AE%E7%9A%84%E5%87%BD%E6%95%B0%E3%80%82"><span class="nav-number">1.1.1.</span> <span class="nav-text">定义我们自己设置的函数。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%84%B6%E5%90%8E%E6%98%AF%E5%AE%9A%E4%B9%89%E6%89%AB%E6%8F%8F%E7%9A%84-%E4%BD%9C%E7%94%A8%E5%9F%9F%E5%90%8D%E5%AD%97"><span class="nav-number">1.1.2.</span> <span class="nav-text">然后是定义扫描的 作用域名字</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E4%B8%8D%E5%90%8C%E7%B1%BB%E5%9E%8B%E7%9A%84-%E6%AD%A3%E5%88%99%E5%8C%B9%E9%85%8D%E9%80%BB%E8%BE%91"><span class="nav-number">1.1.3.</span> <span class="nav-text">定义不同类型的 正则匹配逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%AB%E6%8F%8F%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%B9%E9%85%8D"><span class="nav-number">1.1.4.</span> <span class="nav-text">扫描的正则匹配</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pa3"><span class="nav-number">2.</span> <span class="nav-text">pa3</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90-1"><span class="nav-number">2.1.</span> <span class="nav-text">分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%E7%BB%93%E6%9E%84"><span class="nav-number">2.1.1.</span> <span class="nav-text">语法结构</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pa4"><span class="nav-number">3.</span> <span class="nav-text">pa4</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90-2"><span class="nav-number">3.1.</span> <span class="nav-text">分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%9E%90cool-%E7%9A%84%E8%AF%AD%E6%B3%95"><span class="nav-number">3.1.1.</span> <span class="nav-text">分析cool 的语法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E8%AF%AD%E4%B9%89%E7%9A%84%E6%95%B4%E7%90%86"><span class="nav-number">3.1.2.</span> <span class="nav-text">实现语义的整理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pa5"><span class="nav-number">4.</span> <span class="nav-text">pa5</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90-3"><span class="nav-number">4.1.</span> <span class="nav-text">分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E6%96%87%E4%BB%B6%E5%8A%9F%E8%83%BD"><span class="nav-number">4.1.1.</span> <span class="nav-text">代码文件功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">4.1.2.</span> <span class="nav-text">代码分析</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">0xC4m3l</p>
+  <div class="site-description" itemprop="description">生活坏到一定程度就会好起来，因为它无法更坏。努力过后，才知道许多事情，坚持坚持，就过来了。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">0xC4m3l</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
     </footer>
   </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2020/07/10/Makefile-%E5%AD%A6%E4%B9%A0/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          Makefile 学习
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2020/06/29/mac-%E4%B8%8B%E7%9A%84%E7%8E%AF%E5%A2%83%E5%92%8Cpwndocker%E9%85%8D%E7%BD%AE/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">mac 下的环境和pwndocker配置</div>
-    </a>
-  
-</nav>
 
   
-</article>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/80/" rel="tag">80</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" rel="tag">CSAPP学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int/" rel="tag">int</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm%E5%AD%A6%E4%B9%A0/" rel="tag">llvm学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80/" rel="tag">基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" rel="tag">基础技术</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%89%E5%8D%93/" rel="tag">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" rel="tag">工具安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" rel="tag">漏洞模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" rel="tag">问题汇总</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" rel="tag">项目学习</a></li></ul>
-    </div>
-  </div>
+<script src="/js/schemes/pisces.js"></script>
 
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/80/" style="font-size: 10px;">80</a> <a href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">CSAPP学习</a> <a href="/tags/WEB/" style="font-size: 17.5px;">WEB</a> <a href="/tags/int/" style="font-size: 10px;">int</a> <a href="/tags/llvm%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">llvm学习</a> <a href="/tags/%E5%9F%BA%E7%A1%80/" style="font-size: 17.5px;">基础</a> <a href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" style="font-size: 10px;">基础技术</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" style="font-size: 20px;">学习笔记</a> <a href="/tags/%E5%AE%89%E5%8D%93/" style="font-size: 10px;">安卓</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" style="font-size: 12.5px;">工具安装</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">操作系统</a> <a href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">漏洞模式</a> <a href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" style="font-size: 10px;">问题汇总</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">项目学习</a>
-    </div>
-  </div>
+<script src="/js/next-boot.js"></script>
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/03/29/codeql-xue-xi-bi-ji/">codeql 学习笔记</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/10/macos-dui-zhi-shi-xue-xi-bi-ji/">macOS 堆知识学习笔记</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/09/afl%E4%BD%BF%E7%94%A8%E5%AD%A6%E4%B9%A0/">AFL 使用学习</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/01/fastjson-xue-xi/">fastjson 学习</a>
-          </li>
-        
-          <li>
-            <a href="/2021/02/26/java-classloader%E8%AE%A4%E8%AF%86/">java classloader 认识</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
 
 
 
   
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
 
 
 
 
 
-  </div>
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
 </body>
 </html>

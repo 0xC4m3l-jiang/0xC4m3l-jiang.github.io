@@ -1,18 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-cn">
 <head>
-  <meta charset="utf-8">
-  
-  
-  <title>CSAPP学习笔记 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="环境搭建Mac 下利用docker 来编写代码。 我使用的自己的 pwndocker 地址 来启动linux 环境  利用 pwndocker 将当前目录映射到 docker 中。 从而方便编程 建议看  《深入理解计算机系统》 DataLab下载地址 概述123456789101112131415161718192021222324252627282930313233343536********">
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="环境搭建">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CSAPP学习笔记">
 <meta property="og:url" content="http://example.com/2020/07/27/CSAPP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="环境搭建Mac 下利用docker 来编写代码。 我使用的自己的 pwndocker 地址 来启动linux 环境  利用 pwndocker 将当前目录映射到 docker 中。 从而方便编程 建议看  《深入理解计算机系统》 DataLab下载地址 概述123456789101112131415161718192021222324252627282930313233343536********">
-<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="0xC4m3l">
+<meta property="og:description" content="环境搭建">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200727105555780.png">
 <meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200730120639385.png">
 <meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200730120709623.png">
@@ -72,90 +86,176 @@
 <meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200810125219426.png">
 <meta property="og:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200810143240248.png">
 <meta property="article:published_time" content="2020-07-27T02:34:06.000Z">
-<meta property="article:modified_time" content="2021-04-03T14:20:02.396Z">
-<meta property="article:author" content="John Doe">
+<meta property="article:modified_time" content="2021-04-04T02:55:57.309Z">
+<meta property="article:author" content="0xC4m3l">
 <meta property="article:tag" content="CSAPP学习">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20200727105555780.png">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
 
-  
-  
-<link rel="stylesheet" href="/css/style.css">
+<link rel="canonical" href="http://example.com/2020/07/27/CSAPP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
 
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
 
-  
-<meta name="generator" content="Hexo 5.4.0"></head>
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-cn'
+  };
+</script>
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
+  <title>CSAPP学习笔记 | 0xC4m3l</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
   </div>
-</header>
 
-      <div class="outer">
-        <section id="main"><article id="post-CSAPP学习笔记" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/07/27/CSAPP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="article-date">
-  <time class="dt-published" datetime="2020-07-27T02:34:06.000Z" itemprop="datePublished">2020-07-27</time>
-</a>
-    
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">0xC4m3l</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
   </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      CSAPP学习笔记
-    </h1>
-  
 
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-cn">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/07/27/CSAPP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="0xC4m3l">
+      <meta itemprop="description" content="生活坏到一定程度就会好起来，因为它无法更坏。努力过后，才知道许多事情，坚持坚持，就过来了。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="0xC4m3l">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CSAPP学习笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-07-27 10:34:06" itemprop="dateCreated datePublished" datetime="2020-07-27T10:34:06+08:00">2020-07-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-04-04 10:55:57" itemprop="dateModified" datetime="2021-04-04T10:55:57+08:00">2021-04-04</time>
+              </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="e-content article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-        <h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>Mac 下利用docker 来编写代码。</p>
+        <h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><span id="more"></span>
+<p>Mac 下利用docker 来编写代码。</p>
 <p>我使用的自己的 pwndocker <a target="_blank" rel="noopener" href="https://github.com/0xC4m3l-jiang/pwmdocker_auto">地址</a> 来启动linux 环境</p>
 <p> 利用 pwndocker 将当前目录映射到 docker 中。</p>
 <p>从而方便编程</p>
@@ -628,150 +728,193 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * builtin_cmd - If the user has typed a built-in command then execute</span></span><br><span class="line"><span class="comment"> *    it immediately.  </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">builtin_cmd-如果用户键入了内置命令，请立即执行。</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">builtin_cmd</span><span class="params">(<span class="keyword">char</span> **argv)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 我们内置了 quit &amp; bg jobs 四个指令</span></span><br><span class="line">    <span class="keyword">if</span>(!<span class="built_in">strcmp</span>(argv[<span class="number">0</span>],<span class="string">&quot;quit&quot;</span>))</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span>(!<span class="built_in">strcmp</span>(argv[<span class="number">0</span>],<span class="string">&quot;&amp;&quot;</span>))</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span>(!<span class="built_in">strcmp</span>(argv[<span class="number">0</span>],<span class="string">&quot;bg&quot;</span>)||!<span class="built_in">strcmp</span>(argv[<span class="number">0</span>],<span class="string">&quot;fg&quot;</span>))&#123;</span><br><span class="line">        do_bgfg(argv);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(!<span class="built_in">strcmp</span>(argv[<span class="number">0</span>],<span class="string">&quot;jobs&quot;</span>))&#123;</span><br><span class="line">        listjobs(jobs);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;     <span class="comment">/* not a builtin command */</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * do_bgfg - Execute the builtin bg and fg commands</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">do_bgfg-执行内置的bg和fg命令</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">do_bgfg</span><span class="params">(<span class="keyword">char</span> **argv)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">pid_t</span> pid;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">job_t</span> *<span class="title">job</span>;</span></span><br><span class="line">    <span class="keyword">char</span> *id = argv[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(id==<span class="literal">NULL</span>)&#123;       <span class="comment">/*bg or fg has the argument?*/</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s command requires PID or %%jobid argument\n&quot;</span>,argv[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(id[<span class="number">0</span>]==<span class="string">&#x27;%&#x27;</span>)&#123;     <span class="comment">/*the argument is a job id*/</span></span><br><span class="line">        <span class="keyword">int</span> jid = atoi(&amp;id[<span class="number">1</span>]);</span><br><span class="line">        job = getjobjid(jobs,jid);</span><br><span class="line">        <span class="keyword">if</span>(job==<span class="literal">NULL</span>)&#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;%%%d: No such job\n&quot;</span>,jid);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">else</span> <span class="keyword">if</span>(<span class="built_in">isdigit</span>(id[<span class="number">0</span>]))&#123;               <span class="comment">/*the argument is a pid is a digit number?*/</span></span><br><span class="line">        pid = atoi(id);</span><br><span class="line">        job = getjobpid(jobs,pid);</span><br><span class="line">        <span class="keyword">if</span>(job==<span class="literal">NULL</span>)&#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;(%d): No such process\n&quot;</span>,pid);</span><br><span class="line">            <span class="keyword">return</span> ;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s: argument must be a PID or %%jobid\n&quot;</span>, argv[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Kill(-(job-&gt;pid),SIGCONT); <span class="comment">/*send the SIGCONT to the pid*/</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(!<span class="built_in">strcmp</span>(argv[<span class="number">0</span>],<span class="string">&quot;bg&quot;</span>))&#123; <span class="comment">/*set job state ,do it in bg or fg*/</span></span><br><span class="line">        job-&gt;state = BG;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;[%d] (%d) %s&quot;</span>, job-&gt;jid, job-&gt;pid,job-&gt;cmdline);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        job-&gt;state = FG;</span><br><span class="line">        waitfg(job-&gt;pid);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * waitfg - Block until process pid is no longer the foreground process</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">waitfg-阻塞直到进程pid不再是前台进程</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">waitfg</span><span class="params">(<span class="keyword">pid_t</span> pid)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(pid == fgpid(jobs))&#123;</span><br><span class="line">        sleep(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*****************</span></span><br><span class="line"><span class="comment"> * Signal handlers</span></span><br><span class="line"><span class="comment"> *****************/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * sigchld_handler - The kernel sends a SIGCHLD to the shell whenever</span></span><br><span class="line"><span class="comment"> *     a child job terminates (becomes a zombie), or stops because it</span></span><br><span class="line"><span class="comment"> *     received a SIGSTOP or SIGTSTP signal. The handler reaps all</span></span><br><span class="line"><span class="comment"> *     available zombie children, but doesn&#x27;t wait for any other</span></span><br><span class="line"><span class="comment"> *     currently running children to terminate.  </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">sigchld_handler-每当子作业终止（成为僵尸）或由于接收到SIGSTOP或SIGTSTP信号而停止时，内核都会将SIGCHLD发送到外壳。</span></span><br><span class="line"><span class="comment">处理程序会收割所有可用的僵尸子级，但不等待其他任何当前运行的子级终止。</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sigchld_handler</span><span class="params">(<span class="keyword">int</span> sig)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">pid_t</span> pid;</span><br><span class="line">    <span class="keyword">int</span> status;</span><br><span class="line">    <span class="keyword">while</span>((pid = waitpid(<span class="number">-1</span>,&amp;status,WNOHANG|WUNTRACED))&gt;<span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span>(WIFEXITED(status))&#123;  <span class="comment">/*process is exited in normal way*/</span></span><br><span class="line">            deletejob(jobs,pid);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(WIFSIGNALED(status))&#123;<span class="comment">/*process is terminated by a signal*/</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;Job [%d] (%d) terminated by signal %d\n&quot;</span>,pid2jid(pid),pid,WTERMSIG(status));</span><br><span class="line">            deletejob(jobs,pid);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(WIFSTOPPED(status))&#123;<span class="comment">/*process is stop because of a signal*/</span></span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;Job [%d] (%d) stopped by signal %d\n&quot;</span>,pid2jid(pid),pid,WSTOPSIG(status));</span><br><span class="line">            <span class="class"><span class="keyword">struct</span> <span class="title">job_t</span> *<span class="title">job</span> =</span> getjobpid(jobs,pid);</span><br><span class="line">            <span class="keyword">if</span>(job !=<span class="literal">NULL</span> )job-&gt;state = ST;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(errno != ECHILD)</span><br><span class="line">        unix_error(<span class="string">&quot;waitpid error&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* </span></span><br><span class="line"><span class="comment"> * sigint_handler - The kernel sends a SIGINT to the shell whenver the</span></span><br><span class="line"><span class="comment"> *    user types ctrl-c at the keyboard.  Catch it and send it along</span></span><br><span class="line"><span class="comment"> *    to the foreground job.  </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">sigint处理程序-每当用户在键盘上键入ctrl-c时，内核都会将SIGINT发送到外壳。</span></span><br><span class="line"><span class="comment">赶上并将其发送到前台作业。</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sigint_handler</span><span class="params">(<span class="keyword">int</span> sig)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">pid_t</span> pid = fgpid(jobs);</span><br><span class="line">    <span class="keyword">if</span>(pid != <span class="number">0</span>)&#123;</span><br><span class="line">        Kill(-pid,SIGINT);</span><br><span class="line">        <span class="comment">/*let the sigchld_handler to delete the job in jobs?*/</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * sigtstp_handler - The kernel sends a SIGTSTP to the shell whenever</span></span><br><span class="line"><span class="comment"> *     the user types ctrl-z at the keyboard. Catch it and suspend the</span></span><br><span class="line"><span class="comment"> *     foreground job by sending it a SIGTSTP.  </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">sigtstp_handler-每当用户在键盘上键入ctrl-z时，内核就会将SIGTSTP发送到外壳。</span></span><br><span class="line"><span class="comment">捕获它并通过向其发送SIGTSTP来挂起前台作业。</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">sigtstp_handler</span><span class="params">(<span class="keyword">int</span> sig)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">pid_t</span> pid = fgpid(jobs);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(pid!=<span class="number">0</span> )&#123;</span><br><span class="line">        <span class="class"><span class="keyword">struct</span> <span class="title">job_t</span> *<span class="title">job</span> =</span> getjobpid(jobs,pid);</span><br><span class="line">        <span class="keyword">if</span>(job-&gt;state == ST)&#123;  <span class="comment">/*already stop the job ,dot do it again*/</span></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            Kill(-pid,SIGTSTP);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
-      
     </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2020/07/27/CSAPP%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" data-id="ckn2iqpqo001uxrn99fu2gs7x" data-title="CSAPP学习笔记" class="article-share-link">Share</a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" rel="tag">CSAPP学习</a></li></ul>
 
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" rel="tag"># CSAPP学习</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/17/llvm-%E5%AD%A6%E4%B9%A0%EF%BC%88%E5%85%AD%EF%BC%89%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%E6%96%B9%E5%BC%8F%E7%AD%89/" rel="prev" title="llvm-学习（六）代码优化方式等">
+      <i class="fa fa-chevron-left"></i> llvm-学习（六）代码优化方式等
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/11/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E8%A1%A8/" rel="next" title="系统调用表">
+      系统调用表 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.</span> <span class="nav-text">环境搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DataLab"><span class="nav-number">2.</span> <span class="nav-text">DataLab</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">2.1.</span> <span class="nav-text">概述</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bomb"><span class="nav-number">3.</span> <span class="nav-text">Bomb</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#bomb-c"><span class="nav-number">3.1.</span> <span class="nav-text">bomb.c</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bomb-ELF%E6%96%87%E4%BB%B6"><span class="nav-number">3.2.</span> <span class="nav-text">bomb ELF文件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#phase-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">phase_1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#phase-2"><span class="nav-number">3.2.2.</span> <span class="nav-text">phase_2</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#phase-3"><span class="nav-number">3.2.3.</span> <span class="nav-text">phase_3</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#phase-4"><span class="nav-number">3.2.4.</span> <span class="nav-text">phase_4</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#phase-5"><span class="nav-number">3.2.5.</span> <span class="nav-text">phase_5</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#phase-6"><span class="nav-number">3.2.6.</span> <span class="nav-text">phase_6</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Attacklab"><span class="nav-number">4.</span> <span class="nav-text">Attacklab</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ctarget"><span class="nav-number">4.1.</span> <span class="nav-text">ctarget</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#phase-1-1"><span class="nav-number">4.1.1.</span> <span class="nav-text">phase 1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#phase-2-1"><span class="nav-number">4.1.2.</span> <span class="nav-text">phase 2</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#phase-3-1"><span class="nav-number">4.1.3.</span> <span class="nav-text">phase 3</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#rtarget"><span class="nav-number">4.2.</span> <span class="nav-text">rtarget</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#phase-4-1"><span class="nav-number">4.2.1.</span> <span class="nav-text">phase 4</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#phase-5-1"><span class="nav-number">4.2.2.</span> <span class="nav-text">phase 5</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#phase-6-1"><span class="nav-number">4.2.3.</span> <span class="nav-text">phase 6</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Buffer-lab"><span class="nav-number">5.</span> <span class="nav-text">Buffer lab</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Arch-lab"><span class="nav-number">6.</span> <span class="nav-text">Arch lab</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#example-c"><span class="nav-number">6.1.</span> <span class="nav-text">example.c</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Part-A"><span class="nav-number">6.2.</span> <span class="nav-text">Part A</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#sum-list"><span class="nav-number">6.2.1.</span> <span class="nav-text">sum_list</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#rsum-list"><span class="nav-number">6.2.2.</span> <span class="nav-text">rsum_list</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#copy-block"><span class="nav-number">6.2.3.</span> <span class="nav-text">copy_block</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Part-B"><span class="nav-number">6.3.</span> <span class="nav-text">Part B</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cache-Lab"><span class="nav-number">7.</span> <span class="nav-text">Cache Lab</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%9B%AE%E7%9A%84"><span class="nav-number">7.1.</span> <span class="nav-text">实现目的</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B1%80%E9%83%A8%E6%80%A7%E5%8E%9F%E7%90%86"><span class="nav-number">7.1.1.</span> <span class="nav-text">局部性原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Cache-%E4%BB%8B%E7%BB%8D"><span class="nav-number">7.1.2.</span> <span class="nav-text">Cache 介绍</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PartA"><span class="nav-number">7.2.</span> <span class="nav-text">PartA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Part-B-1"><span class="nav-number">7.3.</span> <span class="nav-text">Part B</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shell-lab"><span class="nav-number">8.</span> <span class="nav-text">shell lab</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">8.1.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%82%E5%B8%B8%E5%92%8C%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86"><span class="nav-number">8.1.1.</span> <span class="nav-text">异常和异常处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E6%A8%A1%E5%BC%8F%E5%92%8C%E5%86%85%E6%A0%B8%E6%A8%A1%E5%BC%8F"><span class="nav-number">8.1.2.</span> <span class="nav-text">用户模式和内核模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#fork%E5%87%BD%E6%95%B0"><span class="nav-number">8.1.3.</span> <span class="nav-text">fork函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7"><span class="nav-number">8.1.4.</span> <span class="nav-text">信号</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%9C%E4%B8%9A"><span class="nav-number">8.2.</span> <span class="nav-text">作业</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">0xC4m3l</p>
+  <div class="site-description" itemprop="description">生活坏到一定程度就会好起来，因为它无法更坏。努力过后，才知道许多事情，坚持坚持，就过来了。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">0xC4m3l</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
     </footer>
   </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2020/08/11/%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8%E8%A1%A8/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          系统调用表
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2020/07/17/llvm-%E5%AD%A6%E4%B9%A0%EF%BC%88%E5%85%AD%EF%BC%89%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%E6%96%B9%E5%BC%8F%E7%AD%89/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">llvm-学习（六）代码优化方式等</div>
-    </a>
-  
-</nav>
 
   
-</article>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/80/" rel="tag">80</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" rel="tag">CSAPP学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/WEB/" rel="tag">WEB</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/int/" rel="tag">int</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/llvm%E5%AD%A6%E4%B9%A0/" rel="tag">llvm学习</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80/" rel="tag">基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" rel="tag">基础技术</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%89%E5%8D%93/" rel="tag">安卓</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" rel="tag">工具安装</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" rel="tag">漏洞模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" rel="tag">问题汇总</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" rel="tag">项目学习</a></li></ul>
-    </div>
-  </div>
+<script src="/js/schemes/pisces.js"></script>
 
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/80/" style="font-size: 10px;">80</a> <a href="/tags/CSAPP%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">CSAPP学习</a> <a href="/tags/WEB/" style="font-size: 17.5px;">WEB</a> <a href="/tags/int/" style="font-size: 10px;">int</a> <a href="/tags/llvm%E5%AD%A6%E4%B9%A0/" style="font-size: 15px;">llvm学习</a> <a href="/tags/%E5%9F%BA%E7%A1%80/" style="font-size: 17.5px;">基础</a> <a href="/tags/%E5%9F%BA%E7%A1%80%E6%8A%80%E6%9C%AF/" style="font-size: 10px;">基础技术</a> <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" style="font-size: 20px;">学习笔记</a> <a href="/tags/%E5%AE%89%E5%8D%93/" style="font-size: 10px;">安卓</a> <a href="/tags/%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85/" style="font-size: 12.5px;">工具安装</a> <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">操作系统</a> <a href="/tags/%E6%BC%8F%E6%B4%9E%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">漏洞模式</a> <a href="/tags/%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB/" style="font-size: 10px;">问题汇总</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">项目学习</a>
-    </div>
-  </div>
+<script src="/js/next-boot.js"></script>
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">March 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/02/">February 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/01/">January 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">December 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/03/29/codeql-xue-xi-bi-ji/">codeql 学习笔记</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/10/macos-dui-zhi-shi-xue-xi-bi-ji/">macOS 堆知识学习笔记</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/09/afl%E4%BD%BF%E7%94%A8%E5%AD%A6%E4%B9%A0/">AFL 使用学习</a>
-          </li>
-        
-          <li>
-            <a href="/2021/03/01/fastjson-xue-xi/">fastjson 学习</a>
-          </li>
-        
-          <li>
-            <a href="/2021/02/26/java-classloader%E8%AE%A4%E8%AF%86/">java classloader 认识</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
 
 
 
   
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
 
 
 
 
 
-  </div>
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
 </body>
 </html>
