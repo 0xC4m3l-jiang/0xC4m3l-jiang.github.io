@@ -13,7 +13,9 @@
     <url>/2021/04/11/iOS-Hacker%E2%80%99s-Handbook/</url>
     <content><![CDATA[<h1 id="IOS-应用介绍"><a href="#IOS-应用介绍" class="headerlink" title="IOS 应用介绍"></a>IOS 应用介绍</h1><p>IOS 应用是 Xcode 和 iOS SDK 在 Mac OSX 计算机上开发的。开发后的应用，在发送给苹果公司检查后，批准后签上苹果的私钥。</p>
 <p>iOS 必须有受信任一方前面，否则 iOS 的强制性代码签名（Mandatory Code-Signing）会让程序无法在设备上运行</p>
-<h2 id="预防漏洞攻击"><a href="#预防漏洞攻击" class="headerlink" title="预防漏洞攻击"></a>预防漏洞攻击</h2><ul>
+<span id="more"></span>
+
+<h2 id="防漏洞攻击"><a href="#防漏洞攻击" class="headerlink" title="防漏洞攻击"></a>防漏洞攻击</h2><ul>
 <li>数据执行保护</li>
 <li>内存虚拟化</li>
 <li>权限分离</li>
