@@ -165,6 +165,9 @@
     </h1>
   
 
+        <!--显示阅读次数-->
+        
+        <!--显示阅读次数完毕-->
         
         <a href="/2021/02/25/zi-wo-jie-shao/" class="archive-article-date">
   	<time datetime="2021-02-25T05:47:45.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-02-25</time>
@@ -176,9 +179,8 @@
       
         <p>成都信息工程大学 syclover<br>W&amp;M<br>2018 - 2019  学习pwn<br>2020            开始学习 web</p>
 <p>这个博客是我是我系统学习的笔记<br>还有些 二进制笔记在 notion 中<br><a target="_blank" rel="noopener" href="https://www.notion.so/58c2330d1cbe4c87b7db443159a3c02e">二进制学习笔记</a></p>
-        
-          <a class="article-more-a" href="/2021/02/25/zi-wo-jie-shao/#more">more >></a>
-        
+<p>[] 学习分析 macOS 历史 cve <a target="_blank" rel="noopener" href="http://turingh.github.io/">http://turingh.github.io/</a></p>
+
       
 
       
@@ -225,6 +227,543 @@
 
 
   
+    <article id="post-iOS-Hacker’s-Handbook" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/04/11/iOS-Hacker%E2%80%99s-Handbook/">iOS Hacker’s Handbook</a>
+    </h1>
+  
+
+        <!--显示阅读次数-->
+        
+        <!--显示阅读次数完毕-->
+        
+        <a href="/2021/04/11/iOS-Hacker%E2%80%99s-Handbook/" class="archive-article-date">
+  	<time datetime="2021-04-10T23:48:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-04-11</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="IOS-应用介绍"><a href="#IOS-应用介绍" class="headerlink" title="IOS 应用介绍"></a>IOS 应用介绍</h1><p>IOS 应用是 Xcode 和 iOS SDK 在 Mac OSX 计算机上开发的。开发后的应用，在发送给苹果公司检查后，批准后签上苹果的私钥。</p>
+<p>iOS 必须有受信任一方前面，否则 iOS 的强制性代码签名（Mandatory Code-Signing）会让程序无法在设备上运行</p>
+<h2 id="预防漏洞攻击"><a href="#预防漏洞攻击" class="headerlink" title="预防漏洞攻击"></a>预防漏洞攻击</h2><ul>
+<li>数据执行保护</li>
+<li>内存虚拟化</li>
+<li>权限分离</li>
+<li>沙箱让某些流程无法接触敏感数据</li>
+</ul>
+<h2 id="安全框架"><a href="#安全框架" class="headerlink" title="安全框架"></a>安全框架</h2><h3 id="更小的受攻击面"><a href="#更小的受攻击面" class="headerlink" title="更小的受攻击面"></a>更小的受攻击面</h3><p>减小受攻击面，iOS中 不支持 Java 和 Flash</p>
+<p>且 iOS 不能处理一些 MAC OSX  可以处理的文件。</p>
+<p>如：Safari 和 MobileSafari。 .mov 在 iOS 和 Mac OS X。PDF , iOS原生支持.pdf文件，但是只解析改文件格式的部分特性。</p>
+<h3 id="精简的-iOS"><a href="#精简的-iOS" class="headerlink" title="精简的 iOS"></a>精简的 iOS</h3><p>iOS 下没有 shell (/bin/sh)</p>
+<h3 id="权限分离"><a href="#权限分离" class="headerlink" title="权限分离"></a>权限分离</h3><p>有的应用运行是利用 <code>用户 mobile 身份</code></p>
+<p>系统进程利用 <code>特权用户 root 身份</code></p>
+<p>从而让存在漏洞的 mobile 用户应用能执行的代码被限制。</p>
+<h3 id="代码签名"><a href="#代码签名" class="headerlink" title="代码签名"></a>代码签名</h3><p>需要 受信任机构的签名，才能被内核允许执行。</p>
+<p>从而让应用不能动态改变行为或者完成自身升级。</p>
+<p>如果系统越狱了，未签名的应用可以在越狱过的设备上安全运行。</p>
+<h3 id="数据执行保护"><a href="#数据执行保护" class="headerlink" title="数据执行保护"></a>数据执行保护</h3><p>DEP 不允许数据执行，只允许代码执行    </p>
+<p>可以使用 ROP 技术绕过 DEP (类似 linux pwn 的操作)</p>
+<p>代码签名，要求对应页 必须页源自受信任机构签名，否者该页不会被执行</p>
+<h3 id="地址空间布局随机化"><a href="#地址空间布局随机化" class="headerlink" title="地址空间布局随机化"></a>地址空间布局随机化</h3><p>利用 ROP 绕过 DEP 这里我们需要得到 代码段位置，</p>
+<p>利用 ASLR （地址空间布局随机化）让 二进制文件，库文件，动态链接文件，栈和堆内存位置全部随机</p>
+<h3 id="沙箱"><a href="#沙箱" class="headerlink" title="沙箱"></a>沙箱</h3><p>iOS 防守机制最后一环。</p>
+<p>通过沙箱，恶意攻击可能窃取设备上所有的照片和地址簿，但是它没办法执行发送短信等会直接使用话费的操作。</p>
+<h1 id="企业中的-iOS"><a href="#企业中的-iOS" class="headerlink" title="企业中的 iOS"></a>企业中的 iOS</h1><p>利用 <code>iPhone Configuration(iPhone配置实用工具)，Lion Server Profile Manager(描述文件管理器)</code> 为iOS 设备创建和应用配置描述文件，用于确保设备严格执行组织的安全政策。</p>
+<h2 id="iOS-配置管理"><a href="#iOS-配置管理" class="headerlink" title="iOS 配置管理"></a>iOS 配置管理</h2><p>通过创建和安装配置描述文件进行管理。</p>
+<p>只有通过 配置描述文件进行配置的设置，才能集中管理。</p>
+<h3 id="移动配置描述文件"><a href="#移动配置描述文件" class="headerlink" title="移动配置描述文件"></a>移动配置描述文件</h3><p>这个文件是 XML 属性 <code>property list</code>  数据值是 base64 编码储存。</p>
+<h3 id="iPhone-配字实用工具"><a href="#iPhone-配字实用工具" class="headerlink" title="iPhone 配字实用工具"></a>iPhone 配字实用工具</h3><p><code>iPhone 配字实用工具</code> 会自动在用户的 keychain 中 自动创建 根CA 证书，iPhone 配置实用工具会为那些通过USB 端口连接到运行他的主机上的设备自动创建证书。这个CA证书用于给 这些证书签名，创建证书是为了安全传输这些设备上的配置描述文件签名和加密。</p>
+<h3 id="移动设备管理"><a href="#移动设备管理" class="headerlink" title="移动设备管理"></a>移动设备管理</h3><p>利用 <code>MDM （移动设备管理）</code> 是企业完成可以远程管理这些设备</p>
+<h4 id="MDM-网络通信"><a href="#MDM-网络通信" class="headerlink" title="MDM 网络通信"></a>MDM 网络通信</h4><p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210411222954285.png" alt="image-20210411222954285"></p>
+<p>iOS 设备在接收到 推送通知时就会与配置够的MDM服务器直接简历简介。</p>
+<p>iOS 设备本身与位于 <code>courier.push.apple.com</code> 的某一 APNS 信使服务器保持持久连接，其中APNS 信使服务器是所有 iOS 推送通知都要使用的集中通信通道。</p>
+<p>不通过的链接方式 链接的要求也不一样</p>
+<h4 id="Lion-Server-描述文件管理器"><a href="#Lion-Server-描述文件管理器" class="headerlink" title="Lion Server 描述文件管理器"></a>Lion Server 描述文件管理器</h4><p>这是一种可作为 MDM API 服务器和管理控制台使用的 Ruby-on-Rails Web 应用</p>
+<p>大多数管理任务都是在用 Web 浏览器链接到 Web应用描述文件管理器后进行</p>
+<h1 id="加密"><a href="#加密" class="headerlink" title="加密"></a>加密</h1><p>IOS 保护静态数据（data-at-rest）的主要措施，Data Protection API</p>
+<p>4位屏锁被猜到后，iOS 设备上利用 Data Protection API 加密的所有数据都可以被解密。</p>
+<h2 id="数据保护"><a href="#数据保护" class="headerlink" title="数据保护"></a>数据保护</h2><p>开发者会用定义了文件和 keychain 项的保护等级的常量来标记它们。</p>
+<p>不同的保护等级是通过 <code>密钥分级</code> 实现的</p>
+<p>密钥分级的根部是 <code>UID密钥</code>嵌入在板载的加密加速器中，无法通过软件访问。    <code>用户的密码</code></p>
+<p>加速器可以使用该秘钥加密或解密指定的数据。</p>
+<p>设备被解锁后，用户的密码会由修改过的 PBKDF2 算法加密多次生成密码密钥（保存在内存中，直到设备再次被锁定。</p>
+<p>UID 密钥会被加密后生成 设备密钥，用于表示与文件相关的各保护等级的密钥加密。</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210411230432714.png" alt="image-20210411230432714"></p>
+<h2 id="对数据保护的攻击"><a href="#对数据保护的攻击" class="headerlink" title="对数据保护的攻击"></a>对数据保护的攻击</h2><p>开发者充分使用 Data Protection API 保护敏感信息</p>
+<h4 id="对用户密码的攻击"><a href="#对用户密码的攻击" class="headerlink" title="对用户密码的攻击"></a>对用户密码的攻击</h4><p>利用标准 <code>PBKDF2算法的修改版</code> 利用用户密码 生成 密码密钥。 </p>
+<p><code>PBKDF2算法的修改版</code> 使用带 UID 密钥的 AES加密。因为 UID 密钥是设备本身得出的，防止攻击者离线破解密码。</p>
+<p>根据 CPU 速度，<code>PBKDF2算法的修改版</code> 的迭代加密次数是可变的。</p>
+<p>从而是得输出密码后 会有一个延迟。</p>
+<p>攻击使用工具。</p>
+<p>当 iOS 磁盘镜像挂接到 Mac OS X 上，我们可以查看文件系统并查看所有的文件元数据，但是文件内容都是已加密的数据，想要查看文件数据，我们需要系统 <code>keybag</code> 解密文件系统中所有加密后的文件</p>
+<p>也可以利用 引导自定义ramdisk 完整的获取取证数据。</p>
+<h1 id="代码签名和内存保护"><a href="#代码签名和内存保护" class="headerlink" title="代码签名和内存保护"></a>代码签名和内存保护</h1><p>利用 <code>Mandatory Code Signing(强制代码签名)</code> 严格控制iOS设备上执行代码。</p>
+<p>得到许可的组织必须为每一个要在 iOS设备上运行的应用签名。内核只允许被前面的代码在设备上执行，不管是 设备出厂时预装的应用还是 App Store 下载安装的，都需要经过苹果公司私钥的签名。</p>
+<p>强制代码签名，影响二进制文件，影响所有代码，包括库文件，内存可执行代码。</p>
+<p>但是 Web浏览器 MobileSafari 是计时编译（Just In Time) 编译。</p>
+<p>代码签名安全特性:</p>
+<ol>
+<li><p><strong>可以防御恶意软件进入 iOS 设备。</strong></p>
+</li>
+<li><p><strong>可以防御漏洞攻击。</strong></p>
+<p>类似于 微软的 <code>DEP</code> 防御，代码签名可以防止代码（shellcode）被注入到受影响的进程中执行。但是可以利用 ROP 关闭 <code>DEP</code> 防护 再去执行 shellcode</p>
+<p>强制代码签名，iOS中 攻击者不能关闭强制代码签名，只能使用 ROP 不能使用 shellcode。</p>
+</li>
+</ol>
+<h2 id="强制访问控制"><a href="#强制访问控制" class="headerlink" title="强制访问控制"></a>强制访问控制</h2><p>强制代码签名机制大部分由 MACF （强制访问控制框架）控制。</p>
+<p>MACF 继承自 FreeBSD </p>
+<p>FreeBSD 包含了某些强制访问控制策略的实验性支持，还包含用于内核安全性扩展的框架（TrustedBSD MAC Framework）</p>
+<p>iOS 只注册了两项策略 <code>AMFI 和 沙箱</code></p>
+<h3 id="AMFI-钩子"><a href="#AMFI-钩子" class="headerlink" title="AMFI 钩子"></a>AMFI 钩子</h3><p>苹果移动设备文件完整性</p>
+<h2 id="授权的工作原理"><a href="#授权的工作原理" class="headerlink" title="*授权的工作原理"></a>*授权的工作原理</h2><h3 id="验证授权文件的有效性"><a href="#验证授权文件的有效性" class="headerlink" title="验证授权文件的有效性"></a>验证授权文件的有效性</h3><p>可以在 <code>dyld_shared_cache</code> 中找到的 <code>libmis</code> 动态库中的 <code>MISProvisioningProfileCheckValidity</code> 函数验证</p>
+<ul>
+<li>签名证书必须由 <code>Apple iPhone Certificate Authority</code> （苹果iPhone 证书管理机构）签发</li>
+<li>签名证书的名称必须由 <code>Apple iPhone OS Provisioning Profile Signing</code></li>
+<li>证书的前面链不能长于3个链接</li>
+<li>根证书必须具有特定的SHA1 散列值</li>
+<li>描述文件的版本号一定是1</li>
+<li>设备的UDID 一定要出现，或者该描述文件必须包含 <code>ProvisionsAllDevices 键</code></li>
+<li>描述文件一定没有过期</li>
+</ul>
+<h2 id="代码签名的实施方法"><a href="#代码签名的实施方法" class="headerlink" title="代码签名的实施方法"></a>代码签名的实施方法</h2><p>代码签名实际发生早起内核的虚拟内存系统，系统会检查独立的内存页以及已经作为整体的进程，看看它们是否起源于经过签名的代码</p>
+<h3 id="收集和验证签名信息"><a href="#收集和验证签名信息" class="headerlink" title="收集和验证签名信息"></a>收集和验证签名信息</h3><p>加载可执行代码时，内核会检测代码是否含有 <code>LC_CODE_SIGNATURE</code> 装载命令存储在一起的代码签名。</p>
+<p>利用的函数是 XNU的 <code>bsd/kern/mach_loader.c</code></p>
+<p><code>parse_machfile</code> -&gt; <code>load_code_signature</code> -&gt; <code>ubc_cs_blob_add</code> -&gt; <code>vnode_check_signature</code> </p>
+<p>AMFI 在挂钩函数 <code>vnode_check_signature</code> 中执行实现的代码签名检查</p>
+<h3 id="确保已签名页不发生改变"><a href="#确保已签名页不发生改变" class="headerlink" title="确保已签名页不发生改变"></a>确保已签名页不发生改变</h3><p>代码签名机制必须持续地执行，才能防止已签名的代码被篡改，防止新代码被注入，并防止其他破坏。iOS通过不允许出现可执行和可写入页面满足这一需求。</p>
+<h2 id="动态代码签名"><a href="#动态代码签名" class="headerlink" title="动态代码签名"></a>动态代码签名</h2><p>即时编译（JIT）因为严格的代码签名策略从而不能被使用。</p>
+<p>即时编译能够很快的运行，所以在 iOS 4.3 中 引入了 动态代码签名的概念。允许即时编译</p>
+<p><code>只允许特定进程创建可写且可执行的内存区域来执行即时编译工作</code> 只能创建一块这样的区域。</p>
+<h2 id="破坏代码签名机制"><a href="#破坏代码签名机制" class="headerlink" title="破坏代码签名机制"></a>破坏代码签名机制</h2><p>内核对 mmap 中的 <code>MAP_JIT</code> 标记的检查机制存在漏洞。</p>
+<p>漏洞存在位置代码</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210413152302214.png" alt="image-20210413152302214"></p>
+<p>如果 <code>MAP_FIXED</code> 为0 我们的 <code>flags &amp; MAP_JIT</code> 就没有检测的意义了。因为会一直为0。</p>
+<p>如果 <code>MAP_JIT  MAP_PRIVATE  MAP_FILE</code> 标志都已设置，这一检测就没办法阻止调用 mmap了。</p>
+<p>这一任何没有 <code>RWX</code> 权限的区域 iOS 进程都可以执行 如下调用。</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210413152738161.png" alt="image-20210413152738161" style="zoom:50%;" />
+
+<p>从而返回一个 任意大小的 可读可写可执行的区域。</p>
+<h1 id="沙盒"><a href="#沙盒" class="headerlink" title="沙盒"></a>沙盒</h1><p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/3981">https://xz.aliyun.com/t/3981</a></p>
+<p>iOS 提供了多层漏洞攻击缓解机制。</p>
+<p>DEP （数据执行保护）</p>
+<p>ASLR （地址空间分布随机化）</p>
+<p>iOS 沙盒机制</p>
+<blockquote>
+<p>提供结构约束进程行为，从而限制代码执行后的行为。</p>
+</blockquote>
+<p>例如：</p>
+<p>​    一个程序的子程序是对内容渲染，那黑客攻击的时候回去攻击这个子程序。所以我们要限制他只接受输入的内容不访问其他内容，通过禁止该子系统打开其他文件、执行其他程序或使用网络，我们就限制了攻击者在代码执行后的行为。</p>
+<h2 id="沙盒认识"><a href="#沙盒认识" class="headerlink" title="沙盒认识"></a>沙盒认识</h2><p>组成部分</p>
+<ul>
+<li><p>一些用于初始化和配置沙盒的用户库函数</p>
+</li>
+<li><p>用来处理内核日志和存放预置配置的Mach 服务器</p>
+</li>
+<li><p>利用 TrustedBSD API 实施单独策略的内核扩展</p>
+</li>
+<li><p>为在实施过程中评估某些策略限制提供正则表达式引擎的内核扩展</p>
+</li>
+</ul>
+<p>沙箱被分割成了多个组件，比如位于<code>/usr/libexec/sandboxd</code>目录中的<code>userland daemon</code>，这是<code>com.apple.security.sandbox</code>是<code>kext (Kernel Extension)</code>，还有依赖于<code>AppContainer.Framework</code>的<code>AppSandbox</code>私有框架。</p>
+<p>沙盒是基于应用程序的安装位置，而不是基于安装权限。</p>
+<h3 id="首先实施沙盒机制"><a href="#首先实施沙盒机制" class="headerlink" title="首先实施沙盒机制"></a>首先实施沙盒机制</h3><p>调用 <code>libSystem::sandbox_init</code> 利用 <code>libsandbox.dylib</code> 库 把我们理解的策略定义转化为内核需要的二进制格式。</p>
+<p>然后将这些 二进制格式 传递给 由 <code>TrustedBSD子系统</code> 处理的 <code>mac_syscall系统调用中</code> </p>
+<p>  <code>TrustedBSD</code>  把沙盒初始化请求传递给 <code>Sandbox.kext 内核扩展</code> 进行处理。</p>
+<h3 id="初始化完成后"><a href="#初始化完成后" class="headerlink" title="初始化完成后"></a>初始化完成后</h3><p> <code>TrustedBSD</code>  层钩挂的很多函数调用经过 <code>Sandbox.kext</code> 实施策略。</p>
+<p><code>Sandbox.kext</code> 会从 <code>AppleMatch.kext</code> 引入函数 对 <strong>系统调用参数</strong> 和 <strong>策略规则</strong> 使用的模式进行正则表达式匹配</p>
+<h2 id="使用沙盒"><a href="#使用沙盒" class="headerlink" title="使用沙盒"></a>使用沙盒</h2><p><strong>sandbox_init</strong></p>
+<p>只是 <code>sandbox_init_internal</code> 的代理函数</p>
+<p><code>sandbox_init_with_params  和  sandbox_init_with_extemsions</code> 也是如此</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210413170557935.png" alt="image-20210413170557935" style="zoom:50%;" />
+
+
+
+<p>为调用它的进程配置沙盒</p>
+<p>参数 一个描述文件，一组标志 一个用于存储错误信息的输出参数</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210413162057415.png" alt="image-20210413162057415"></p>
+<h2 id="沙盒的实现"><a href="#沙盒的实现" class="headerlink" title="沙盒的实现"></a>沙盒的实现</h2><p>沙盒是由 <strong>内存</strong> 和 <strong>用户空间组件</strong> 构成的。</p>
+<p>内存会暴露配置接口，害扮演 ”看门人“ 的角色。</p>
+<p>它会检查进程请求的操作，并根据与进程关联的沙盒描述文件对这些操作请求进行评估。</p>
+<h3 id="理解用户空间库的实现"><a href="#理解用户空间库的实现" class="headerlink" title="理解用户空间库的实现"></a>理解用户空间库的实现</h3><p>利用 <code>dyldinfo</code> 可以确定为 <code>sandbox_init</code> 符号链接的共享库是哪个</p>
+<p><code>sandbox_init</code> 是经由 <code>libSystem</code> 链接</p>
+<p>需要分析系统库，需要从缓存里面提取，</p>
+<ol>
+<li>可以解密固件包（IPSW）中的根文件系统镜像</li>
+<li>可以在已经越狱的iPhone上复制改缓存</li>
+</ol>
+<p>共享缓存位于 <code>/System/Library/Caches/com.apple.dyld/dyld_shared_cache_armv7</code></p>
+<p>开源提取工具 <code>dyld_decache</code></p>
+<p>可以提取出</p>
+<p><code>/usr/lib/system/libsystem_sandbox.dylib</code></p>
+<p><code>/usr/lib/system/libsystem_kernel.dylib</code></p>
+<p><code>/usr/lib/libsandbox.1.dylib</code></p>
+<p>其中 <code>sandbox_init_internal</code> 函数介绍</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210413170653939.png" alt="image-20210413170653939"></p>
+<p>这个函数会把表示参数和扩展的字符串数组转化成 <code>libsandbox</code> 格式</p>
+<p>动态调用了 <code>libsandbox.1.dylib</code>  调用解析函数 <code>sandbox_creat_params,sandbox_set_param,sandbox_create_extensions,sandbox_add_extension</code></p>
+<p>然后会更具我们传入的 <code>flag</code> 标志位在 <code>libsandbox.1.dylib</code> 动态加载不同函数。</p>
+<h3 id="深入内核"><a href="#深入内核" class="headerlink" title="深入内核"></a>深入内核</h3><p>沙盒内核扩展 用的是 <code>TrustedBSD策略扩展</code>  </p>
+<h4 id="TrustedBSD策略实现"><a href="#TrustedBSD策略实现" class="headerlink" title="TrustedBSD策略实现"></a>TrustedBSD策略实现</h4><p>用来在内核中实现可插入，可组合式访问控制策略的框架。</p>
+<p>是由 内核的检查点和为响应这些事件注册策略锁使用的逻辑组成的</p>
+<p><code>XNU</code> 中实现 <code>TrustedBSD</code> 策略的内核代码 <code>xnu-1699.24.8/security</code> 接口通过 <code>mac_policy.h</code> 公开</p>
+<p>在 iOS 的 <code>mac_policy_ops</code> 结构体，这个结构体给出了所有进入沙盒策略扩展的入口点，</p>
+<p>其中有 用于配置进程的 <code>mpo_policy_syscall函数</code>  以及用来在允许操作前对操作进行验证的某一个 <code>mpo_xxx_check_yyy</code> 调用。</p>
+<h4 id="从用户空间处理配置"><a href="#从用户空间处理配置" class="headerlink" title="从用户空间处理配置"></a>从用户空间处理配置</h4><p>公å开给用户空间的接口是 <code>xnu-1699.24.8/security/mac.h</code> 中定义，并通过<code>xnu-1699.24.8/bsd/kern/syscalls.master</code> 公开的</p>
+<p><code>libsandbox</code> 中的所有用户空间函数最后都是调用系统调用</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210413183413369.png" alt="image-20210413183413369" style="zoom:50%;" />
+
+
+
+<p>上面的 <code>mac_syscall</code> 调用时提供给策略扩展，让他们自行动态添加系统调用。第一个参数通过 <code>mpc_name</code> 选择策略扩展，第二个参数用来选择在策略中调用哪个子系统调用，最后的参数表示任何参数都可以传递给策略子系统调用。</p>
+<p>不管当前进程是否已经初始化沙盒  <code>TrusredBSD</code> 函数都会被调用。</p>
+<p>如果未初始化，大多数函数都会在不进行检查的情况下早早返回，这种情况下，<code>sbx_cred_label_update_execve</code> 首先会为已加载的可执行镜像计算路径，如果可执行镜像在 <code>/private/var/mobile/Applications</code> 下，那么内置的沙盒描述文件会被加载，而且处于上述目录下的路径会被作为扩展添加。该扩展可以启用用于所有AppStore 应用的同意容器描述文件。</p>
+<h1 id="iOS-应用进行模糊测试"><a href="#iOS-应用进行模糊测试" class="headerlink" title="iOS 应用进行模糊测试"></a>iOS 应用进行模糊测试</h1><p>模糊测试 （fuzz）</p>
+<p>也称为 动态分析</p>
+<p><strong>基于变异技术（mutation-based）模糊测试</strong></p>
+<p>只需要几分钟 设置和运行。</p>
+<p>选择一种有效输入，这种输入会进行随机修改。</p>
+<p>iOS 是精简过的 Mac OS X 大部分代码是相同的，有一种找 IOS 漏洞的方法是在 Mac OS X 与之相同的代码中找 bug</p>
+<p>iOS SDK 提供了 iOS 模拟器。</p>
+<p>可以在 <code>/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone Simulator.app</code> 找到模拟器的二进制文件。</p>
+<p>iPhone 其实有两个处理器。一个是主CPU，叫作应用处理器。一个是副CPU，叫作基带处理器。</p>
+<p>主CPU 用于运行 iOS 操作系统内核。副CPU（基带处理器）运行特制的实时操作系统</p>
+<h1 id="漏洞攻击"><a href="#漏洞攻击" class="headerlink" title="漏洞攻击"></a>漏洞攻击</h1><h2 id="bug类漏洞"><a href="#bug类漏洞" class="headerlink" title="bug类漏洞"></a>bug类漏洞</h2><h3 id="对象生存期漏洞"><a href="#对象生存期漏洞" class="headerlink" title="对象生存期漏洞"></a>对象生存期漏洞</h3><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210414235335484.png" alt="image-20210414235335484" style="zoom:50%;" />
+
+<p>攻击策略</p>
+<p><strong>第一种</strong></p>
+<ol>
+<li>强制释放易受攻击的对象</li>
+<li>用自己可以控制的内容替换这个对象</li>
+<li>触发对象的使用，获得代码执行权限</li>
+</ol>
+<p><strong>第二种</strong></p>
+<ol>
+<li>易受攻击的对象第一次释放后，用一个合法的对象代替这个对象，因为存在二次释放漏洞，新创建的对象也会被释放</li>
+<li>用自己能够控制的对象替换这个新创建的对象</li>
+<li>让应用程序使用这个自己能控制的对象获取代码执行</li>
+</ol>
+<p>过去通常是重写堆的元数据这样可以设置对应的chunk为 Iuse 从而再次free</p>
+<p>还有重写应用程序持有的特有数据，因为堆块通常会对其数据结构的一致性进行检查，重写应用程序特有的数据往往需要确保溢出的缓存区与需要重写的缓冲区离得近。</p>
+<h2 id="理解iOS-系统自带的分配程序"><a href="#理解iOS-系统自带的分配程序" class="headerlink" title="理解iOS 系统自带的分配程序"></a>理解iOS 系统自带的分配程序</h2><p>iOS 的分配程序叫 <code>magazine malloc</code> </p>
+<h3 id="区域"><a href="#区域" class="headerlink" title="区域"></a>区域</h3><p><code>magazine malloc</code> 调用的区域 <code>region</code> </p>
+<p>其中分为 <code>Tiny</code>     <code>small</code>    <code>large</code></p>
+<p>分配程序为 <code>tiny，small</code> 维护这 32 个freelist <code>freelist</code> </p>
+<p>第1到第31freelist用于分配，而最后的列表用于两个或多个彼此邻近的对象被释放后结合成。</p>
+<p><code>magazine malloc</code> 程序分别为系统中存在的各个CPU 维护着单独的区域，从而让分配程序更容易调节区域大小</p>
+<h3 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h3><p>首先<code>magazine malloc</code> 会更具确定那个区域合适。tiny small 是一样的。</p>
+<h4 id="tiny-small"><a href="#tiny-small" class="headerlink" title="tiny small"></a>tiny small</h4><p>堆块被释放的时候 <code>magazine malloc</code> 会在一个名为 <code>mag_last_free</code> 的专用结构成员中保留该堆块的引用。如果事情的大小符合 <code>mag_last_free</code> 结构引用的堆块的大小，会把这个堆块返回给程序。</p>
+<p>如果不通过会在空闲表中找到大小相同的堆块。如果不成功会去检查最后一个空闲表，最后一个空闲表存储合并的较大内存块。</p>
+<p>如果非空，且内存大小等于大于申请的 堆块的大小，会将其中的内存块分为两个部分，一部分返回给调用程序，另一部分返回该空闲表。</p>
+<p>如果 free list 中没有合适的内存区域。 <code>magazine malloc</code> 会调用 mmap() 分配一个新内存块。这一过程由内存分配请求未得到满足的线程执行。</p>
+<h4 id="lagre"><a href="#lagre" class="headerlink" title="lagre"></a>lagre</h4><p>对于<code>lagre</code> 不利用 32个空闲表，而是具有包含所有可用数据项的缓存。因此程序会先孕照具有合适大小的已分配内存页，如果没有找到，就会搜索更大的内存块，并对其进行分割，得到满足要求的一块，将另一部分返回可用内存列表</p>
+<p>如果没有 就会调用 mmap()  分配</p>
+<h3 id="内存释放"><a href="#内存释放" class="headerlink" title="内存释放"></a>内存释放</h3><h4 id="tiny-small-1"><a href="#tiny-small-1" class="headerlink" title="tiny small"></a>tiny small</h4><p>tiny small 会先放假 <code>mag_last_free</code></p>
+<p>如果这个 结构体之前就存在 free 的堆块引用，那么之前存在的堆块对按照3个步骤被移动到合适的free list 中</p>
+<ol>
+<li>分配程序会检查对象是否可以 与 排在它前面的对象合并。</li>
+<li>然后验证对象能否与排在它后面的对象合并</li>
+<li>最后形成的 堆块会被放置到相应的位置</li>
+</ol>
+<p>如果合并后的堆块大于  tiny 区域 这个对象会被放入最后的 空闲表。 </p>
+<p>当 tiny 区域 质保函释放后的 内存块，整个区域会被释放给系统。</p>
+<h4 id="large"><a href="#large" class="headerlink" title="large"></a>large</h4><p>对于 large 对象，如果对象大于某个 阈值，那么该对象就会立刻被释放给系统，否则做法与 tiny small 对象处理类似，对象会被放到专门的位置 <code>large_entry_cache_newest</code></p>
+<p>如果 large 对象缓存中有足够的 空间，如果缓存中数据项的数量没有 超过允许放置其中的最大元素数，处在最近位置的对象就会被放进去。</p>
+<p>如果对象放入缓存大小变得太大，缓存中最旧的对象就会被删除。</p>
+<h2 id="iOS-内存分配"><a href="#iOS-内存分配" class="headerlink" title="iOS 内存分配"></a>iOS 内存分配</h2><ul>
+<li><p><code>MallocScribble</code> 所有已释放的内存填充 0x55</p>
+</li>
+<li><p><code>MallocPreScribble</code> 所有未初始化的内存填充 0xAA</p>
+</li>
+<li><p><code>MallocStackLogging</code> 记录内存块的完整历史地址和栈日志</p>
+</li>
+</ul>
+<p>Dtrace 查看系统自带分配程序分配和释放内存块的过程。</p>
+<h2 id="理解-TCMalloc"><a href="#理解-TCMalloc" class="headerlink" title="理解 TCMalloc"></a>理解 TCMalloc</h2><p>TCMalloc  处理大对象分配和小对象分配有两种不同的机制。</p>
+<p>大对象由 <code>Pageheap</code> 程序管理，会直接被转给之前讨论过的底层操作系统自带的分配程序处理</p>
+<p>小对象完全由 <code>TCMalloc</code> 处理。</p>
+<h3 id="大对象的分配和释放"><a href="#大对象的分配和释放" class="headerlink" title="大对象的分配和释放"></a>大对象的分配和释放</h3><p>在为大于用户设定的阈值 kMaxSize 的对象分配内存时。</p>
+<p>页面级的分配程序 <code>Pageheap</code> 分配的范围(span) 一组连续的内存页</p>
+<p>更具已分配的范围构成的双向链表，看看有没有合适的大小可供 <code>TCMalloc</code> 使用。</p>
+<p>这个双向链表有两个范围，一类是可供使用的，一类是由 <code>TCMalloc</code> 分配但要返回给底层系统堆的。</p>
+<h4 id="分配"><a href="#分配" class="headerlink" title="分配"></a>分配</h4><p>先找是否有可使用的未被标志已释放，那么它会直接返回。如果没有会找到一个更大的，分割后返回。</p>
+<p>如果没有合适的范围提供，会向底层操作系统请求一组新的内存页，并将其分为两个内存对象</p>
+<ol>
+<li>一个对象有着所有请求的大小</li>
+<li>一个对象 打大小则是分配的内存页的总大小减去请求的分配所需的内存大小</li>
+</ol>
+<h4 id="释放"><a href="#释放" class="headerlink" title="释放"></a>释放</h4><p>如果我们不在需要某一范围，会将其前驱范围，后继范围 或合两者合并起来，然后将得到的返回标记为已释放。最后依据若干个用户定义的参数，合并后得到的返回会由垃圾收集器返回个系统。</p>
+<h3 id="小对象的分配和释放"><a href="#小对象的分配和释放" class="headerlink" title="小对象的分配和释放"></a>小对象的分配和释放</h3><h4 id="分配-1"><a href="#分配-1" class="headerlink" title="分配"></a><strong>分配</strong></h4><p>每个正在运行的线程都具有自己专用的对象缓存和freelist。</p>
+<p>freelist是分成若干分配类的双向链表。</p>
+<p>小于 1024 字节的对象计算 (object_size + 7)/8</p>
+<p>对于大于这个值的对象计算 (object_size + 127 + (120 &lt;&lt; 7)) / 128</p>
+<p>除了每个线程的缓存，还有中央缓存（所有线程共享）。</p>
+<p>分配时 对应线程的freelist，如果没有合适的分配类，会去查看中央缓存。</p>
+<h4 id="释放-1"><a href="#释放-1" class="headerlink" title="释放"></a>释放</h4><p>会返回到线程缓存的 freelist ，freelist超出用户自定义的参数会进行垃圾回收。</p>
+<p>垃圾回收器会把线程缓存 freelist 中的未使用对象返回给中央缓存 freelist</p>
+<h2 id="对-ASLR-的挑战"><a href="#对-ASLR-的挑战" class="headerlink" title="对 ASLR 的挑战"></a>对 ASLR 的挑战</h2><p>ios 上的 ASLR 会随机排列储存在 <code>dyld_shared_cache</code> 中的所有库</p>
+<p>如果应用程序支持与位置无关的代码，那么主可执行文件也可以随机排列</p>
+<p>利用 <code>Saffron</code> 漏洞攻击重新利用 溢出打败了 ASLR</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">T1_DecoderRec_</span> &#123;</span> </span><br><span class="line">	T1_BuilderRec builder;</span><br><span class="line"></span><br><span class="line">	FT_Long stack[T1_MAX_CHARSTRINGS_OPERANDS];</span><br><span class="line">   </span><br><span class="line">  FT_Long*  top;</span><br><span class="line"></span><br><span class="line">	T1_Decoder_ZoneRec zones[T1_MAX_SUBRS_CALLS + <span class="number">1</span>];</span><br><span class="line">  </span><br><span class="line">  T1_Decoder_Zone    zone;</span><br><span class="line"></span><br><span class="line">	FT_Service_PsCMaps  psnames; <span class="comment">/* 用于seac */</span></span><br><span class="line">   </span><br><span class="line">  FT_UInt num_glyphs; </span><br><span class="line">    </span><br><span class="line">  FT_Byte**   glyph_names;</span><br><span class="line"></span><br><span class="line">	FT_Int      lenIV; <span class="comment">/* 子例程调用的内部机制*/</span></span><br><span class="line">  FT_UInt     num_subrs;</span><br><span class="line">  FT_Byte**   subrs;</span><br><span class="line">  FT_PtrDist* subrs_len;  <span class="comment">/*子串长度*/</span></span><br><span class="line"></span><br><span class="line">	FT_Matrix   font_matrix;</span><br><span class="line">  FT_Vector   font_offset;</span><br><span class="line"></span><br><span class="line">	FT_Int      flex_state;</span><br><span class="line">  FT_Int      num_flex_vectors;</span><br><span class="line">  FT_Vector   flex_vectors[<span class="number">7</span>];</span><br><span class="line"></span><br><span class="line">	PS_Blend    blend;</span><br><span class="line"></span><br><span class="line">	FT_Render_Mode    hint_mode;</span><br><span class="line"> </span><br><span class="line">	T1_Decoder_Callback   parse_callback;</span><br><span class="line">  T1_Decoder_FuncsRec   funcs;</span><br><span class="line"></span><br><span class="line">	FT_Long*      buildchar;</span><br><span class="line">  FT_UInt       len_buildchar;</span><br><span class="line"></span><br><span class="line">	FT_Bool    seac;</span><br><span class="line"></span><br><span class="line">&#125; T1_DecoderRec;</span><br></pre></td></tr></table></figure>
+
+<p>攻击者会读入包括 <code>parse_callback</code> 在内的若干指针。并把根据通过出站读操作了解的情况构造的ROP 有效载荷存储在 <code>buildchar</code> 成员中，最后重写 <code>parse_callback</code> 触发调用</p>
+<h1 id="面向返回的程序设计"><a href="#面向返回的程序设计" class="headerlink" title="面向返回的程序设计"></a>面向返回的程序设计</h1><h2 id="ARM基础知识"><a href="#ARM基础知识" class="headerlink" title="ARM基础知识"></a>ARM基础知识</h2><p>一共有 16 个寄存器。 R0~R15</p>
+<p>最后 3个寄存器具有特殊的值和名称。</p>
+<p>R13 为SP 栈指针寄存器，R14 为LR 链接寄存器，R15 为PC 程序计数器</p>
+<p>寄存器是通用的我们可以任意值移动到 R15(PC 程序计数器) 中并改变程序流。</p>
+<p>ARM 模式下指令为 32位</p>
+<p>Thumb 模式下 指令为 16位</p>
+<p>如果执行的地址中最不重要的一位等于1，处理机就是要执行Thumb 模式，否者就是ARM模式。程序寄存器（CPSR）的T位为1且J位为0 执行Thumb代码。</p>
+<h3 id="iOS-调用约定"><a href="#iOS-调用约定" class="headerlink" title="iOS 调用约定"></a>iOS 调用约定</h3><p>前面4个参数 使用通用寄存器 R0 到 R3 传递的。更多的参数是压入栈中。返回值存放在 R0 寄存器</p>
+<p>修改程序运行逻辑 </p>
+<ol>
+<li>修改 R15（PC 程序计数器）</li>
+<li>利用 B 指令，将 R15 修改为第一个 操作数指定地址。</li>
+<li>想要返回紧随调用之后的指令，需要利用 BL（带链接的分支）指令。不会吧程序计数器置为第一个操作数指定的地址，还会吧返回的地址存储到 LR 寄存器中。</li>
+<li>如果地址是在寄存器中，我们需要利用 BX 指令，不存储返回地址的情况下改变程序流程</li>
+<li>BLX 会执行作为第一个 操作数传递并存储在寄存器中的地址，并将返回的地址存储到 LR 寄存器中。</li>
+</ol>
+<p>系统调用好处，他们可以在不用担心库加载地址和随机化的情况下进行系统调用。</p>
+<p>不管程序的地址空间加载了什么库都可以进行系统调用。</p>
+<p>系统调用的编号存储在 SDK <code>/usr/include/sys/syscall.h</code> 中。</p>
+<p>在 ARM 中 系统调用编号存储在 R12寄存器中，调用的时候利用 汇编指令 <code>SVC</code></p>
+<h2 id="ROP-介绍"><a href="#ROP-介绍" class="headerlink" title="ROP 介绍"></a>ROP 介绍</h2><p>ARM 指令是 2字节或者4字节对齐的</p>
+<p>在 iPhone 中 系统库都存储在 <code>dyld_shared_cache</code> 这个巨大的缓存中。</p>
+<p>要找到利用的指令 我们可以利用  <code>Miscellanecous</code> 工具</p>
+<p>利用 <code>dyld_decache -f libSystem</code> 到处对应的 libSystem</p>
+<h2 id="iOS-中使用-ROP"><a href="#iOS-中使用-ROP" class="headerlink" title="iOS 中使用 ROP"></a>iOS 中使用 ROP</h2><ol>
+<li>第一种方法是 用ROP希尔整个有效载荷</li>
+<li>利用ROP 吧两个不同的漏洞攻击程序（对于内核而言其中一个是远程的，一个是本地的）连接起来。通过完成这一工作，攻击者可以绕过用户空间的代码签名，并在内核空间或者用户空间执行普通的有效载荷。</li>
+<li>攻击瞄准最新版的 <code>MobileSafari</code> 那么ROP有效载荷可以向为 JIT(即时编译) 代码保留的内存页面写入标准有效载荷。 多数JavaScript 引擎都有即时编译技术。</li>
+</ol>
+<h1 id="内核的调试和漏洞攻击"><a href="#内核的调试和漏洞攻击" class="headerlink" title="内核的调试和漏洞攻击"></a>内核的调试和漏洞攻击</h1><p>我们要获得一份二进制形式的iOS 内核附件， <code>kernelcache.release.*</code>  可以从 iOS 固件的 IPSW找到他。</p>
+<p>二进制文件是 IMG3 格式的，是打包加密过的。</p>
+<p>解密需要 解密密钥  和 xpwntools 工具</p>
+<p>用于解密 IMG3 文件的解密密钥和AES初始化向量是存储在文件之中的，不是明文是设备的GID密钥加密过的，GID密钥是固化在涉笔的硬件中的无法被提取</p>
+<h2 id="内核调试"><a href="#内核调试" class="headerlink" title="内核调试"></a>内核调试</h2><p>系统会把 全部内核严重错误日志文件收集到 <code>/Library/Logs/CrashReporter/Panics</code> 目录中</p>
+<p>越狱设备可以直接访问。</p>
+<p>如果未越狱，我们可以通过 <code>MobileDevices</code> 框架启动 <code>lockdown</code> 守护进程的 <code>com.apple.crashreportmover</code> 服务，把严总错误和崩溃的日志文件移动到 <code>/var/mobile/Library/Logs/CrashReporter</code>  目录下。取回文件利用 <code>com.apple.crashreportcopymobile AFC</code> 服务</p>
+<h3 id="内核-IOKit-扩展"><a href="#内核-IOKit-扩展" class="headerlink" title="内核 IOKit 扩展"></a>内核 IOKit 扩展</h3><ul>
+<li><p>IOKit 对象总是会扩展其他IOKit对象或由IOKit 基本对象派生的对象</p>
+</li>
+<li><p>要为每个 IOKit 对象注册一个元类，该元类揭示了该对象的名称以及指向其父对象的指针</p>
+</li>
+<li><p>元类的定义在 iOS 4的IOKit 驱动程序二进制文件中是紧随类定义之后的，对于 iOS 5来说则是在类定义的附近。</p>
+</li>
+</ul>
+<p>IOKit 驱动程序中寻找漏洞的过程与其他的内核扩展或内核本身之中寻找漏洞过程基本相同。不过IOKit 使用的 C++ 有多重漏洞类型</p>
+<ul>
+<li><p>new 和 delete 使用不匹配，如果使用 delete[] 删除单个对象</p>
+</li>
+<li><p>对象的释放后使用漏洞</p>
+</li>
+<li><p>对象类型冲突的漏洞</p>
+</li>
+</ul>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210416233349378.png" alt="image-20210416233349378"></p>
+<p>如果针对 IOKit API 的漏洞攻击程序必须以非常类似上述内容的代码开头。因为绝大多数 IOKit驱动程序是闭源的。一旦用户空间的工具连接到设备，就有多种不同的方式可以把该连接用来与内部驱动程序通信。</p>
+<h4 id="属性与内核驱动程序的通信方式"><a href="#属性与内核驱动程序的通信方式" class="headerlink" title="属性与内核驱动程序的通信方式"></a>属性与内核驱动程序的通信方式</h4><ul>
+<li><p>设置属性</p>
+</li>
+<li><p>IOUserClient接口 可以直接的内存映射，外部trap和方法</p>
+</li>
+</ul>
+<h4 id="通过设备属性进行攻击"><a href="#通过设备属性进行攻击" class="headerlink" title="通过设备属性进行攻击"></a>通过设备属性进行攻击</h4><p>第一条可能的攻击途径是改变与设备关联的属性。</p>
+<p>可以利用 <code>IOConnectSetCFProperty()</code> 函数设置某个特定的属性，也可以调用 <code>IOConnetSetCFProperties()</code> 函数一次性设置所有属性，这在驱动程序的层面来看分别是要调用 <code>setProperty()</code>方法和 <code>setProperties()</code> 方法</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210416234005273.png" alt="image-20210416234005273"></p>
+<p>上面代码是将 <code>myProp</code> 设备的属性谁知为 一个 int的数字对象。</p>
+<p>驱动程序必须要重写 <code>setProperty()</code> 方法不然不能成功</p>
+<p>也可能因为 不知道有这个名称的属性或则他期望的是不同类型的对象类型，从而失败</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210416234428635.png" alt="image-20210416234428635"></p>
+<p>利用 <code>IOConnectSetCFProperties()</code>  也是如此。</p>
+<h4 id="通过外部陷阱和方法进行攻击"><a href="#通过外部陷阱和方法进行攻击" class="headerlink" title="通过外部陷阱和方法进行攻击"></a>通过外部陷阱和方法进行攻击</h4><p>外部陷阱是 mach陷阱系统的一部分，外部方法更像纯IOKit功能。</p>
+<p>用户空间的代码可以通过带有6个参数的 mach 陷阱 iokit_user_client_trap() 调用索引在 IOKit驱动程序中定义的外部陷阱</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210417001357516.png" alt="image-20210417001357516"></p>
+<p>内核级的用户客户端实现可以通过重写 <code>IOUserClient</code> 的 <code>getExternalTrapForIndex()</code> 方法通过这些 trap</p>
+<p>存在两种安全问题</p>
+<ol>
+<li><p>这里调用的数字索引在穷驱动程序内是受信任的，而且用作查找表中的所有。如果查找操作使用了<strong>未经检查的索引</strong>，攻击者<strong>可以对索引加以调整</strong>，使其从攻击者定义的内存页查找陷阱的函数指针，这有可能让攻击者立即在内核中执行代码。</p>
+</li>
+<li><p>可能是提供外部陷阱自身具有安全问题。</p>
+</li>
+</ol>
+<p>外部方法调用方式 利用 <code>IOConnectCallMethod()</code></p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210417002119725.png" alt="image-20210417002119725" style="zoom:50%;" />
+
+<p>输入输出各有两种参数类型：标量和结构体。</p>
+<h2 id="内核漏洞攻击"><a href="#内核漏洞攻击" class="headerlink" title="内核漏洞攻击"></a>内核漏洞攻击</h2><p>有4种常见漏洞攻击在 iOS 4.3 之后，sysctl 数据项变成了只读的。</p>
+<p>因此针对版本相对较新的 iOS 的内核漏洞攻击程序全部必须实现为百分之百ROP，除非它们居然动态代码签名能力的进程中启动的。</p>
+<h3 id="任意内存的重写"><a href="#任意内存的重写" class="headerlink" title="任意内存的重写"></a>任意内存的重写</h3><h4 id="恶意函数"><a href="#恶意函数" class="headerlink" title="恶意函数"></a>恶意函数</h4><p>其中<code> copyout()</code> 函数 吧结果返回用户空间。<code>copyout()</code> 函数会检查目的地址确实是否在用户空间的内存中，以确保不会吧结果写入内核内存</p>
+<p>危险函数 <code>ovbcopy()</code> 这个函数不会执行任何检查，这样一来就可以把目标地址指定为内核内存中的任意位置</p>
+<p>还有就是可以吧 <code>getrlimit()</code> 系统调用的结果写入内核内存。</p>
+<p><code>getrlimit(RLIMIT_CORE, 0x80101010);</code></p>
+<p>可以吧<code> rlimit</code> 结构写入内核内存的任意位置。</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210417005936989.png" alt="image-20210417005936989" style="zoom:50%;" />
+
+<p><code>rlim_t</code> 数据为无符号整数，最高位应该是0，因此，能够任意选择的只有结果的前7个字节。</p>
+<p>不允许 <code>rlim_cur</code> 的值大于 <code>rlim_max</code> 的值如果需要写入值</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210417010216426.png" alt="image-20210417010216426" style="zoom:50%;" />
+
+<h4 id="选择目标"><a href="#选择目标" class="headerlink" title="选择目标"></a>选择目标</h4><p>这个攻击 大家必须知道系统调用表和内核内存中闲置空间的确切位置。内核级不存在 ASLR保护。对于相同设备和内核版本是静态的</p>
+<h4 id="定位系统调用表"><a href="#定位系统调用表" class="headerlink" title="定位系统调用表"></a>定位系统调用表</h4><p>可以利用 <code>kdebug_enable</code> 这样的符号轻松定位系统掉通用表，而定位系统调用表的新方法则依赖于表中的第一项结构体，以及它对于 <code>nsysent</code> 变量的位置</p>
+<p><img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210417010818664.png" alt="image-20210417010818664"></p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210417010843145.png" alt="image-20210417010843145" style="zoom:50%;" />
+
+<p>其中被设置的字段只有 <code>sy_return_type</code> 和 <code>sy_call</code> 返回类型被初始化为1，而且处理程序是某个指向内核代码段的指针。</p>
+<p>大家可以利用 <code>nsysent</code> 变量来确定。</p>
+<p><code>&amp;nsysent = &amp;sysent + sizeof(sysent)*nsysent</code> </p>
+<h4 id="构建漏洞攻击程序"><a href="#构建漏洞攻击程序" class="headerlink" title="构建漏洞攻击程序"></a>构建漏洞攻击程序</h4><p>检查内核扩展的 <code>Mach-O</code> 头部后的 <code>__PRELINK_TEXT</code> 数据段有没有空闲空间</p>
+<p>0x8032B300到0x8032C000</p>
+<h3 id="未初始化的内核变量"><a href="#未初始化的内核变量" class="headerlink" title="未初始化的内核变量"></a>未初始化的内核变量</h3><p>内核结构中为初始化的指针元素被装入来自用户空间的数据。</p>
+<h3 id="内核栈缓存区溢出"><a href="#内核栈缓存区溢出" class="headerlink" title="内核栈缓存区溢出"></a>内核栈缓存区溢出</h3><p>因为向基于栈缓存区执行了未受限制的反复操作。</p>
+<p>返回地址重写或替换为我们的 shellcode 代码的指针。</p>
+<p>iOS 5 中执行这种攻击会利用到一些内核级的面向返回的程序设计。</p>
+<h3 id="内核堆缓冲区溢出"><a href="#内核堆缓冲区溢出" class="headerlink" title="内核堆缓冲区溢出"></a>内核堆缓冲区溢出</h3><p>基于堆缓冲区进行了不加限制的复制操作，这种溢出的结果取决于实际的堆实现以及附件的内存块，它们决定了这样的溢出能否用于漏洞攻击、允许任意的代码执行或者受控制的内存损坏。</p>
+<h4 id="内核堆内存域分配程序"><a href="#内核堆内存域分配程序" class="headerlink" title="内核堆内存域分配程序"></a>内核堆内存域分配程序</h4><p><code>zone allocator</code> </p>
+<p>并且通过 <code>zalloc(), zalloc_canblock(), zfree()</code> 函数来实现的</p>
+<p>最常用的是 <code>_MALLOC()</code> 函数，这个函数会调用 <code>kalloc</code> 进行实际分配</p>
+<p>较小对亏用 <code>zalloc()</code> 分配 较大的堆块用 <code>knem_alloc()</code> 函数分配</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210417012553531.png" alt="image-20210417012553531" style="zoom:50%;" />
+
+
+
+<p>其中 <code>_MALLOC()</code>  是 <code>kalloc()</code> 外的一层外包，其中 <code>kalloc()</code> 包含了 两个不同的内核堆分配程序，<code>kalloc()</code> 是在 <code>/osfmk/kern/kern_alloc.c</code> 中的</p>
+<p>关键代码</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210417150430112.png" alt="image-20210417150430112" style="zoom:50%;" />
+
+<p><strong>内存域 zone 结构体</strong></p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210417150634828.png" alt="image-20210417150634828" style="zoom:50%;" />
+
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210417150645462.png" alt="image-20210417150645462" style="zoom:50%;" />
+
+<p>所有内存域都被保存在一个 单向链表中， <code>next_zone</code> 指针链接。</p>
+<p>内存域中会记录当前已经分配元素的数量和当前已分配内存的量，不会记录内存域的各内存页的地址。</p>
+<p>其中 <code>free_elements</code> 指针表明，内存域中所有的自由元素都是保存在一个链表中的。指向自由列表下一个元素的连续指针存储在自由块的开头位置。</p>
+<h4 id="内核堆风水"><a href="#内核堆风水" class="headerlink" title="内核堆风水"></a>内核堆风水</h4><p><code>ndrv_setspec()</code> 漏洞</p>
+<p>这个函数是链接 ndrv 套接字时要调用的处理程序。我们可以通过提供不同长度的套接字名称分配不同大小的 内核内存。</p>
+<p>在链接的套接字上调用 <code>close()</code> 可以执行用户空间释放这些内存<code>ndrv_do_disconnect()</code> 函数实现</p>
+<p>(1)分配足够多的内存块把这些“坑”都填上。所需的确切分配次数通常是未知的。</p>
+<p>(2)分配更多的内存块,使这些内存块在内存中相互邻接。</p>
+<p>(3)释放两个邻接的内存块。释放顺序取决于自由列表的实现方式。下一次分配应该返回内 存中的第一个内存块。</p>
+<p>(4)触发有漏洞的内核函数,分配两个内存块中的第一个,并将其溢出到接着的自由块中。</p>
+<p>(5)触发某些内核功能,分配已被重写的自由块并让已被重写的指针指向自由列表的表头。</p>
+<p>(6)触发更多功能,分配内存,从而利用攻击者提供的指针,而不是使用真正的内存块。</p>
+<p>(7)利用这一重写任意内存的机会,重写某些函数指针,比如系统调用表中某个未使用的处 理程序。</p>
+<p>(8)触发被重写的系统调用,在内核空间中执行任意代码。</p>
+<h4 id="对内核堆缓冲区溢出漏洞的攻击"><a href="#对内核堆缓冲区溢出漏洞的攻击" class="headerlink" title="对内核堆缓冲区溢出漏洞的攻击"></a>对内核堆缓冲区溢出漏洞的攻击</h4><p>实际的堆缓冲区溢出是反复调用 <code>ndrv_to_ifnet_demux()</code> 函数直到一出实际的缓冲区并通过触发某个内部错误条件退出循环而引发的。</p>
+<p>主要实现 <code>ifnet_demux_desc</code> 结构体中的 data指针溢出到自由列表中的下一个内存块，当下一个freechunk成为 自由列表的表头，然后控制前4个字节的内容，这4个字节指向freelist中的下一个chunk的指针，从而实现控制freelist 的表头。让他为系统调用表中的某个地址</p>
+<p>我们需要有 <code>两次</code> 分配后控制freelist 表头的步骤。</p>
+<h1 id="越狱"><a href="#越狱" class="headerlink" title="越狱"></a>越狱</h1><p>不能执行未签名的代码</p>
+<p>iOS不允许进程执行其他进程或派生进程。此外,沙盒会阻止研究者篡改 其他应用程序的文件,而且给 Mobilesafaris附加调试器也是不可能的。</p>
+<h2 id="越狱的类型"><a href="#越狱的类型" class="headerlink" title="越狱的类型"></a>越狱的类型</h2><h3 id="越狱的持久性"><a href="#越狱的持久性" class="headerlink" title="越狱的持久性"></a>越狱的持久性</h3><h4 id="不完美越狱"><a href="#不完美越狱" class="headerlink" title="不完美越狱"></a>不完美越狱</h4><p>会因为设备重启消失的越狱。</p>
+<p>如果没有额外的内核漏洞攻击程序，就不可能禁用所有安全功能。</p>
+<p>不完美越狱可能是由一个针对特权代码的漏洞攻击程序构成的，或是由一个针对非特权代码的漏洞攻击程序加上一个提升权限的漏洞攻击构成的。</p>
+<h4 id="完美越狱"><a href="#完美越狱" class="headerlink" title="完美越狱"></a>完美越狱</h4><p>利用了持久漏洞的越狱。</p>
+<p>通常由某些不完美越狱结合可以在设备上持久存在的其他楼栋攻击程序行成。</p>
+<h3 id="漏洞攻击程序的类型"><a href="#漏洞攻击程序的类型" class="headerlink" title="漏洞攻击程序的类型"></a>漏洞攻击程序的类型</h3><p>有的可以提供底层的硬件访问</p>
+<p>有的只能给予沙盒内的有限权限</p>
+<h4 id="bootrom-级"><a href="#bootrom-级" class="headerlink" title="bootrom 级"></a>bootrom 级</h4><p>硬件中</p>
+<p>因为不能通过补丁修复，所以是最强大的。</p>
+<p>能让大家替换或者修改整个引导链的每一个部分，包括内核的引导参数.</p>
+<p>因为发生在引导链非常靠前的期间，所以漏洞攻击有效载荷可以得到硬件的安全访问权限。</p>
+<p>例如：</p>
+<p>​        可以得到 硬件加速器中的 GID密钥 从而实现解密 <code>IMG3</code> 文件。</p>
+<h4 id="iBoot-级"><a href="#iBoot-级" class="headerlink" title="iBoot 级"></a>iBoot 级</h4><p>iBoot没烧录到硬件中，可以通过软件升级来修复</p>
+<p>除此之外,在引导链中仍处于足够早期的位置,此时我们可以为内核提供引导参数、<br>为内核打补丁,或直接把硬件用于执行GD密钥的AES操作。</p>
+<h4 id="用户空间级"><a href="#用户空间级" class="headerlink" title="用户空间级"></a>用户空间级</h4><p>我们需要两个漏洞攻击程序才能为设备越狱。</p>
+<p>第一个漏洞攻击程序要让设备能执行任意代码，第二个漏洞攻击程序要以一种禁用内核安全限制的方法提升权限。</p>
+<p>以前的iOS 只要被攻击的程序以 root 用户权限运行，就可以从用户空间禁用代码签名</p>
+<p>现在 想要禁用代码签名，必须中断内核内存或者执行内核代码。</p>
+<h2 id="越狱的理解"><a href="#越狱的理解" class="headerlink" title="越狱的理解"></a>越狱的理解</h2><p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/19713924">https://www.zhihu.com/question/19713924</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/c5c22f9a06e2">https://www.jianshu.com/p/c5c22f9a06e2</a></p>
+<p>首先 iphone 进入 DFU 模式 （设置固件升级模式）</p>
+<p>利用 XX程序 引导iboot，然后想内存注入某个类minilinux，将他加载到 iPhone 内存中，划分一段 ramdisk ，引导这个 ramdisk的 <code>/ect/fstab</code> 将原来的系统盘加载进去，取得系统读写权限，改变整个目录的读写权限和属性。然后讲自己添加的命令和功能写进系统盘中。断电后，这个 ramdisk 就不在了。</p>
+<p>ramdisk启动时，内核会运行 ramdisk的/sbin/launchd的二进制文件，它包括一个初始化越狱的小型stub程序。这个程序首先在系统里装载root根文件系统和数据分区，为修改需要，以上装载好的文件系统和数据分区是可读写。</p>
+<h3 id="应用转存"><a href="#应用转存" class="headerlink" title="应用转存"></a>应用转存</h3><p>App Store 安装是，它们直接安装到 <code>/var/mobile/Applications</code> 目录中，因此可以在 iPhone 上安装多少应用取决于数据部分有多少空闲空间通常以 GB 计算。</p>
+<p><code>Gydia</code> 安装的越狱应用，<code>Cydia</code> 本身和所有内置二进制文件，都是安装在根文件系统的 <code>/Applications</code> 目录中。从而使用了 有限的应用安装空间。</p>
+<p>解决这个问题，使用了一种名为 <code>应用转存</code> 的机制。</p>
+<p>在 iPhone 的数据部分创建名为 <code>/var/stash</code> 的目录，并将通通常位于根文件系统中的若干目录放到该目录中。然后吗，原始目录就会被通向新位置的符号链接替代。</p>
+<p>当前被转存到 <code>/var/stash</code> 目录中的目录</p>
+<ul>
+<li><code>/Applications</code></li>
+<li><code>/Library/Ringtons</code></li>
+<li><code>/Library/Wallaper</code></li>
+<li><code>/usr/include</code></li>
+<li><code>/usr/lib/pam</code></li>
+<li><code>/usr/libexec</code></li>
+<li><code>/usr/share</code></li>
+</ul>
+<h2 id="执行内核有效载荷和布丁"><a href="#执行内核有效载荷和布丁" class="headerlink" title="执行内核有效载荷和布丁"></a>执行内核有效载荷和布丁</h2><h3 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h3><p>iPhone 上应用都是 <code>mobile ， _wireless ， _mdsnresponder 或 _securityd</code> 权限运行</p>
+<p>内核漏洞攻击会把进程的权限提升为 root。</p>
+<p>内核内部提升运行的进程的权限，修改附加进程 <code>proc_t</code> 结构体上的凭证 <code>/bsd/sys/proc_internal.h</code> 中被定义为 <code>struct proc</code> </p>
+<p>想要得到 <code>proc_t</code> 结构体的地址 可以利用内核函数 <code>current_proc()</code>  内核的导出符号。</p>
+<p>或则 通过 <code>sysctl</code> 接口泄露内核地址信息。 <code>sysctl()</code> 系统调用取回 <code>proc_t</code> 结构体内核地址</p>
+<p>获得 <code>proc_t</code> 机构体后，我们要使用该结构体的 <code>p_ucred</code> 成员修改附加的 <code>ured</code> 结构体。</p>
+<p><code>proc_ucred()</code> 函数也可以访问这个结构体</p>
+<p><code>p_ucred</code>  字段在该结构体中偏移为 0x84</p>
+<img src="http://blog-0xc4m3l-jiang-github.oss-cn-chengdu.aliyuncs.com/img/image-20210417215902352.png" alt="image-20210417215902352" style="zoom:50%;" />
+
+<p>提升权限我们可以吧便宜 0x0c 位置的 <code>cr_uid</code> 设置为0</p>
+<p>从而实现权限提升</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">IOS 学习笔记</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2021/04/11/iOS-Hacker%E2%80%99s-Handbook/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-codeql-xue-xi-bi-ji" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -236,6 +775,9 @@
     </h1>
   
 
+        <!--显示阅读次数-->
+        
+        <!--显示阅读次数完毕-->
         
         <a href="/2021/03/29/codeql-xue-xi-bi-ji/" class="archive-article-date">
   	<time datetime="2021-03-29T06:12:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-03-29</time>
@@ -312,6 +854,9 @@
     </h1>
   
 
+        <!--显示阅读次数-->
+        
+        <!--显示阅读次数完毕-->
         
         <a href="/2021/03/10/macos-dui-zhi-shi-xue-xi-bi-ji/" class="archive-article-date">
   	<time datetime="2021-03-10T07:01:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-03-10</time>
@@ -378,6 +923,9 @@
     </h1>
   
 
+        <!--显示阅读次数-->
+        
+        <!--显示阅读次数完毕-->
         
         <a href="/2021/03/09/afl%E4%BD%BF%E7%94%A8%E5%AD%A6%E4%B9%A0/" class="archive-article-date">
   	<time datetime="2021-03-09T06:12:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-03-09</time>
@@ -454,6 +1002,9 @@
     </h1>
   
 
+        <!--显示阅读次数-->
+        
+        <!--显示阅读次数完毕-->
         
         <a href="/2021/03/01/fastjson-xue-xi/" class="archive-article-date">
   	<time datetime="2021-03-01T07:15:43.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-03-01</time>
@@ -530,6 +1081,9 @@
     </h1>
   
 
+        <!--显示阅读次数-->
+        
+        <!--显示阅读次数完毕-->
         
         <a href="/2021/02/26/java-classloader%E8%AE%A4%E8%AF%86/" class="archive-article-date">
   	<time datetime="2021-02-26T10:36:34.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-02-26</time>
@@ -606,6 +1160,9 @@
     </h1>
   
 
+        <!--显示阅读次数-->
+        
+        <!--显示阅读次数完毕-->
         
         <a href="/2021/02/25/web-%E5%88%B7%E9%A2%98-%E4%B8%83/" class="archive-article-date">
   	<time datetime="2021-02-25T05:54:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-02-25</time>
@@ -687,6 +1244,9 @@
     </h1>
   
 
+        <!--显示阅读次数-->
+        
+        <!--显示阅读次数完毕-->
         
         <a href="/2021/02/11/springboot-vue%E9%A1%B9%E7%9B%AE%E5%AD%A6%E4%B9%A0/" class="archive-article-date">
   	<time datetime="2021-02-11T03:31:14.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-02-11</time>
@@ -764,6 +1324,9 @@
     </h1>
   
 
+        <!--显示阅读次数-->
+        
+        <!--显示阅读次数完毕-->
         
         <a href="/2021/02/10/redis-%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/" class="archive-article-date">
   	<time datetime="2021-02-10T12:04:21.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-02-10</time>
@@ -800,86 +1363,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2021/02/10/redis-%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-web-刷题-六" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2021/01/22/web-%E5%88%B7%E9%A2%98-%E5%85%AD/">web 刷题(六)</a>
-    </h1>
-  
-
-        
-        <a href="/2021/01/22/web-%E5%88%B7%E9%A2%98-%E5%85%AD/" class="archive-article-date">
-  	<time datetime="2021-01-22T14:17:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-01-22</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="N1CTF-2018-eating-cms"><a href="#N1CTF-2018-eating-cms" class="headerlink" title="[N1CTF 2018]eating_cms"></a>[N1CTF 2018]eating_cms</h2>
-        
-          <a class="article-more-a" href="/2021/01/22/web-%E5%88%B7%E9%A2%98-%E5%85%AD/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">WEB</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">基础</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2021/01/22/web-%E5%88%B7%E9%A2%98-%E5%85%AD/">展开全文 >></a>
         </p>
       
 
@@ -954,6 +1437,8 @@ if(!isFinite(o.call(this)))throw RangeError("Invalid time value");var t=this,n=t
 return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var e=r(54),i=r(2),o=e.get,u=e.key;e.exp({getOwnMetadata:function(t,n){return o(t,i(n),arguments.length<3?void 0:u(arguments[2]))}})},function(t,n,r){var e=r(54),i=r(2),o=r(32),u=e.has,c=e.key,f=function(t,n,r){if(u(t,n,r))return!0;var e=o(n);return null!==e&&f(t,e,r)};e.exp({hasMetadata:function(t,n){return f(t,i(n),arguments.length<3?void 0:c(arguments[2]))}})},function(t,n,r){var e=r(54),i=r(2),o=e.has,u=e.key;e.exp({hasOwnMetadata:function(t,n){return o(t,i(n),arguments.length<3?void 0:u(arguments[2]))}})},function(t,n,r){var e=r(54),i=r(2),o=r(26),u=e.key,c=e.set;e.exp({metadata:function(t,n){return function(r,e){c(t,n,(void 0!==e?i:o)(r),u(e))}}})},function(t,n,r){var e=r(1);e(e.P+e.R,"Set",{toJSON:r(165)("Set")})},function(t,n,r){"use strict";var e=r(1),i=r(147)(!0);e(e.P,"String",{at:function(t){return i(this,t)}})},function(t,n,r){"use strict";var e=r(1),i=r(46),o=r(16),u=r(122),c=r(120),f=RegExp.prototype,a=function(t,n){this._r=t,this._s=n};r(139)(a,"RegExp String",function(){var t=this._r.exec(this._s);return{value:t,done:null===t}}),e(e.P,"String",{matchAll:function(t){if(i(this),!u(t))throw TypeError(t+" is not a regexp!");var n=String(this),r="flags"in f?String(t.flags):c.call(t),e=new RegExp(t.source,~r.indexOf("g")?r:"g"+r);return e.lastIndex=o(t.lastIndex),new a(e,n)}})},function(t,n,r){"use strict";var e=r(1),i=r(181);e(e.P,"String",{padEnd:function(t){return i(this,t,arguments.length>1?arguments[1]:void 0,!1)}})},function(t,n,r){"use strict";var e=r(1),i=r(181);e(e.P,"String",{padStart:function(t){return i(this,t,arguments.length>1?arguments[1]:void 0,!0)}})},function(t,n,r){"use strict";r(82)("trimLeft",function(t){return function(){return t(this,1)}},"trimStart")},function(t,n,r){"use strict";r(82)("trimRight",function(t){return function(){return t(this,2)}},"trimEnd")},function(t,n,r){r(153)("asyncIterator")},function(t,n,r){r(153)("observable")},function(t,n,r){var e=r(1);e(e.S,"System",{global:r(3)})},function(t,n,r){for(var e=r(155),i=r(28),o=r(3),u=r(27),c=r(80),f=r(7),a=f("iterator"),s=f("toStringTag"),l=c.Array,h=["NodeList","DOMTokenList","MediaList","StyleSheetList","CSSRuleList"],v=0;v<5;v++){var p,d=h[v],y=o[d],g=y&&y.prototype;if(g){g[a]||u(g,a,l),g[s]||u(g,s,d),c[d]=l;for(p in e)g[p]||i(g,p,e[p],!0)}}},function(t,n,r){var e=r(1),i=r(151);e(e.G+e.B,{setImmediate:i.set,clearImmediate:i.clear})},function(t,n,r){var e=r(3),i=r(1),o=r(121),u=r(207),c=e.navigator,f=!!c&&/MSIE .\./.test(c.userAgent),a=function(t){return f?function(n,r){return t(o(u,[].slice.call(arguments,2),"function"==typeof n?n:Function(n)),r)}:t};i(i.G+i.B+i.F*f,{setTimeout:a(e.setTimeout),setInterval:a(e.setInterval)})},function(t,n,r){r(330),r(269),r(271),r(270),r(273),r(275),r(280),r(274),r(272),r(282),r(281),r(277),r(278),r(276),r(268),r(279),r(283),r(284),r(236),r(238),r(237),r(286),r(285),r(256),r(266),r(267),r(257),r(258),r(259),r(260),r(261),r(262),r(263),r(264),r(265),r(239),r(240),r(241),r(242),r(243),r(244),r(245),r(246),r(247),r(248),r(249),r(250),r(251),r(252),r(253),r(254),r(255),r(317),r(322),r(329),r(320),r(312),r(313),r(318),r(323),r(325),r(308),r(309),r(310),r(311),r(314),r(315),r(316),r(319),r(321),r(324),r(326),r(327),r(328),r(231),r(233),r(232),r(235),r(234),r(220),r(218),r(224),r(221),r(227),r(229),r(217),r(223),r(214),r(228),r(212),r(226),r(225),r(219),r(222),r(211),r(213),r(216),r(215),r(230),r(155),r(302),r(307),r(184),r(303),r(304),r(305),r(306),r(287),r(183),r(185),r(186),r(342),r(331),r(332),r(337),r(340),r(341),r(335),r(338),r(336),r(339),r(333),r(334),r(288),r(289),r(290),r(291),r(292),r(295),r(293),r(294),r(296),r(297),r(298),r(299),r(301),r(300),r(343),r(369),r(372),r(371),r(373),r(374),r(370),r(375),r(376),r(354),r(357),r(353),r(351),r(352),r(355),r(356),r(346),r(368),r(377),r(345),r(347),r(349),r(348),r(350),r(359),r(360),r(362),r(361),r(364),r(363),r(365),r(366),r(367),r(344),r(358),r(380),r(379),r(378),t.exports=r(52)},function(t,n){function r(t,n){if("string"==typeof n)return t.insertAdjacentHTML("afterend",n);var r=t.nextSibling;return r?t.parentNode.insertBefore(n,r):t.parentNode.appendChild(n)}t.exports=r},,,,,,,,,function(t,n,r){(function(n,r){!function(n){"use strict";function e(t,n,r,e){var i=n&&n.prototype instanceof o?n:o,u=Object.create(i.prototype),c=new p(e||[]);return u._invoke=s(t,r,c),u}function i(t,n,r){try{return{type:"normal",arg:t.call(n,r)}}catch(t){return{type:"throw",arg:t}}}function o(){}function u(){}function c(){}function f(t){["next","throw","return"].forEach(function(n){t[n]=function(t){return this._invoke(n,t)}})}function a(t){function n(r,e,o,u){var c=i(t[r],t,e);if("throw"!==c.type){var f=c.arg,a=f.value;return a&&"object"==typeof a&&m.call(a,"__await")?Promise.resolve(a.__await).then(function(t){n("next",t,o,u)},function(t){n("throw",t,o,u)}):Promise.resolve(a).then(function(t){f.value=t,o(f)},u)}u(c.arg)}function e(t,r){function e(){return new Promise(function(e,i){n(t,r,e,i)})}return o=o?o.then(e,e):e()}"object"==typeof r&&r.domain&&(n=r.domain.bind(n));var o;this._invoke=e}function s(t,n,r){var e=P;return function(o,u){if(e===F)throw new Error("Generator is already running");if(e===M){if("throw"===o)throw u;return y()}for(r.method=o,r.arg=u;;){var c=r.delegate;if(c){var f=l(c,r);if(f){if(f===A)continue;return f}}if("next"===r.method)r.sent=r._sent=r.arg;else if("throw"===r.method){if(e===P)throw e=M,r.arg;r.dispatchException(r.arg)}else"return"===r.method&&r.abrupt("return",r.arg);e=F;var a=i(t,n,r);if("normal"===a.type){if(e=r.done?M:j,a.arg===A)continue;return{value:a.arg,done:r.done}}"throw"===a.type&&(e=M,r.method="throw",r.arg=a.arg)}}}function l(t,n){var r=t.iterator[n.method];if(r===g){if(n.delegate=null,"throw"===n.method){if(t.iterator.return&&(n.method="return",n.arg=g,l(t,n),"throw"===n.method))return A;n.method="throw",n.arg=new TypeError("The iterator does not provide a 'throw' method")}return A}var e=i(r,t.iterator,n.arg);if("throw"===e.type)return n.method="throw",n.arg=e.arg,n.delegate=null,A;var o=e.arg;return o?o.done?(n[t.resultName]=o.value,n.next=t.nextLoc,"return"!==n.method&&(n.method="next",n.arg=g),n.delegate=null,A):o:(n.method="throw",n.arg=new TypeError("iterator result is not an object"),n.delegate=null,A)}function h(t){var n={tryLoc:t[0]};1 in t&&(n.catchLoc=t[1]),2 in t&&(n.finallyLoc=t[2],n.afterLoc=t[3]),this.tryEntries.push(n)}function v(t){var n=t.completion||{};n.type="normal",delete n.arg,t.completion=n}function p(t){this.tryEntries=[{tryLoc:"root"}],t.forEach(h,this),this.reset(!0)}function d(t){if(t){var n=t[w];if(n)return n.call(t);if("function"==typeof t.next)return t;if(!isNaN(t.length)){var r=-1,e=function n(){for(;++r<t.length;)if(m.call(t,r))return n.value=t[r],n.done=!1,n;return n.value=g,n.done=!0,n};return e.next=e}}return{next:y}}function y(){return{value:g,done:!0}}var g,b=Object.prototype,m=b.hasOwnProperty,x="function"==typeof Symbol?Symbol:{},w=x.iterator||"@@iterator",S=x.asyncIterator||"@@asyncIterator",_=x.toStringTag||"@@toStringTag",O="object"==typeof t,E=n.regeneratorRuntime;if(E)return void(O&&(t.exports=E));E=n.regeneratorRuntime=O?t.exports:{},E.wrap=e;var P="suspendedStart",j="suspendedYield",F="executing",M="completed",A={},N={};N[w]=function(){return this};var T=Object.getPrototypeOf,I=T&&T(T(d([])));I&&I!==b&&m.call(I,w)&&(N=I);var k=c.prototype=o.prototype=Object.create(N);u.prototype=k.constructor=c,c.constructor=u,c[_]=u.displayName="GeneratorFunction",E.isGeneratorFunction=function(t){var n="function"==typeof t&&t.constructor;return!!n&&(n===u||"GeneratorFunction"===(n.displayName||n.name))},E.mark=function(t){return Object.setPrototypeOf?Object.setPrototypeOf(t,c):(t.__proto__=c,_ in t||(t[_]="GeneratorFunction")),t.prototype=Object.create(k),t},E.awrap=function(t){return{__await:t}},f(a.prototype),a.prototype[S]=function(){return this},E.AsyncIterator=a,E.async=function(t,n,r,i){var o=new a(e(t,n,r,i));return E.isGeneratorFunction(n)?o:o.next().then(function(t){return t.done?t.value:o.next()})},f(k),k[_]="Generator",k.toString=function(){return"[object Generator]"},E.keys=function(t){var n=[];for(var r in t)n.push(r);return n.reverse(),function r(){for(;n.length;){var e=n.pop();if(e in t)return r.value=e,r.done=!1,r}return r.done=!0,r}},E.values=d,p.prototype={constructor:p,reset:function(t){if(this.prev=0,this.next=0,this.sent=this._sent=g,this.done=!1,this.delegate=null,this.method="next",this.arg=g,this.tryEntries.forEach(v),!t)for(var n in this)"t"===n.charAt(0)&&m.call(this,n)&&!isNaN(+n.slice(1))&&(this[n]=g)},stop:function(){this.done=!0;var t=this.tryEntries[0],n=t.completion;if("throw"===n.type)throw n.arg;return this.rval},dispatchException:function(t){function n(n,e){return o.type="throw",o.arg=t,r.next=n,e&&(r.method="next",r.arg=g),!!e}if(this.done)throw t;for(var r=this,e=this.tryEntries.length-1;e>=0;--e){var i=this.tryEntries[e],o=i.completion;if("root"===i.tryLoc)return n("end");if(i.tryLoc<=this.prev){var u=m.call(i,"catchLoc"),c=m.call(i,"finallyLoc");if(u&&c){if(this.prev<i.catchLoc)return n(i.catchLoc,!0);if(this.prev<i.finallyLoc)return n(i.finallyLoc)}else if(u){if(this.prev<i.catchLoc)return n(i.catchLoc,!0)}else{if(!c)throw new Error("try statement without catch or finally");if(this.prev<i.finallyLoc)return n(i.finallyLoc)}}}},abrupt:function(t,n){for(var r=this.tryEntries.length-1;r>=0;--r){var e=this.tryEntries[r];if(e.tryLoc<=this.prev&&m.call(e,"finallyLoc")&&this.prev<e.finallyLoc){var i=e;break}}i&&("break"===t||"continue"===t)&&i.tryLoc<=n&&n<=i.finallyLoc&&(i=null);var o=i?i.completion:{};return o.type=t,o.arg=n,i?(this.method="next",this.next=i.finallyLoc,A):this.complete(o)},complete:function(t,n){if("throw"===t.type)throw t.arg;return"break"===t.type||"continue"===t.type?this.next=t.arg:"return"===t.type?(this.rval=this.arg=t.arg,this.method="return",this.next="end"):"normal"===t.type&&n&&(this.next=n),A},finish:function(t){for(var n=this.tryEntries.length-1;n>=0;--n){var r=this.tryEntries[n];if(r.finallyLoc===t)return this.complete(r.completion,r.afterLoc),v(r),A}},catch:function(t){for(var n=this.tryEntries.length-1;n>=0;--n){var r=this.tryEntries[n];if(r.tryLoc===t){var e=r.completion;if("throw"===e.type){var i=e.arg;v(r)}return i}}throw new Error("illegal catch attempt")},delegateYield:function(t,n,r){return this.delegate={iterator:d(t),resultName:n,nextLoc:r},"next"===this.method&&(this.arg=g),A}}}("object"==typeof n?n:"object"==typeof window?window:"object"==typeof self?self:this)}).call(n,function(){return this}(),r(158))}])</script><script src="/./main.0cf68a.js"></script><script>!function(){!function(e){var t=document.createElement("script");document.getElementsByTagName("body")[0].appendChild(t),t.setAttribute("src",e)}("/slider.e37972.js")}()</script>
 
 
+
+<script  async  src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     
 <div class="tools-col" q-class="show:isShow,hide:isShow|isFalse" q-on="click:stop(e)">
   <div class="tools-nav header-menu">
@@ -1059,6 +1544,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">80</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">IOS 学习笔记</a>
               </li>
             
             <div class="clearfix"></div>
