@@ -6,16 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>0xC4m3l</title>
+  <title>网络编程windows | 0xC4m3l</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="生活坏到一定程度就会好起来，因为它无法更坏。努力过后，才知道许多事情，坚持坚持，就过来了。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="0xC4m3l">
-<meta property="og:url" content="http://example.com/page/4/index.html">
+  <meta name="description" content="Windows 下的 编程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网络编程windows">
+<meta property="og:url" content="http://example.com/2021/05/25/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8Bwindows/index.html">
 <meta property="og:site_name" content="0xC4m3l">
-<meta property="og:description" content="生活坏到一定程度就会好起来，因为它无法更坏。努力过后，才知道许多事情，坚持坚持，就过来了。">
+<meta property="og:description" content="Windows 下的 编程">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-05-25T02:09:39.000Z">
+<meta property="article:modified_time" content="2021-05-25T02:11:02.646Z">
 <meta property="article:author" content="0xC4m3l">
+<meta property="article:tag" content="学习笔记">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="0xC4m3l" type="application/atom+xml">
@@ -155,353 +158,68 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-    <article id="post-llvm-学习(四) 实现FunctionInfo-Pass" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+            <article id="post-网络编程windows" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/15/llvm-%E5%AD%A6%E4%B9%A0(%E5%9B%9B)%20%E5%AE%9E%E7%8E%B0FunctionInfo-Pass/">llvm-学习(四) 实现FunctionInfo Pass</a>
+    <h1 class="article-title" itemprop="name">
+      网络编程windows
     </h1>
   
 
         <!--显示阅读次数-->
         
+          <br/>
+          <a class="cloud-tie-join-count" href="javascript:void(0);" style="color:gray;font-size:14px;">
+          <span class="icon-sort"></span>
+          <span id="busuanzi_container_page_pv" style="color:#ef7522;font-size:14px;">
+            阅读数: <span id="busuanzi_value_page_pv"></span>次 &nbsp;&nbsp;
+          </span>
+          </a>
+        
         <!--显示阅读次数完毕-->
         
-        <a href="/2020/07/15/llvm-%E5%AD%A6%E4%B9%A0(%E5%9B%9B)%20%E5%AE%9E%E7%8E%B0FunctionInfo-Pass/" class="archive-article-date">
-  	<time datetime="2020-07-15T12:39:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-15</time>
+        <a href="/2021/05/25/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8Bwindows/" class="archive-article-date">
+  	<time datetime="2021-05-25T02:09:39.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-05-25</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="最终目的"><a href="#最终目的" class="headerlink" title="最终目的"></a>最终目的</h2>
-        
-          <a class="article-more-a" href="/2020/07/15/llvm-%E5%AD%A6%E4%B9%A0(%E5%9B%9B)%20%E5%AE%9E%E7%8E%B0FunctionInfo-Pass/#more">more >></a>
-        
-      
+        <p>Windows 下的 编程</p>
+<span id="more"></span>
 
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">llvm学习</a>
-        		</li>
-      		
-		</ul>
-	</div>
+<h1 id="TCP"><a href="#TCP" class="headerlink" title="TCP"></a>TCP</h1><h2 id="Server"><a href="#Server" class="headerlink" title="Server"></a>Server</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TCPServer.cpp : 此文件包含 &quot;main&quot; 函数。程序执行将在此处开始并结束。</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _WINSOCK_DEPRECATED_NO_WARNINGS</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;WinSock2.h&gt;</span> <span class="comment">// 关键利用的 头文件</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">&quot;ws2_32.lib&quot;</span>)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">1. 创建 socket</span></span><br><span class="line"><span class="comment">2. 绑定对应 ip 端口</span></span><br><span class="line"><span class="comment">3. 对绑定的 ip 端口进行监听</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;TCP Server running!\n&quot;</span>;</span><br><span class="line">	WSADATA wsaData;</span><br><span class="line">	<span class="keyword">int</span> port = <span class="number">5099</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">char</span> buf[] = <span class="string">&quot;Server: hello, I am running!!!&quot;</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// windows 下 要对 WSAsock 库进行一个初始化</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">WSAStartup</span>(<span class="built_in">MAKEWORD</span>(<span class="number">2</span>, <span class="number">2</span>), &amp;wsaData) != <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		std::cout &lt;&lt; <span class="string">&quot;Failed to load Winsock\n&quot;</span>;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 创建用于监听的 套接字 利用socket 返回</span></span><br><span class="line">	SOCKET sockSrv = <span class="built_in">socket</span>(AF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 初始化</span></span><br><span class="line">	SOCKADDR_IN addrSrv;</span><br><span class="line">	addrSrv.sin_family = AF_INET;</span><br><span class="line">	addrSrv.sin_port = <span class="built_in">htons</span>(port); <span class="comment">//1024以上的端口号</span></span><br><span class="line">	addrSrv.sin_addr.S_un.S_addr = <span class="built_in">htonl</span>(INADDR_ANY);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 绑定对应的 数据</span></span><br><span class="line">	<span class="keyword">int</span> retVal = <span class="built_in">bind</span>(sockSrv, (LPSOCKADDR)&amp;addrSrv, <span class="built_in"><span class="keyword">sizeof</span></span>(SOCKADDR_IN));</span><br><span class="line">	<span class="keyword">if</span> (retVal == SOCKET_ERROR) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;Failed bind:%d\n&quot;</span>, <span class="built_in">WSAGetLastError</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 监听对应端口</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">listen</span>(sockSrv, <span class="number">10</span>) == SOCKET_ERROR) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;Listen failed:%d&quot;</span>, <span class="built_in">WSAGetLastError</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">		</span><br><span class="line">	<span class="comment">// 客户请求的基本数据</span></span><br><span class="line">	SOCKADDR_IN addrClient;</span><br><span class="line">	<span class="keyword">int</span> len = <span class="built_in"><span class="keyword">sizeof</span></span>(SOCKADDR);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 等待 客户请求到来</span></span><br><span class="line">	SOCKET sockConn = <span class="built_in">accept</span>(sockSrv, (SOCKADDR *)&amp;addrClient, &amp;len);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (sockConn == SOCKET_ERROR)</span><br><span class="line">	&#123;</span><br><span class="line">		std::cout &lt;&lt; <span class="string">&quot;Accept failed:&quot;</span> &lt;&lt; <span class="built_in">WSAGetLastError</span>() &lt;&lt; <span class="string">&quot;\n &quot;</span>;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Accept client IP:[%s]\n&quot;</span>, <span class="built_in">inet_ntoa</span>(addrClient.sin_addr));</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 发送消息</span></span><br><span class="line">	<span class="comment">// 利用 send 发送</span></span><br><span class="line">	<span class="keyword">int</span> iSend = <span class="built_in">send</span>(sockConn, buf, <span class="built_in"><span class="keyword">sizeof</span></span>(buf),<span class="number">0</span>);</span><br><span class="line">	<span class="keyword">if</span> (iSend == SOCKET_ERROR)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;send failed&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">char</span> recvbuf[<span class="number">100</span>];</span><br><span class="line">	<span class="built_in">memset</span>(recvbuf, <span class="number">0</span>, <span class="built_in"><span class="keyword">sizeof</span></span>(recvbuf));</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 接收数据</span></span><br><span class="line">	<span class="built_in">recv</span>(sockConn, recvbuf, <span class="built_in"><span class="keyword">sizeof</span></span>(recvbuf), <span class="number">0</span>);</span><br><span class="line">	std::cout &lt;&lt;  recvbuf &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="built_in">closesocket</span>(sockConn);</span><br><span class="line">	<span class="built_in">closesocket</span>(sockSrv);</span><br><span class="line">	<span class="comment">// 必须注销 winsock 相关的库</span></span><br><span class="line">	<span class="built_in">WSACleanup</span>();</span><br><span class="line">	<span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="Client"><a href="#Client" class="headerlink" title="Client"></a>Client</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TCPClient.cpp : 此文件包含 &quot;main&quot; 函数。程序执行将在此处开始并结束。</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _WINSOCK_DEPRECATED_NO_WARNINGS</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;WinSock2.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> comment(lib, <span class="meta-string">&quot;ws2_32.lib&quot;</span>)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    std::cout &lt;&lt; <span class="string">&quot;This is Client!\n&quot;</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 加载套接字</span></span><br><span class="line">	WSADATA wsaData;</span><br><span class="line">	<span class="keyword">char</span> buf[<span class="number">1024</span>];</span><br><span class="line">	<span class="built_in">memset</span>(buf, <span class="number">0</span>, <span class="built_in"><span class="keyword">sizeof</span></span>(buf));</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">WSAStartup</span>(<span class="built_in">MAKEWORD</span>(<span class="number">2</span>, <span class="number">2</span>), &amp;wsaData) != <span class="number">0</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		std::cout &lt;&lt; <span class="string">&quot;Failed to load Winsock&quot;</span> &lt;&lt; std::endl;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	SOCKADDR_IN addrSrv;</span><br><span class="line">	addrSrv.sin_family = AF_INET;</span><br><span class="line">	addrSrv.sin_port = <span class="built_in">htons</span>(<span class="number">5099</span>);</span><br><span class="line">	addrSrv.sin_addr.S_un.S_addr = <span class="built_in">inet_addr</span>(<span class="string">&quot;127.0.0.1&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建套接字</span></span><br><span class="line">	SOCKET sockClient = <span class="built_in">socket</span>(AF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">if</span> (sockClient == SOCKET_ERROR)</span><br><span class="line">	&#123;</span><br><span class="line">		std::cout &lt;&lt; <span class="string">&quot;Socket() error:&quot;</span> &lt;&lt; <span class="built_in">WSAGetLastError</span>() &lt;&lt; std::endl;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 向服务器发出连接请求</span></span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">connect</span>(sockClient, (struct  sockaddr*)&amp;addrSrv, <span class="built_in"><span class="keyword">sizeof</span></span>(addrSrv)) == INVALID_SOCKET) &#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;Connect failed:%d&quot;</span>, <span class="built_in">WSAGetLastError</span>());</span><br><span class="line">		<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// 接受数据</span></span><br><span class="line">		<span class="built_in">recv</span>(sockClient, buf, <span class="built_in"><span class="keyword">sizeof</span></span>(buf),<span class="number">0</span>);</span><br><span class="line">		std::cout &lt;&lt; buf &lt;&lt; std::endl;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 发送数据</span></span><br><span class="line">	<span class="keyword">char</span> *buffSend = (<span class="keyword">char</span> *)<span class="string">&quot;hello, this is a Client....!!&quot;</span>;</span><br><span class="line">	<span class="built_in">send</span>(sockClient, buffSend, <span class="built_in">strlen</span>(buffSend) + <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">	std::cout &lt;&lt; <span class="built_in">strlen</span>(buffSend) + <span class="number">1</span> &lt;&lt; <span class="string">&quot;  &quot;</span> &lt;&lt; buffSend &lt;&lt; std::endl;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 关闭套接字</span></span><br><span class="line">	<span class="built_in">closesocket</span>(sockClient);</span><br><span class="line">	<span class="built_in">WSACleanup</span>();</span><br><span class="line">	<span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line">		</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
 
       
 
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/15/llvm-%E5%AD%A6%E4%B9%A0(%E5%9B%9B)%20%E5%AE%9E%E7%8E%B0FunctionInfo-Pass/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
         </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-llvm-学习(三) 认识pass 加载pass" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/13/llvm-%E5%AD%A6%E4%B9%A0(%E4%B8%89)%20%E8%AE%A4%E8%AF%86pass%20%E5%8A%A0%E8%BD%BDpass/">llvm-学习(三) 认识pass 加载pass</a>
-    </h1>
-  
-
-        <!--显示阅读次数-->
-        
-        <!--显示阅读次数完毕-->
-        
-        <a href="/2020/07/13/llvm-%E5%AD%A6%E4%B9%A0(%E4%B8%89)%20%E8%AE%A4%E8%AF%86pass%20%E5%8A%A0%E8%BD%BDpass/" class="archive-article-date">
-  	<time datetime="2020-07-13T07:58:16.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-13</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>对于之前我们已经生成了对应的 so文件。</p>
-        
-          <a class="article-more-a" href="/2020/07/13/llvm-%E5%AD%A6%E4%B9%A0(%E4%B8%89)%20%E8%AE%A4%E8%AF%86pass%20%E5%8A%A0%E8%BD%BDpass/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">llvm学习</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/13/llvm-%E5%AD%A6%E4%B9%A0(%E4%B8%89)%20%E8%AE%A4%E8%AF%86pass%20%E5%8A%A0%E8%BD%BDpass/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-llvm-学习(二)动态链接库生成" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/12/llvm-%E5%AD%A6%E4%B9%A0(%E4%BA%8C)%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%E7%94%9F%E6%88%90/">llvm 学习(二) 动态链接库的生成</a>
-    </h1>
-  
-
-        <!--显示阅读次数-->
-        
-        <!--显示阅读次数完毕-->
-        
-        <a href="/2020/07/12/llvm-%E5%AD%A6%E4%B9%A0(%E4%BA%8C)%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%E7%94%9F%E6%88%90/" class="archive-article-date">
-  	<time datetime="2020-07-12T05:29:01.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-12</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>我们已经配置好了 llvm 的环境。</p>
-        
-          <a class="article-more-a" href="/2020/07/12/llvm-%E5%AD%A6%E4%B9%A0(%E4%BA%8C)%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%E7%94%9F%E6%88%90/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">llvm学习</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/12/llvm-%E5%AD%A6%E4%B9%A0(%E4%BA%8C)%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93%E7%94%9F%E6%88%90/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-llvm-学习(一) 介绍+安装llvm" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/11/llvm-%E5%AD%A6%E4%B9%A0(%E4%B8%80)%20%E4%BB%8B%E7%BB%8D+%E5%AE%89%E8%A3%85llvm/">llvm 学习(一) 介绍+安装llvm</a>
-    </h1>
-  
-
-        <!--显示阅读次数-->
-        
-        <!--显示阅读次数完毕-->
-        
-        <a href="/2020/07/11/llvm-%E5%AD%A6%E4%B9%A0(%E4%B8%80)%20%E4%BB%8B%E7%BB%8D+%E5%AE%89%E8%A3%85llvm/" class="archive-article-date">
-  	<time datetime="2020-07-11T03:16:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-11</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="LLVM-介绍"><a href="#LLVM-介绍" class="headerlink" title="LLVM 介绍"></a>LLVM 介绍</h2><p>LLVM是构架<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E7%BC%96%E8%AF%91%E5%99%A8/8853067">编译器</a>(compiler)的框架系统，以C++编写而成，用于优化以任意程序语言编写的程序的编译时间(compile-time)、链接时间(link-time)、运行时间(run-time)以及空闲时间(idle-time)，对开发者保持开放，并兼容已有脚本。</p>
-        
-          <a class="article-more-a" href="/2020/07/11/llvm-%E5%AD%A6%E4%B9%A0(%E4%B8%80)%20%E4%BB%8B%E7%BB%8D+%E5%AE%89%E8%A3%85llvm/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">llvm学习</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/11/llvm-%E5%AD%A6%E4%B9%A0(%E4%B8%80)%20%E4%BB%8B%E7%BB%8D+%E5%AE%89%E8%A3%85llvm/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Makefile-学习" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/10/Makefile-%E5%AD%A6%E4%B9%A0/">Makefile 学习</a>
-    </h1>
-  
-
-        <!--显示阅读次数-->
-        
-        <!--显示阅读次数完毕-->
-        
-        <a href="/2020/07/10/Makefile-%E5%AD%A6%E4%B9%A0/" class="archive-article-date">
-  	<time datetime="2020-07-10T14:10:59.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-10</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Makefile-学习"><a href="#Makefile-学习" class="headerlink" title="Makefile 学习"></a>Makefile 学习</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2>
-        
-          <a class="article-more-a" href="/2020/07/10/Makefile-%E5%AD%A6%E4%B9%A0/#more">more >></a>
-        
-      
-
       
     </div>
     <div class="article-info article-info-index">
@@ -521,16 +239,75 @@
       
 
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/10/Makefile-%E5%AD%A6%E4%B9%A0/">展开全文 >></a>
-        </p>
-      
 
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://example.com/2021/05/25/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8Bwindows/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
       
       <div class="clearfix"></div>
     </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+  
+    <a href="/2021/05/21/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%82%B9/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">网络编程基础知识点</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -545,254 +322,32 @@
         </div>
         
         
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-cool-compiler学习笔记" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/07/10/cool-compiler%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">cool compiler学习笔记</a>
-    </h1>
-  
-
-        <!--显示阅读次数-->
-        
-        <!--显示阅读次数完毕-->
-        
-        <a href="/2020/07/10/cool-compiler%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
-  	<time datetime="2020-07-10T08:30:16.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-07-10</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="pa2"><a href="#pa2" class="headerlink" title="pa2"></a>pa2</h1>
-        
-          <a class="article-more-a" href="/2020/07/10/cool-compiler%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">学习笔记</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/07/10/cool-compiler%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#TCP"><span class="toc-number">1.</span> <span class="toc-text">TCP</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Server"><span class="toc-number">1.1.</span> <span class="toc-text">Server</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Client"><span class="toc-number">1.2.</span> <span class="toc-text">Client</span></a></li></ol></li></ol>
+                    </div>
+                </span>
             </div>
         </div>
         
-        
     </div>
 </aside>
 
 
 
-
-  
-    <article id="post-mac-下的环境和pwndocker配置" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/06/29/mac-%E4%B8%8B%E7%9A%84%E7%8E%AF%E5%A2%83%E5%92%8Cpwndocker%E9%85%8D%E7%BD%AE/">mac 下的环境和pwndocker配置</a>
-    </h1>
-  
-
-        <!--显示阅读次数-->
-        
-        <!--显示阅读次数完毕-->
-        
-        <a href="/2020/06/29/mac-%E4%B8%8B%E7%9A%84%E7%8E%AF%E5%A2%83%E5%92%8Cpwndocker%E9%85%8D%E7%BD%AE/" class="archive-article-date">
-  	<time datetime="2020-06-29T13:10:25.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-29</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="Mac-下的环境换源"><a href="#Mac-下的环境换源" class="headerlink" title="Mac 下的环境换源"></a>Mac 下的环境换源</h1>
-        
-          <a class="article-more-a" href="/2020/06/29/mac-%E4%B8%8B%E7%9A%84%E7%8E%AF%E5%A2%83%E5%92%8Cpwndocker%E9%85%8D%E7%BD%AE/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">工具安装</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/06/29/mac-%E4%B8%8B%E7%9A%84%E7%8E%AF%E5%A2%83%E5%92%8Cpwndocker%E9%85%8D%E7%BD%AE/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-mac-下安装pwntools" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/06/29/mac-%E4%B8%8B%E5%AE%89%E8%A3%85pwntools/">mac 下安装pwntools</a>
-    </h1>
-  
-
-        <!--显示阅读次数-->
-        
-        <!--显示阅读次数完毕-->
-        
-        <a href="/2020/06/29/mac-%E4%B8%8B%E5%AE%89%E8%A3%85pwntools/" class="archive-article-date">
-  	<time datetime="2020-06-29T02:23:27.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-06-29</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="mac-下安装pwntools"><a href="#mac-下安装pwntools" class="headerlink" title="mac 下安装pwntools"></a>mac 下安装pwntools</h2><p>在Mac 中 安装pwntools </p>
-        
-          <a class="article-more-a" href="/2020/06/29/mac-%E4%B8%8B%E5%AE%89%E8%A3%85pwntools/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">工具安装</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2020/06/29/mac-%E4%B8%8B%E5%AE%89%E8%A3%85pwntools/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
   
   
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/3/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
-    </nav>
+  
+
+  
+
+  
+
   
 
 
@@ -826,8 +381,8 @@
     <script>
 	var yiliaConfig = {
 		mathjax: false,
-		isHome: true,
-		isPost: false,
+		isHome: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
