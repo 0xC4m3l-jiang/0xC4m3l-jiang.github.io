@@ -31,6 +31,20 @@
 	
 	
 &gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://example.com/p/testblog/image-20250330152411036.png&#34;
+	width=&#34;1081&#34;
+	height=&#34;532&#34;
+	srcset=&#34;https://example.com/p/testblog/image-20250330152411036_hu_ea69b6fd24b02923.png 480w, https://example.com/p/testblog/image-20250330152411036_hu_b195dbdc91419650.png 1024w&#34;
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;image-20250330152411036&#34;
+	
+	
+		class=&#34;gallery-image&#34; 
+		data-flex-grow=&#34;203&#34;
+		data-flex-basis=&#34;487px&#34;
+	
+&gt;&lt;/p&gt;
 </description>
         </item>
         <item>
