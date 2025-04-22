@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="windows 内核开发基础知识">
+<title>windows 内核开发 (1)</title>
+
+<link rel='canonical' href='https://example.com/p/windows-%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91-1/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="windows 内核开发 (1)">
+<meta property='og:description' content="windows 内核开发基础知识">
+<meta property='og:url' content='https://example.com/p/windows-%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91-1/'>
+<meta property='og:site_name' content='0xc4m3l'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-03-31T22:39:42&#43;08:00'/><meta property='article:modified_time' content='2025-03-31T22:39:42&#43;08:00'/>
+<meta name="twitter:title" content="windows 内核开发 (1)">
+<meta name="twitter:description" content="windows 内核开发基础知识">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_a0da62631147538a.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">0xc4m3l</a></h1>
+            <h2 class="site-description">从0开始学习</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/CaiJimmy/hugo-theme-stack'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>主页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>归档</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>暗色模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#processes-进程">Processes 进程</a></li>
+    <li><a href="#virtual-memory-虚拟内容">Virtual Memory 虚拟内容</a></li>
+    <li><a href="#system-memory">System Memory</a></li>
+    <li><a href="#threads-线程">Threads 线程</a></li>
+    <li><a href="#system-services-系统服务">System Services 系统服务</a></li>
+    <li><a href="#general-system-architecture-系统架构">General System Architecture 系统架构</a>
+      <ol>
+        <li>
+          <ol>
+            <li><a href="#用户进程user-processes"><strong>用户进程（User Processes）</strong></a></li>
+            <li><a href="#子系统dllsubsystem-dlls"><strong>子系统DLL（Subsystem DLLs）</strong></a></li>
+            <li><a href="#ntdlldllwindows-native-api层"><strong>NTDLL.DLL（Windows Native API层）</strong></a></li>
+            <li><a href="#服务进程service-processes"><strong>服务进程（Service Processes）</strong></a></li>
+            <li><a href="#执行体executive"><strong>执行体（Executive）</strong></a></li>
+            <li><a href="#内核层kernel"><strong>内核层（Kernel）</strong></a></li>
+            <li><a href="#设备驱动程序device-drivers"><strong>设备驱动程序（Device Drivers）</strong></a></li>
+            <li><a href="#win32ksyswindows子系统内核组件"><strong>Win32k.sys（Windows子系统内核组件）</strong></a></li>
+            <li><a href="#硬件抽象层hal-hardware-abstraction-layer"><strong>硬件抽象层（HAL, Hardware Abstraction Layer）</strong></a></li>
+            <li><a href="#系统进程system-processes"><strong>系统进程（System Processes）</strong></a></li>
+            <li><a href="#子系统进程subsystem-process"><strong>子系统进程（Subsystem Process）</strong></a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#handles-and-objects">Handles and Objects</a></li>
+    <li><a href="#object-names">Object Names</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/windows-%E5%86%85%E6%A0%B8%E5%BC%80%E5%8F%91-1/">windows 内核开发 (1)</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            windows 内核开发基础知识
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 31, 2025</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 16 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h1 id="介绍">介绍
+</h1><p>主要通过学习 《Windows Kernel Programming》，了解  windows 相关内核机制，进而实现对应 EDR，DLP能力，实现windows 企业安全监控。</p>
+<p>可做为中文学习资料。</p>
+<p>该书使用 C和C++作为代码示例: <a class="link" href="https://github.com/zodiacon/windowskernelprogrammingbook2e"  target="_blank" rel="noopener"
+    >https://github.com/zodiacon/windowskernelprogrammingbook2e</a></p>
+<h1 id="第一章-windows-internals-overview">第一章 Windows Internals Overview
+</h1><p>该章是windows的关键工作概念，需要理解这一章内容，为后续学习做基础。</p>
+<h2 id="processes-进程">Processes 进程
+</h2><p>是一个容器（containment）和 管理对象（ management object），程序的运行实例。</p>
+<p><code>线程</code> 是实际执行代码并实现技术意义上运行的实体。 （比较绕口hhh</p>
+<p>在Windows 内核架构中，线程（thread）作为调度的基本单位，核心是执行代码片段来实现 “运行” 的实质。</p>
+<p>流程如下：</p>
+<ul>
+<li><strong>可执行程序</strong> —— 包含初始代码和数据（用于进程代码执行）某些特殊进程（内核直接创建的进程）可能不存在可执行的映像文件。</li>
+<li><strong>私有虚拟地址空间</strong> —— 供进程内部代码按需分配内存的隔离地址域。</li>
+<li><strong>access token</strong> （primary token）令牌 —— 存储进程安全上下文的对象，并且提供给线程用于执行（除非线程通过模仿使用假设的不同令牌）</li>
+<li><strong>私有句柄表（private handle table）</strong> —— 用于管理进程执行对象的引用（事件、信号量、文件等）</li>
+<li><strong>一个或多个执行线程</strong> —— 常规用户模式进程在创建时默认包含一个线程（执行传统的main/WinMain函数）。不含线程的用户模式进程通常是无用的，在正常情况下会被内核销毁。</li>
+</ul>
+<p>书中提到的相关结构关系图：
+<img src="/image-20250403224717688.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20250403224717688"
+	
+	
+></p>
+<p><strong>PID：</strong></p>
+<p>process ID 为 进程的唯一标识，只要内核对象存在就是独一无二的。如果内核对象毁坏，那么这个ID可能会被分配个新的进程（process id 复用）。进程文件不能认为是进程的唯一标识。</p>
+<h2 id="virtual-memory-虚拟内容">Virtual Memory 虚拟内容
+</h2><p>每个进程都有它自己的虚拟私有线性地址空间。</p>
+<p>虚拟地址空间初试为空（或者接近空），<strong>可执行映像和NtDll.Dll会首先被映射，随后加载更多子系统DLL。</strong></p>
+<p>当主线程开始执行，会分配更多空间，加载更多的 DLLs。</p>
+<p>这个虚拟机空间是私有的。</p>
+<p><strong>地址空间范围从零开始（严格来说，首尾各64KB空间无法提交），其上限取决于进程&quot;位宽&quot;（32位或64位）与操作系统位宽的配合关系</strong></p>
+<p>基础介绍：</p>
+<ul>
+<li>
+<p>32位Windows 系统上的 32位进程，默认地址空间位 2GB。</p>
+</li>
+<li>
+<p>32位Windows 系统上的 32位进程，设置 <em>increase user virtual address space</em> 最大分配 3GB。且必须满足进程的可执行程序PE头设置 <code>LARGEADDRESSAWARE</code>链接器标志。</p>
+</li>
+<li>
+<p>64位程序（64位win上），这个地址为 8TB（win8 或 更早版本）或者 128TB（win 8.1 或之后版本呢）</p>
+</li>
+<li>
+<p>32位程序（64位win上），可执行程序PE头设置 <code>LARGEADDRESSAWARE</code>链接器标志，地址空间为 4GB，否者还是2GB。</p>
+</li>
+</ul>
+<p><strong>为什么是 2G：</strong></p>
+<p>​	因为在32位中，2GB地址空间仅需31位寻址，最高有效位（MSB/bit 31）原可供应用程序自由使用。</p>
+<ul>
+<li>2GB空间（0x00000000-0x7FFFFFFF）：bit 31始终为0</li>
+<li>扩展空间（0x80000000-0xFFFFFFFF）：bit 31=1</li>
+</ul>
+<p>虚拟地址为相对的，和物理内存（RAM）间接映射。且虚拟是从执行角度看，若内存已经映射到RAM，那么CPU会在访问数据之前完成虚拟到物理地址的转换；若内存未驻留，由转换表条目中的标志位指示），CPU将触发缺页异常，使内存管理器的缺页处理程序：</p>
+<ol>
+<li>从对应文件获取数据（当缺页有效时）</li>
+<li>复制到RAM</li>
+<li>更新映射该缓冲区的页表项</li>
+<li>通知CPU重试操作</li>
+</ol>
+<p>虚拟、物理地址映射如图：</p>
+<p><img src="/image-20250403231103991.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20250403231103991"
+	
+	
+></p>
+<p>内存的基本管理单位为 <strong>页 page</strong> 。</p>
+<p>内存相关的属性，均以页为单位进行管理，包含 保护标志或状态。</p>
+<p>页大小与CPU架构有关。</p>
+<p>Windows中标准页的大小为 4KB。</p>
+<p>win还支持大页：</p>
+<ul>
+<li><strong>x86/x64/ARM64架构</strong>：2MB</li>
+<li><strong>ARM32架构</strong>：4MB</li>
+</ul>
+<p>其实现原理是通过页目录项（PDE）直接映射大页，绕过页表层级。这种设计带来：</p>
+<ol>
+<li><strong>更快的地址转换</strong>（减少一次页表查询）</li>
+<li><strong>更高的TLB命中率</strong>（单个TLB条目可覆盖更大内存范围）</li>
+</ol>
+<p><strong>大页有什么缺点呢？</strong></p>
+<ol>
+<li>大页面需要在RAM中有连续的内存，如果内存紧张或非常碎片化，这可能会失败。</li>
+<li>大页面总是不可分页的。</li>
+<li>只能使用读/写保护。</li>
+</ol>
+<p>在 win10 和 win server 2016 中，有巨页的机制，支持 1GB。如果分配的大小至少为1 GB，则会自动对大页面使用这些方法，并且该大小可以定位为RAM中的连续大小。</p>
+<p><strong>Page State</strong></p>
+<p>在虚拟内存中的每个也都有下面三种状态中的一种：</p>
+<p><strong>1. 空闲状态（Free）</strong></p>
+<ul>
+<li><strong>定义</strong>：
+页面完全未分配，无任何有效内容。访问此类页面将触发<strong>访问违规异常</strong>（<code>ACCESS_VIOLATION</code>）。</li>
+<li><strong>典型场景</strong>：
+新创建进程的绝大多数页面初始状态为 Free。</li>
+<li><strong>内核数据结构</strong>：
+通过 <code>MMFREE_POOL_ENTRY</code> 结构维护空闲页链表。</li>
+</ul>
+<p><strong>2. 已提交状态（Committed）</strong></p>
+<ul>
+<li><strong>定义</strong>：
+页面已分配且可正常访问（前提是保护属性匹配，例如写入只读页仍会触发异常）。
+提交页可能映射到：
+<ul>
+<li><strong>物理内存（RAM）</strong></li>
+<li><strong>文件映射</strong>（如页面文件、内存映射文件）</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 保留状态（Reserved）</strong></p>
+<ul>
+<li><strong>定义</strong>：
+页面未提交，但虚拟地址范围被预留，禁止其他分配器占用。
+<strong>CPU视角</strong>：与 Free 状态行为一致（访问触发异常），但地址空间被锁定。</li>
+<li><strong>核心用途</strong>：
+<ul>
+<li>维护虚拟地址连续性（如线程栈的渐进式提交）</li>
+<li>减少物理内存占用（延迟提交）</li>
+</ul>
+</li>
+</ul>
+<h2 id="system-memory">System Memory
+</h2><ul>
+<li>
+<p>用户模式分区 （User-mode space）</p>
+</li>
+<li>
+<p>内核模式分区（User-mode space）</p>
+</li>
+</ul>
+<p>操作系统也必须驻留在某个地方——这个地方是系统支持的最高地址范围，如下所示：</p>
+<ul>
+<li>
+<p>在没有设置 <em>increase user virtual address space</em> 的32位win系统上，虚拟空间上部分 2GB  0x80000000 to 0xFFFFFFFF</p>
+</li>
+<li>
+<p>如果设置 <em>increase user virtual address space</em> 的32位win系统， 3GB，对应的地址为 0xC0000000 to 0xFFFFFFFF</p>
+</li>
+<li>
+<p>64位的 Windows 8, Server 2012 and earlier，为 8TB</p>
+</li>
+<li>
+<p>64位的 Windows 8.1, Server 2012 R2 and later, 为128TB</p>
+</li>
+</ul>
+<p>user process 和 System space 如图结构</p>
+<p><img src="/image-20250403235123204.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20250403235123204"
+	
+	
+></p>
+<p>系统空间和进程是没有关系的，它是为系统总的所有进程服务的相同驱动程序。</p>
+<p>系统空间地址不是相对的，对于进程上下文中看起来都是相同的，当然，从用户模式到系统空间的实际访问会导致访问冲突异常。</p>
+<p><strong>系统空间是内核本身、硬件抽象层(HAL)以及已加载的内核驱动程序所在的区域。</strong></p>
+<p>用户模式进程在其生命周期结束后不会留下任何资源泄漏——内核会负责关闭和释放已终止进程的所有私有资源(包括关闭所有句柄和释放所有私有内存)。</p>
+<h2 id="threads-线程">Threads 线程
+</h2><p>这是代码运行的实际实体，线程包含在进程中，使用进程公开的资源来完成工作（例如虚拟内存和内核对象的句柄）</p>
+<ul>
+<li>有对应运行模式，用户模式和内核模式</li>
+<li>执行上下文，包含寄存器和运行状态。</li>
+<li>一个或两个stack，用于本地变量分配和调用管理。</li>
+<li>Thread Local Storage （TLS），提供了一种使用统一访问语义存储线程私有数据的方法</li>
+<li>Base priority and a current (dynamic) priority.</li>
+<li>处理器亲和性，指示线程允许在哪个处理器上运行。</li>
+</ul>
+<p>线程常见状态：</p>
+<ul>
+<li>
+<p>Running</p>
+</li>
+<li>
+<p>Ready</p>
+</li>
+<li>
+<p>Waiting</p>
+</li>
+</ul>
+<p>线程状态示意图：</p>
+<p><img src="/image-20250405195947162.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20250405195947162"
+	
+	
+></p>
+<p><strong>1. 堆栈的核心功能</strong></p>
+<ul>
+<li><strong>存储内容</strong>：
+<ul>
+<li>函数调用时的返回地址</li>
+<li>局部变量</li>
+<li>部分架构中传递的函数参数（如x86）</li>
+</ul>
+</li>
+<li><strong>执行依赖</strong>：线程执行期间必须依赖堆栈完成函数调用链和局部数据管理。</li>
+</ul>
+<p><strong>2. 双堆栈设计（用户态与内核态）</strong></p>
+<ul>
+<li><strong>内核堆栈（Kernel Stack）</strong>：
+<ul>
+<li><strong>位置</strong>：始终位于内核空间。</li>
+<li><strong>驻留性</strong>：线程处于<strong>运行/就绪状态</strong>时，强制驻留RAM（不可换出）。</li>
+<li><strong>默认大小</strong>：
+<ul>
+<li>32位系统：12 KB</li>
+<li>64位系统：24 KB</li>
+</ul>
+</li>
+<li><strong>特性</strong>：固定大小，无动态扩展机制。</li>
+</ul>
+</li>
+<li><strong>用户堆栈（User Stack）</strong>：
+<ul>
+<li><strong>位置</strong>：进程用户空间内。</li>
+<li><strong>驻留性</strong>：可被页文件换出（与普通用户内存行为一致）。</li>
+<li><strong>默认上限</strong>：通常可扩展至1 MB。</li>
+<li><strong>动态扩展机制</strong>：
+<ol>
+<li><strong>初始提交</strong>：仅提交少量内存（如1个页面）。</li>
+<li><strong>保护页</strong>：相邻下一页标记为<code>PAGE_GUARD</code>，触发访问异常。</li>
+<li><strong>按需扩展</strong>：
+<ul>
+<li>线程访问保护页时触发缺页异常→内存管理器提交新页→更新保护页位置。</li>
+</ul>
+</li>
+<li><strong>保留空间</strong>：未使用的地址空间仅保留（不占用物理内存）。</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>3. 多线程示例</strong></p>
+<ul>
+<li>
+<p><strong>进程A</strong>：包含线程1、线程2（各自独立的用户堆栈）。</p>
+</li>
+<li>
+<p><strong>进程B</strong>：包含线程3（堆栈与其他进程隔离）。</p>
+<p><img src="/image-20250420140235262.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20250420140235262"
+	
+	
+></p>
+</li>
+</ul>
+<p><strong>4. 设计优势</strong></p>
+<ul>
+<li><strong>内存效率</strong>：避免提前提交全部堆栈空间（如1 MB仅保留虚拟地址，按需分配物理页）。</li>
+<li><strong>安全性</strong>：保护页机制防止堆栈溢出破坏相邻内存区域。</li>
+</ul>
+<p>Windows大多数情况下 使用 三个保护页</p>
+<p><img src="/image-20250420192049166.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20250420192049166"
+	
+	
+></p>
+<ol>
+<li><strong>默认值由PE头决定</strong>
+线程用户栈的默认<strong>保留大小</strong>和<strong>初始提交大小</strong>由可执行文件的PE头定义。进程的<strong>主线程</strong>必须使用这些默认值，而其他线程若不指定参数，也会继承PE头的默认设置。</li>
+<li><strong>线程创建时可自定义堆栈大小</strong>
+通过<code>CreateThread</code>等函数创建线程时，可<strong>单独指定初始提交大小或保留大小</strong>（需配合标志位选择），若传0则回退到PE头默认值。主线程的堆栈大小不可自定义，始终采用PE头设定。</li>
+</ol>
+<p>函数CreateThread和CreateRemoteThread（Ex）只允许指定堆栈大小的单个值，可以是提交的或保留的大小，但不能两者都指定。本机（未记录）函数NtCreateThreadEx允许指定这两个值。</p>
+<p><strong>关键点总结表</strong></p>
+<div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th style="text-align: left"><strong>特性</strong></th>
+          <th style="text-align: left"><strong>内核堆栈</strong></th>
+          <th style="text-align: left"><strong>用户堆栈</strong></th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left"><strong>空间归属</strong></td>
+          <td style="text-align: left">内核地址空间</td>
+          <td style="text-align: left">用户进程地址空间</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><strong>物理内存驻留</strong></td>
+          <td style="text-align: left">始终驻留RAM</td>
+          <td style="text-align: left">可被换出</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><strong>大小</strong></td>
+          <td style="text-align: left">固定（12/24 KB）</td>
+          <td style="text-align: left">动态扩展（默认上限1 MB）</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><strong>扩展机制</strong></td>
+          <td style="text-align: left">不支持扩展</td>
+          <td style="text-align: left">保护页触发的按需提交</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><strong>多线程共享</strong></td>
+          <td style="text-align: left">每个线程独立</td>
+          <td style="text-align: left">同一进程的线程间隔离</td>
+      </tr>
+  </tbody>
+</table></div>
+<h2 id="system-services-系统服务">System Services 系统服务
+</h2><p>应用程序需要执行各种不纯计算性的操作，例如分配内存、打开文件、创建线程等。这些操作最终只能由在内核模式下运行的代码执行。那么用户模式代码如何能够执行这些操作呢？</p>
+<p><strong>例子：使用 notepad 使用File / Open菜单请求打开一个文件。</strong></p>
+<p><strong>1. 用户态API调用链</strong></p>
+<ul>
+<li>**应用程序（如Notepad）**调用 <strong><code>CreateFile</code></strong>（文档化的Windows API），该函数位于 <strong><code>kernel32.dll</code></strong>（Windows子系统DLL）。
+<ul>
+<li><strong>关键点</strong>：<code>CreateFile</code> 仍在<strong>用户模式</strong>下运行，无法直接操作硬件或文件系统。</li>
+</ul>
+</li>
+<li><strong><code>CreateFile</code></strong> 在参数校验后，调用 <strong><code>NtCreateFile</code></strong>（实际执行文件操作的底层函数）。
+<ul>
+<li><strong><code>NtCreateFile</code></strong> 位于 <strong><code>NTDLL.dll</code></strong>（Windows <strong>Native API</strong> 的实现层），是用户模式下最接近内核的接口。</li>
+<li><strong>用途</strong>：<code>NTDLL.dll</code> 提供的Native API是Windows内核的“门面”，专为系统调用（syscall）设计。</li>
+</ul>
+</li>
+</ul>
+<p><strong>2. 用户态到内核态的切换机制</strong></p>
+<ul>
+<li><strong>系统调用编号（Service Number）</strong>：
+<ul>
+<li><code>NtCreateFile</code> 在触发内核切换前，会将一个<strong>系统服务编号</strong>（唯一标识请求的操作）存入CPU寄存器（x86/x64架构下为 <strong>EAX</strong>）。</li>
+</ul>
+</li>
+<li><strong>特殊CPU指令</strong>：
+<ul>
+<li><strong>x86架构</strong>：执行 <strong><code>sysenter</code></strong> 指令。</li>
+<li><strong>x64架构</strong>：执行 <strong><code>syscall</code></strong> 指令。</li>
+<li><strong>作用</strong>：通过硬件指令强制切换到<strong>内核模式</strong>，并跳转到内核预定义的<strong>系统服务分发器</strong>（System Service Dispatcher）。</li>
+</ul>
+</li>
+<li><strong>内核响应</strong>：
+<ul>
+<li>内核根据EAX中的编号，定位到对应的内核函数（如文件管理、设备驱动等），完成实际操作（如打开文件）。</li>
+</ul>
+</li>
+</ul>
+<p><img src="/image-20250420201127353.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20250420201127353"
+	
+	
+></p>
+<p>在进度内核层时，使用系统服务分发器（System Service Dispatcher）。</p>
+<ul>
+<li>当CPU通过<code>syscall</code>/<code>sysenter</code>进入内核模式后，控制权交给<strong>系统服务分发器</strong>。
+<ul>
+<li>获取 EAX 寄存处保存的 系统服务编号。</li>
+<li>查询SSDT获取对应的系统调用函数指针。</li>
+<li>跳转到对应 地址执行。</li>
+</ul>
+</li>
+<li>调用完成返回用户模式。
+<ul>
+<li>CPU通过<code>sysexit</code>（x86）或<code>sysret</code>（x64）指令<strong>返回用户模式</strong>。</li>
+<li>线程继续执行<code>syscall</code>/<code>sysenter</code>之后的指令（即<code>NTDLL.dll</code>中的后续代码）。</li>
+<li>返回值通过寄存器（如EAX）或栈传递回用户态，最终由<code>CreateFile</code>返回给应用程序（如Notepad）。</li>
+</ul>
+</li>
+</ul>
+<h2 id="general-system-architecture-系统架构">General System Architecture 系统架构
+</h2><p>系统架构图：</p>
+<p><img src="/image-20250420203107898.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20250420203107898"
+	
+	
+></p>
+<p><strong>对应解释</strong></p>
+<ul>
+<li>
+<h4 id="用户进程user-processes"><strong>用户进程（User Processes）</strong>
+</h4></li>
+</ul>
+<p>​	基于可执行文件运行进程。</p>
+<p>​	运行在用户模式，无法直接访问硬件或内核资源。</p>
+<p>​	通过调用子系统DLL 或 Native API 与 操作系统交互</p>
+<ul>
+<li>
+<h4 id="子系统dllsubsystem-dlls"><strong>子系统DLL（Subsystem DLLs）</strong>
+</h4><p>实现win子系统 API 的动态链接库，提供内核功能的封装。</p>
+<p>提供<strong>官方文档化的Windows API</strong>（如<code>CreateFile</code>、<code>MessageBox</code>）。</p>
+<p>kernel32.dll，user32.dll 等。</p>
+<p>从Windows 8.1起，仅保留<strong>Windows子系统</strong>（不再支持POSIX/OS2等旧子系统）。</p>
+</li>
+<li>
+<h4 id="ntdlldllwindows-native-api层"><strong>NTDLL.DLL（Windows Native API层）</strong>
+</h4><p>用户模式下最底层的系统组件，核心功能有两个。</p>
+<ol>
+<li><strong>系统调用桥接</strong>：
+<ul>
+<li>实现<code>NtCreateFile</code>、<code>NtOpenProcess</code>等<strong>Native API</strong>，通过<code>syscall</code>/<code>sysenter</code>切换到内核模式。</li>
+<li>是用户态与内核态交互的<strong>唯一入口</strong>。</li>
+</ul>
+</li>
+<li><strong>关键用户态功能</strong>：
+<ul>
+<li><strong>堆管理器（Heap Manager）</strong>：管理进程内存分配（如<code>malloc</code>/<code>free</code>的底层实现）。</li>
+<li><strong>映像加载器（Image Loader）</strong>：加载DLL/EXE文件（解析PE结构、处理导入表）。</li>
+<li><strong>用户态线程池</strong>：部分线程池逻辑在此实现。</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<h4 id="服务进程service-processes"><strong>服务进程（Service Processes）</strong>
+</h4></li>
+</ul>
+<p>​	与**服务控制管理器（SCM，services.exe）**交互的特殊进程。</p>
+<p>​	由SCM管理生命周期（启动、停止、暂停、恢复）接收SCM发送的控制命令。</p>
+<p>​	通常以以下内置账户运行：</p>
+<p>​	<strong>Local System</strong>：最高权限，等同系统内核。</p>
+<p>​	<strong>Network Service</strong>：网络相关操作权限。</p>
+<p>​	<strong>Local Service</strong>：本地低权限服务。</p>
+<ul>
+<li>
+<h4 id="执行体executive"><strong>执行体（Executive）</strong>
+</h4><p>位于<code>Ntoskrnl.exe</code>（Windows内核镜像）的上层，是内核模式的主要代码载体。</p>
+<p>主要包含 <strong>对象管理器（Object Manager）</strong>、<strong>内存管理器（Memory Manager）</strong>、<strong>I/O管理器（I/O Manager）</strong>、<strong>即插即用管理器（Plug &amp; Play Manager）</strong>、<strong>电源管理器（Power Manager）</strong>、<strong>配置管理器（Configuration Manager）</strong></p>
+<p><strong>不涉及最底层硬件操作</strong>。提供结构化接口供驱动程序调用（如<code>ExAllocatePool</code>内存分配API）。</p>
+</li>
+<li>
+<h4 id="内核层kernel"><strong>内核层（Kernel）</strong>
+</h4></li>
+</ul>
+<p>​	<code>Ntoskrnl.exe</code>的下层，处理与硬件紧密交互的核心功能。</p>
+<p>​	<strong>核心职责</strong>：</p>
+<p>​		<strong>线程调度</strong>：时间片分配、上下文切换（通过<code>KiSwapThread</code>等函数）。</p>
+<p>​		<strong>中断/异常处理</strong>：CPU中断请求（IRQ）和异常的首次响应（如缺页异常）。</p>
+<p>​		<strong>同步原语实现</strong>：自旋锁（Spinlock）、互斥体（Mutex）、信号量（Semaphore）的原子操作。</p>
+<p>​	部分代码直接以汇编实现。直接操作CPU寄存器</p>
+<ul>
+<li>
+<h4 id="设备驱动程序device-drivers"><strong>设备驱动程序（Device Drivers）</strong>
+</h4></li>
+</ul>
+<p>​	动态加载的内核模块（<code>.sys</code>文件），扩展内核功能。</p>
+<p>​	代码运行在<strong>内核模式</strong>，拥有与Executive同级的权限（可访问所有内存）。</p>
+<p>​	<strong>需要注意：处理IRP、内存安全（避免蓝屏）、与Executive的交互。</strong></p>
+<ul>
+<li>
+<h4 id="win32ksyswindows子系统内核组件"><strong>Win32k.sys（Windows子系统内核组件）</strong>
+</h4></li>
+</ul>
+<p>​	将用户态GUI请求转换为内核操作。</p>
+<p>​	<strong>主要负责：窗口管理、图形渲染。</strong></p>
+<p>​	其他内核组件（如内存管理器）对UI无感知，通过Win32k.sys抽象交互。</p>
+<p>​	现代Windows中，部分功能已迁移至<strong>DirectX/DWM</strong>（桌面窗口管理器）。</p>
+<ul>
+<li>
+<h4 id="硬件抽象层hal-hardware-abstraction-layer"><strong>硬件抽象层（HAL, Hardware Abstraction Layer）</strong>
+</h4></li>
+</ul>
+<p>​	屏蔽硬件差异，为驱动提供统一硬件接口。</p>
+<p>​	抽象关键硬件组件：中断控制器（APIC/IOAPIC）、DMA控制器、时钟管理（HPET/ACPI PM Timer）</p>
+<ul>
+<li>
+<h4 id="系统进程system-processes"><strong>系统进程（System Processes）</strong>
+</h4><p>维持OS核心功能的原生进程，特点包括：</p>
+<ul>
+<li>仅依赖NTAPI（不调用<code>kernel32.dll</code>等子系统API）</li>
+<li>多数以<code>SYSTEM</code>权限运行</li>
+<li>终止会导致系统崩溃（蓝屏）</li>
+</ul>
+</li>
+<li>
+<h4 id="子系统进程subsystem-process"><strong>子系统进程（Subsystem Process）</strong>
+</h4></li>
+</ul>
+<p>​	Windows子系统（唯一现存子系统）的<strong>用户态管理进程</strong>，协助内核管理子系统相关功能。</p>
+<p>​	负责进程/线程的<strong>子系统级初始化</strong>、<strong>控制台支持</strong>（如<code>cmd.exe</code>）和<strong>异常处理转发</strong>。</p>
+<p>​	Csrss.exe是Windows子系统的“用户态管家”，<strong>每会话独立运行</strong>，崩溃会导致系统蓝屏，是操作系统稳定性的关键组件之一。</p>
+<ul>
+<li><strong>Hyper-V 管理程序与基于虚拟化的安全性（Hyper-V Hypervisor）</strong></li>
+</ul>
+<p>​	Hyper-V 管理程序在支持虚拟化安全（VBS）的 Windows 系统中运行，将常规操作系统作为虚拟机管理，并通过两个虚拟信任级别（VTL）增强安全性——VTL 0 运行普通系统和内核，而 VTL 1 运行安全内核和隔离用户模式，为关键安全功能提供硬件级防护。这种架构能有效防御内核攻击，但需要特定硬件支持并可能略微影响性能。</p>
+<h2 id="handles-and-objects">Handles and Objects
+</h2><p>​	Windows内核通过对象管理器为用户态进程、内核自身及驱动提供多种内核对象，这些对象本质是系统地址空间中的数据结构，使用Object manager 创建，采用引用计数机制管理生命周期——仅当最后一个引用释放时对象才会被销毁并释放内存。</p>
+<p>（注：内核对象包括文件、线程、事件等类型，由用户态API或内核代码发起创建请求后，由执行体中的对象管理器统一构造和管理。）</p>
+<p>​	由于这些对象实例驻留在系统空间（内核内存），用户模式代码无法直接访问它们，必须通过一种间接访问机制——**句柄（handle）**来实现。句柄本质上是 <strong>进程私有句柄表</strong>（存储于内核空间）的索引项，该表每个进程独立维护，通过句柄表中的条目最终指向系统空间中的内核对象。</p>
+<p>​	例如：用户模式函数<code>CreateMutex</code>允许创建或打开互斥体对象（根据该命名对象是否存在而定）。若操作成功，函数将返回该对象的有效句柄；返回值为零则表示无效句柄（即函数调用失败）。而<code>OpenMutex</code>函数则尝试打开已命名的互斥体句柄——若指定名称的互斥体不存在，函数将返回空值（0）表示操作失败。</p>
+<p>在内核中，可以直接使用 Handle 也可以 直接通过指针访问 Object，具体选择通常取决于 调用的 API 类型。某些情况下，当驱动程序需要将用户模式传递来的句柄转换为有效指针时，必须调用<code>ObReferenceObjectByHandle</code>函数来完成转换。</p>
+<blockquote>
+<p>句柄值是4的倍数，其中第一个有效句柄为4；且0为无效句柄。</p></blockquote>
+<p>需要注意两点：</p>
+<ol>
+<li><strong>防悬垂指针</strong>
+即使用户态持有者关闭了句柄，内核代码持有的指针仍能安全访问对象——因为引用计数保证了对象存活。</li>
+<li><strong>显式释放责任</strong>
+内核代码必须通过<code>ObDereferenceObject</code>递减引用计数，否则会导致<strong>资源泄漏</strong>（该泄漏仅能通过系统重启回收）</li>
+</ol>
+<p>对于内核对象的生命周期管理，主要Object Manager 维护了两个关键技术：句柄计数 和 总引用计数。</p>
+<p>当对象不再需要时：</p>
+<ol>
+<li><strong>用户态程序</strong>应调用<code>CloseHandle</code>关闭句柄</li>
+<li><strong>内核态代码</strong>需调用<code>ObDereferenceObject</code>递减引用</li>
+</ol>
+<p>此后，必须视该句柄/指针为<strong>永久失效状态</strong>。当对象的引用计数归零时，对象管理器将自动销毁该对象并回收其内存资源。</p>
+<h2 id="object-names">Object Names
+</h2><p>对象分为：无名对象  和 命名对象</p>
+<p>并非所有对象都支持命名，例如：</p>
+<ul>
+<li>进程/线程对象仅通过数字ID标识（故 OpenProcess/OpenThread 需传入进程/线程ID）</li>
+<li>文件对象名称 ≠ 内核对象名称（二者属于不同维度的标识体系）</li>
+</ul>
+<p>命名对象具备跨进程共享能力，例如：</p>
+<ul>
+<li>命名互斥体（Mutex）可用于进程间同步</li>
+<li>命名事件（Event）允许不同进程监听同一信号</li>
+</ul>
+<p>在用户模式代码中，调用带有名称参数的 Create 系列函数（如 CreateMutex）时，系统会遵循以下行为规则：</p>
+<ol>
+<li><strong>对象不存在时</strong>
+函数会创建并返回一个全新命名对象的句柄</li>
+<li><strong>对象已存在时</strong>
+函数不会创建新对象，而是：</li>
+</ol>
+<ul>
+<li>返回指向现有对象的另一个有效句柄</li>
+<li>通过 GetLastError() 返回 ERROR_ALREADY_EXISTS（错误码 183）</li>
+<li>引用计数会增加，但不会重复创建同名对象</li>
+</ul>
+<p>使用 WinObj 可以查看对应的 Object 对象</p>
+<p><a class="link" href="https://learn.microsoft.com/zh-cn/sysinternals/downloads/winobj"  target="_blank" rel="noopener"
+    >WinObj - Sysinternals | Microsoft Learn</a></p>
+<p>使用管理员打开</p>
+<p><img src="/image-20250422222305950.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20250422222305950"
+	
+	
+></p>
+<p><strong>普通会话进程</strong></p>
+<p>名称会被添加 <code>\Sessions\&lt;会话ID&gt;\BaseNamedObjects\</code> 前缀</p>
+<p>会话0（服务会话）的对象直接使用 <code>\BaseNamedObjects\</code> 前缀</p>
+<p><strong>AppContainer 进程</strong></p>
+<p><code>\Sessions\&lt;会话ID&gt;\AppContainerNamedObjects\{AppContainerSID}\&lt;/会话ID&gt;</code></p>
+<p><img src="/image-20250422222707225.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20250422222707225"
+	
+	
+></p>
+<p>进程句柄也可以使用 process explorer 进行查看。</p>
+<p><img src="/image-20250422223255629.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="image-20250422223255629"
+	
+	
+></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script>
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2025 0xc4m3l
+    </section>
+    
+    <section class="powerby">
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 构建 <br />
+        主题 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 设计
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.1e9a3bafd846ced4c345d084b355fb8c7bae75701c338f8a1f8a82c780137826.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
